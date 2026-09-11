@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, User as UserIcon, Phone, MapPin, Building, ShieldCheck, Check, Sparkles, Truck, HandMetal, ArrowLeftRight, Globe } from 'lucide-react'
 import { User, TradeMethod } from '@/types'
-import { COUNTRIES } from '@/components/auth-modal'
+import { COUNTRIES, TURKEY_CITIES } from '@/data/locations'
 
 interface EditProfileModalProps {
   isOpen: boolean
@@ -11,11 +11,6 @@ interface EditProfileModalProps {
   currentUser: User
   onUpdateUser: (updated: User) => void
 }
-
-const TURKEY_CITIES = [
-  'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 
-  'Gaziantep', 'Kocaeli', 'Mersin', 'Eskişehir', 'Kayseri', 'Samsun', 'Trabzon', 'Diğer'
-]
 
 const AVATAR_OPTIONS = [
   'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',

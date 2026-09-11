@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import { X, Plus, ArrowLeftRight, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, HelpCircle } from 'lucide-react'
 import { categories } from '@/data/mockData'
+import { TURKEY_CITIES, COUNTRIES } from '@/data/locations'
 import { TradeItem, ItemCondition, TradeMethod } from '@/types'
 import { detectCashKeywords } from '@/lib/cashFilter'
 
@@ -278,14 +279,22 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 </label>
                 <select
                   value={country}
-                  onChange={e => setCountry(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  onChange={e => {
+                    const val = e.target.value
+                    setCountry(val)
+                    if (val === 'TR') {
+                      setCity('İstanbul')
+                    } else {
+                      setCity('')
+                    }
+                  }}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                 >
-                  <option value="TR">Türkiye (TR)</option>
-                  <option value="DE">Almanya (DE)</option>
-                  <option value="UK">Birleşik Krallık (UK)</option>
-                  <option value="US">Amerika Birleşik Devletleri</option>
-                  <option value="GLOBAL">Küresel / Online</option>
+                  {COUNTRIES.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -293,14 +302,26 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
                   Şehir / Bölge
                 </label>
-                <input
-                  type="text"
-                  required
-                  value={city}
-                  onChange={e => setCity(e.target.value)}
-                  placeholder="İstanbul (Kadıköy)"
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                />
+                {country === 'TR' ? (
+                  <select
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                  >
+                    {TURKEY_CITIES.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    required
+                    value={city}
+                    onChange={e => setCity(e.target.value)}
+                    placeholder="Örn: Berlin, Londra, Bakü"
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  />
+                )}
               </div>
             </div>
 

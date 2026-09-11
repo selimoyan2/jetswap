@@ -11,6 +11,8 @@ interface QuickTimeFilterProps {
   setLocationScope: (scope: LocationFilterScope) => void
   userCity?: string
   userDistrict?: string
+  isLoggedIn?: boolean
+  onRequireLogin?: (promptReason?: string) => void
   counts?: {
     today: number
     yesterday: number
@@ -29,6 +31,8 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
   setLocationScope,
   userCity = 'İstanbul',
   userDistrict = 'Kadıköy',
+  isLoggedIn = false,
+  onRequireLogin,
   counts,
 }) => {
   return (
@@ -163,8 +167,14 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
             {/* Yakınımdaki Takaslar (Semt) */}
             <button
               type="button"
-              onClick={() => setLocationScope(locationScope === 'nearby' ? 'all' : 'nearby')}
-              title={`Semtiniz: ${userDistrict}`}
+              onClick={() => {
+                if (!isLoggedIn && onRequireLogin) {
+                  onRequireLogin('Bulunduğunuz semtteki takas ilanlarını listelemek için lütfen giriş yapın veya kayıt olun.')
+                  return
+                }
+                setLocationScope(locationScope === 'nearby' ? 'all' : 'nearby')
+              }}
+              title={isLoggedIn ? `Semtiniz: ${userDistrict}` : 'Semtinizdeki ilanları görmek için giriş yapın'}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                 locationScope === 'nearby'
                   ? 'bg-teal-700 text-white shadow-xs'
@@ -172,8 +182,8 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <MapPin className="w-3 h-3 text-rose-500" />
-              <span>Yakınımdaki Takaslar ({userDistrict})</span>
-              {counts?.nearby !== undefined && (
+              <span>{isLoggedIn ? `Yakınımdaki Takaslar (${userDistrict})` : 'Yakınımdaki Takaslar (Giriş Yap)'}</span>
+              {counts?.nearby !== undefined && isLoggedIn && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${locationScope === 'nearby' ? 'bg-teal-800 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.nearby}
                 </span>
@@ -183,8 +193,14 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
             {/* Şehrimdeki İlanlar */}
             <button
               type="button"
-              onClick={() => setLocationScope(locationScope === 'city' ? 'all' : 'city')}
-              title={`Şehriniz: ${userCity}`}
+              onClick={() => {
+                if (!isLoggedIn && onRequireLogin) {
+                  onRequireLogin('Bulunduğunuz şehirdeki takas ilanlarını listelemek için lütfen giriş yapın veya kayıt olun.')
+                  return
+                }
+                setLocationScope(locationScope === 'city' ? 'all' : 'city')
+              }}
+              title={isLoggedIn ? `Şehriniz: ${userCity}` : 'Şehrinizdeki ilanları görmek için giriş yapın'}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                 locationScope === 'city'
                   ? 'bg-teal-700 text-white shadow-xs'
@@ -192,8 +208,8 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Building2 className="w-3 h-3" />
-              <span>Şehrimdeki İlanlar ({userCity})</span>
-              {counts?.city !== undefined && (
+              <span>{isLoggedIn ? `Şehrimdeki İlanlar (${userCity})` : 'Şehrimdeki İlanlar (Giriş Yap)'}</span>
+              {counts?.city !== undefined && isLoggedIn && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${locationScope === 'city' ? 'bg-teal-800 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.city}
                 </span>

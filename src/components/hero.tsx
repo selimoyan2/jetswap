@@ -3,6 +3,7 @@
 import React from 'react'
 import { ArrowLeftRight, Search, Shield, MapPin, Zap, Sparkles, CheckCircle } from 'lucide-react'
 import { categories } from '@/data/mockData'
+import { TURKEY_CITIES } from '@/data/locations'
 
 interface HeroProps {
   searchQuery: string
@@ -117,15 +118,20 @@ export const Hero: React.FC<HeroProps> = ({
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-semibold"
               >
                 <option value="all">Tüm Şehirler</option>
-                <option value="İstanbul">İstanbul 🇹🇷</option>
-                <option value="İzmir">İzmir 🇹🇷</option>
-                <option value="Ankara">Ankara 🇹🇷</option>
-                <option value="Bursa">Bursa 🇹🇷</option>
-                <option value="Antalya">Antalya 🇹🇷</option>
-                <option value="Berlin">Berlin 🇩🇪</option>
-                <option value="Frankfurt">Frankfurt 🇩🇪</option>
-                <option value="Londra">Londra 🇬🇧</option>
-                <option value="New York">New York 🇺🇸</option>
+                <optgroup label="Türkiye (81 İl)">
+                  {TURKEY_CITIES.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Yurt Dışı / Global">
+                  <option value="Berlin">Berlin 🇩🇪</option>
+                  <option value="Frankfurt">Frankfurt 🇩🇪</option>
+                  <option value="Londra">Londra 🇬🇧</option>
+                  <option value="New York">New York 🇺🇸</option>
+                  <option value="Bakü">Bakü 🇦🇿</option>
+                  <option value="Amsterdam">Amsterdam 🇳🇱</option>
+                  <option value="Paris">Paris 🇫🇷</option>
+                </optgroup>
               </select>
             </div>
 

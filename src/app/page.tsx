@@ -319,6 +319,12 @@ export default function HomePage() {
             setLocationScope={setLocationScope}
             userCity={currentUser?.city || 'İstanbul'}
             userDistrict={currentUser?.district || 'Kadıköy'}
+            isLoggedIn={!!currentUser}
+            onRequireLogin={(promptReason) => {
+              setAuthMode('login')
+              setAuthPromptReason(promptReason || 'Konumunuza özel takas ilanlarını listelemek için giriş yapın.')
+              setIsAuthOpen(true)
+            }}
             counts={scopeCounts}
           />
 

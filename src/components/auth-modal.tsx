@@ -15,21 +15,8 @@ interface AuthModalProps {
   customPromptMessage?: string
 }
 
-export const COUNTRIES = [
-  { code: 'TR', name: 'Türkiye', flag: '🇹🇷' },
-  { code: 'DE', name: 'Almanya', flag: '🇩🇪' },
-  { code: 'AZ', name: 'Azerbaycan', flag: '🇦🇿' },
-  { code: 'NL', name: 'Hollanda', flag: '🇳🇱' },
-  { code: 'GB', name: 'Birleşik Krallık', flag: '🇬🇧' },
-  { code: 'US', name: 'Amerika Birleşik Devletleri', flag: '🇺🇸' },
-  { code: 'FR', name: 'Fransa', flag: '🇫🇷' },
-  { code: 'GLOBAL', name: 'Diğer / Global', flag: '🌍' },
-]
-
-const TURKEY_CITIES = [
-  'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 
-  'Gaziantep', 'Kocaeli', 'Mersin', 'Eskişehir', 'Kayseri', 'Samsun', 'Trabzon', 'Diğer'
-]
+import { COUNTRIES, TURKEY_CITIES } from '@/data/locations'
+export { COUNTRIES, TURKEY_CITIES }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ 
   isOpen, 
