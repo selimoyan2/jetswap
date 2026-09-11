@@ -460,5 +460,93 @@ export const tr: TranslationSchema = {
     addListing: 'İlan Ekle',
     swaps: 'Takaslar',
     profile: 'Profil'
+  },
+  fairScale: {
+    title: 'Adil Takas Terazisi',
+    subtitle: 'Nakit para yerine değer segmenti puanlama dengesi (PRD Madde 7 & 10)',
+    balanced: 'Mükemmel Denge (%100)',
+    generous: 'Cömert Teklif (Kabul Şansı Çok Yüksek)',
+    underValue: 'Karşı Tarafın Eşyası Daha Değerli',
+    bundleRecommendation: "Portföyünüzden 1 eşya daha eklerseniz teklifinizin kabul edilme şansı %85 artacaktır.",
+    yourBundlePoints: 'Senin Teklif Puanın',
+    targetPoints: 'Karşı Tarafın Değeri',
+    tierLow: 'Temel Segment',
+    tierMedium: 'Orta Segment',
+    tierHigh: 'Üst Segment',
+    tierPremium: 'Amiral Gemisi / Premium'
+  },
+  jetRadar: {
+    title: 'JetRadar İstek Alarmı',
+    subtitle: 'Aradığınız eşyayı radara ekleyin, uygun bir takas ilanı açıldığında anında haberdar olun.',
+    activeAlerts: 'Aktif Radar Taramalarım',
+    noAlerts: 'Henüz kurulmuş bir radar alarmınız yok.',
+    createAlert: 'Yeni Radar Kur',
+    keywordLabel: 'Aradığınız Eşya / Kelime',
+    keywordPlaceholder: 'Örn: Elektro Gitar, MacBook M2, PS5...',
+    categoryLabel: 'Kategori Filtresi (İsteğe Bağlı)',
+    allCategories: 'Tüm Kategoriler',
+    cityLabel: 'Şehir (İsteğe Bağlı)',
+    allCities: 'Tüm Şehirler',
+    districtLabel: 'İlçe / Semt (İsteğe Bağlı)',
+    allDistricts: 'Tüm İlçeler',
+    submitAlert: 'Radarı Başlat & Takibe Al',
+    alertCreatedSuccess: 'Radar alarmınız başarıyla kuruldu!',
+    matchesFound: 'Eşleşme Bulundu',
+    matchingItemsCount: 'Radara Takılan İlan',
+    deleteAlert: 'Radarı Kaldır',
+    navbarBadge: 'Radar Alarmı',
+    liveMatches: 'Canlı Radar Eşleşmeleri'
+  },
+  flashTrade: {
+    badge: '24 SAATLİK ACİL TAKAS VİTRİNİ',
+    title: 'Hızlı & Acil Elden Takaslar',
+    subtitle: 'Sahipleri tarafından 24 saat içinde hemen elden takas edilmek istenen sıcak fırsatlar.',
+    timeRemaining: 'Kalan Süre',
+    endsIn: 'Bitişe Kalan',
+    urgentBadge: 'ACİL TAKAS',
+    filterChip: '⚡ Acil Takas (24s)',
+    viewUrgentItems: 'Acil İlanları Keşfet'
+  },
+  ecoImpact: {
+    title: 'Sıfır Atık & Eko-Takas Karnesi',
+    subtitle: 'Bu takas ile doğaya ve döngüsel ekonomiye yaptığınız doğrudan katkı.',
+    co2Prevented: 'Önlenen CO₂ Salınımı',
+    wasteDiverted: 'Kurtarılan Atık Miktarı',
+    treesEquivalent: 'Ağaç Eşdeğeri Tasarruf',
+    shareCardTitle: '🌿 Eko-Takas Başarı Kartı',
+    shareCardDesc: 'Döngüsel ekonomiye katkınızı sosyal medyada gururla paylaşın!',
+    copySummary: 'Özeti Kopyala & Paylaş',
+    copied: 'Kopyalandı!',
+    badgeEcoWarrior: 'Sıfır Atık Kahramanı',
+    profileBadgeTitle: 'Toplam Çevre Katkısı'
+  },
+  safeZones: {
+    title: 'Güvenli Buluşma Noktası',
+    subtitle: 'Elden teslimat için kameralı, kalabalık ve doğrulanmış ortak güvenli alanlar.',
+    recommendedBadge: 'Önerilen Güvenli Nokta',
+    selectZone: 'Güvenli Buluşma Alanı Seç',
+    selectedZone: 'Seçilen Buluşma Noktası',
+    cameraSecurity: '7/24 Kamera & Güvenlik',
+    viewOnMap: 'Haritada Yol Tarifi Al',
+    noZoneSelected: 'Özel bir buluşma noktası seçilmedi (Varsayılan)',
+    optionalNote: 'Seçilen güvenli nokta iki tarafça onaylandığında harita koordinatı paylaşılır.',
+    types: {
+      MALL: 'AVM Güvenlik Girişi',
+      METRO: 'Metro İstasyonu Meydanı',
+      POLICE_NEARBY: 'Emniyet / Zabıta Noktası',
+      PUBLIC_SQUARE: 'Merkezi Meydan'
+    }
+  },
+  counterDesk: {
+    title: 'Canlı Müzakere Masası',
+    subtitle: 'Masaya portföyünüzden eşya ekleyip çıkararak anlık karşı teklif oluşturun.',
+    tableTitle: 'Takas Masası (Revize Teklif)',
+    addToTable: 'Masaya Eşya Sür',
+    removeFromTable: 'Masadan Kaldır',
+    emptyTable: 'Masaya henüz eşya konmadı. Portföyünüzden bir eşya seçin.',
+    sendCounterOffer: 'Karşı Teklifi Masadan Gönder',
+    counterSentSuccess: 'Karşı teklifiniz karşı tarafa iletildi!',
+    noteLabel: 'Pazarlık Notunuz',
+    notePlaceholder: 'Örn: Teklifi dengelemek için masaya bir de kulaklığımı ekledim, ne dersin?'
   }
 }

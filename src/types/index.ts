@@ -93,6 +93,35 @@ export interface TradeItem {
   status: ItemStatus
   isFavorite?: boolean
   likesCount?: number
+  isFlashTrade?: boolean       // 24 Saatlik Acil Takas
+  flashExpiresAt?: string      // Acil takas bitiş zamanı (ISO string)
+  ecoImpact?: {
+    co2SavedKg: number
+    wasteDivertedKg: number
+  }
+}
+
+export interface SafeTradeZone {
+  id: string
+  city: string
+  district: string
+  name: string
+  type: 'MALL' | 'METRO' | 'POLICE_NEARBY' | 'PUBLIC_SQUARE'
+  address: string
+  hasSecurityCameras: boolean
+  mapQuery: string
+}
+
+export interface RadarAlert {
+  id: string
+  userId: string
+  keyword: string
+  category?: string
+  subCategory?: string
+  city?: string
+  district?: string
+  createdAt: string
+  matchCount?: number
 }
 
 export interface TradeOffer {
@@ -105,6 +134,8 @@ export interface TradeOffer {
   note?: string
   contactRevealed: boolean
   createdAt: string
+  selectedSafeZone?: SafeTradeZone
+  counterOfferCount?: number
 }
 
 // PRD Madde 12: 3'lü Zincir Takas (Swap Chain / Triangular Trade)
@@ -121,4 +152,5 @@ export interface SwapChain {
   status: 'PROPOSED' | 'CONFIRMED' | 'EXECUTING' | 'COMPLETED'
   nodes: [SwapChainNode, SwapChainNode, SwapChainNode] // A -> B -> C -> A
 }
+
 

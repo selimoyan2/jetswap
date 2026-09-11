@@ -25,6 +25,8 @@ import { AdBanner } from '@/components/ads/ad-banner'
 import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
 import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
+import FlashTradeShowcase from '@/components/flash-trade-showcase'
+import JetRadarModal from '@/components/jet-radar-modal'
 import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield } from 'lucide-react'
 import { useLanguage } from '@/i18n'
 
@@ -41,6 +43,8 @@ export default function HomePage() {
   const [selectedDistrict, setSelectedDistrict] = useState('all')
   const [timeScope, setTimeScope] = useState<TimeFilterScope>('all')
   const [locationScope, setLocationScope] = useState<LocationFilterScope>('all')
+  const [isFlashOnly, setIsFlashOnly] = useState(false)
+  const [isRadarOpen, setIsRadarOpen] = useState(false)
 
   // Modals state
   const [targetItemForTrade, setTargetItemForTrade] = useState<TradeItem | null>(null)
@@ -171,9 +175,13 @@ export default function HomePage() {
           return false
         }
       }
+      // Flash Trade Filter (24s Acil Takas)
+      if (isFlashOnly && !item.isFlashTrade) {
+        return false
+      }
       return true
     })
-  }, [items, selectedCategory, selectedSubCategory, selectedCity, selectedDistrict, timeScope, locationScope, searchQuery, currentUser])
+  }, [items, selectedCategory, selectedSubCategory, selectedCity, selectedDistrict, timeScope, locationScope, searchQuery, currentUser, isFlashOnly])
 
   // Handle open trade offer (Requires login)
   const handleOpenTradeOffer = (targetItem: TradeItem, myItem?: TradeItem) => {
@@ -292,6 +300,7 @@ export default function HomePage() {
         onOpenCreateItem={handleOpenCreateListing}
         onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)}
         onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
+        onOpenRadar={() => setIsRadarOpen(true)}
       />
 
       <main className="flex-1">
@@ -336,6 +345,14 @@ export default function HomePage() {
 
         {/* Live Barter Listings Feed */}
         <section id="kesfet" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {/* Flash Trade 24h Showcase */}
+          <FlashTradeShowcase
+            items={items}
+            onSelectItem={(item) => handleOpenTradeOffer(item)}
+            onViewAllFlash={() => setIsFlashOnly(true)}
+            className="mb-8"
+          />
+
           {/* Quick Time & Proximity Scope Bar */}
           <QuickTimeFilter
             timeScope={timeScope}
@@ -351,6 +368,8 @@ export default function HomePage() {
               setIsAuthOpen(true)
             }}
             counts={scopeCounts}
+            isFlashOnly={isFlashOnly}
+            onToggleFlashOnly={() => setIsFlashOnly(!isFlashOnly)}
           />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
@@ -526,6 +545,15 @@ export default function HomePage() {
         isOpen={isTrustVerificationOpen}
         onClose={() => setIsTrustVerificationOpen(false)}
         currentUser={currentUser}
+      />
+
+      {/* JetRadar Modal */}
+      <JetRadarModal
+        isOpen={isRadarOpen}
+        onClose={() => setIsRadarOpen(false)}
+        allItems={items}
+        onSelectMatchingItem={(item) => handleOpenTradeOffer(item)}
+        onApplyFilter={(kw) => setSearchQuery(kw)}
       />
     </div>
   )

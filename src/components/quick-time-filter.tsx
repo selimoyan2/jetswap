@@ -14,6 +14,8 @@ interface QuickTimeFilterProps {
   userDistrict?: string
   isLoggedIn?: boolean
   onRequireLogin?: (promptReason?: string) => void
+  isFlashOnly?: boolean
+  onToggleFlashOnly?: () => void
   counts?: {
     today: number
     yesterday: number
@@ -34,6 +36,8 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
   userDistrict = 'Kadıköy',
   isLoggedIn = false,
   onRequireLogin,
+  isFlashOnly = false,
+  onToggleFlashOnly,
   counts,
 }) => {
   const { t } = useLanguage()
@@ -83,6 +87,22 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
             {t.quickFilter.timeSectionTitle}
           </span>
           <div className="flex flex-wrap gap-1.5">
+            {/* ⚡ Acil Takas (24s) */}
+            {onToggleFlashOnly && (
+              <button
+                type="button"
+                onClick={onToggleFlashOnly}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  isFlashOnly
+                    ? 'bg-amber-500 text-black shadow-md shadow-amber-500/30'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200'
+                }`}
+              >
+                <Zap className="w-3 h-3 text-amber-500 fill-amber-500 animate-bounce" />
+                <span>{t.flashTrade.filterChip}</span>
+              </button>
+            )}
+
             {/* Bugün */}
             <button
               type="button"

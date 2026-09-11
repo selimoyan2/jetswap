@@ -473,5 +473,93 @@ export interface TranslationSchema {
     swaps: string
     profile: string
   }
+  fairScale: {
+    title: string
+    subtitle: string
+    balanced: string
+    generous: string
+    underValue: string
+    bundleRecommendation: string
+    yourBundlePoints: string
+    targetPoints: string
+    tierLow: string
+    tierMedium: string
+    tierHigh: string
+    tierPremium: string
+  }
+  jetRadar: {
+    title: string
+    subtitle: string
+    activeAlerts: string
+    noAlerts: string
+    createAlert: string
+    keywordLabel: string
+    keywordPlaceholder: string
+    categoryLabel: string
+    allCategories: string
+    cityLabel: string
+    allCities: string
+    districtLabel: string
+    allDistricts: string
+    submitAlert: string
+    alertCreatedSuccess: string
+    matchesFound: string
+    matchingItemsCount: string
+    deleteAlert: string
+    navbarBadge: string
+    liveMatches: string
+  }
+  flashTrade: {
+    badge: string
+    title: string
+    subtitle: string
+    timeRemaining: string
+    endsIn: string
+    urgentBadge: string
+    filterChip: string
+    viewUrgentItems: string
+  }
+  ecoImpact: {
+    title: string
+    subtitle: string
+    co2Prevented: string
+    wasteDiverted: string
+    treesEquivalent: string
+    shareCardTitle: string
+    shareCardDesc: string
+    copySummary: string
+    copied: string
+    badgeEcoWarrior: string
+    profileBadgeTitle: string
+  }
+  safeZones: {
+    title: string
+    subtitle: string
+    recommendedBadge: string
+    selectZone: string
+    selectedZone: string
+    cameraSecurity: string
+    viewOnMap: string
+    noZoneSelected: string
+    optionalNote: string
+    types: {
+      MALL: string
+      METRO: string
+      POLICE_NEARBY: string
+      PUBLIC_SQUARE: string
+    }
+  }
+  counterDesk: {
+    title: string
+    subtitle: string
+    tableTitle: string
+    addToTable: string
+    removeFromTable: string
+    emptyTable: string
+    sendCounterOffer: string
+    counterSentSuccess: string
+    noteLabel: string
+    notePlaceholder: string
+  }
 }
 

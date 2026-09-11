@@ -3,16 +3,18 @@
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { X, ArrowLeftRight, ShieldCheck, CheckCircle2, AlertCircle, Plus, Send, AlertTriangle, Shield, Check } from 'lucide-react'
-import { TradeItem } from '@/types'
+import { TradeItem, SafeTradeZone } from '@/types'
 import { mockMyPortfolio } from '@/data/mockData'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
+import FairBarterScale from '@/components/fair-barter-scale'
+import SafeZonesPicker from '@/components/safe-zones-picker'
 
 interface TradeOfferModalProps {
   targetItem: TradeItem | null
   initialMyItem?: TradeItem | null
   onClose: () => void
-  onSubmitOffer: (targetItem: TradeItem, selectedItems: TradeItem[], note: string) => void
+  onSubmitOffer: (targetItem: TradeItem, selectedItems: TradeItem[], note: string, selectedSafeZone?: SafeTradeZone | null) => void
 }
 
 export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
@@ -25,8 +27,15 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
   const [selectedMyItemIds, setSelectedMyItemIds] = useState<string[]>(
     initialMyItem ? [initialMyItem.id] : [mockMyPortfolio[0]?.id || '']
   )
+  const [selectedSafeZone, setSelectedSafeZone] = useState<SafeTradeZone | null>(null)
   const [note, setNote] = useState('')
   const [isSubmitted, setIsSubmitted] = useState(false)
+
+  // Selected items from portfolio
+  const selectedItems = useMemo(
+    () => mockMyPortfolio.filter(item => selectedMyItemIds.includes(item.id)),
+    [selectedMyItemIds]
+  )
 
   // PRD Madde 38: Teklif Notunda Nakit Para Engelleme Filtresi
   const cashCheck = useMemo(() => detectCashKeywords(note), [note])
@@ -44,14 +53,14 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
     if (selectedMyItemIds.length === 0) return
     if (cashCheck.hasCashViolation) return
 
-    const selectedItems = mockMyPortfolio.filter(item => selectedMyItemIds.includes(item.id))
-    onSubmitOffer(targetItem, selectedItems, note)
+    onSubmitOffer(targetItem, selectedItems, note, selectedSafeZone)
     setIsSubmitted(true)
   }
 
   const handleResetAndClose = () => {
     setIsSubmitted(false)
     setNote('')
+    setSelectedSafeZone(null)
     onClose()
   }
 
@@ -208,10 +217,17 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
                 })}
               </div>
 
-              {selectedMyItemIds.length === 0 && (
+              {selectedMyItemIds.length === 0 ? (
                 <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
                   <AlertCircle className="w-3.5 h-3.5" /> {t.tradeOffer.atLeastOneItem}
                 </p>
+              ) : (
+                <div className="mt-4">
+                  <FairBarterScale
+                    offeredItems={selectedItems}
+                    targetItem={targetItem}
+                  />
+                </div>
               )}
             </div>
 
@@ -226,6 +242,19 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
                 onChange={e => setNote(e.target.value)}
                 placeholder={t.tradeOffer.offerNotePlaceholder}
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
+              />
+            </div>
+
+            {/* Step 4: Safe Meetup Zone (Elden Takas Güvenli Noktası) */}
+            <div className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200">
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 block mb-2">
+                4. {t.safeZones.title}
+              </label>
+              <SafeZonesPicker
+                selectedZone={selectedSafeZone}
+                onSelectZone={setSelectedSafeZone}
+                city={targetItem.city}
+                district={targetItem.district}
               />
             </div>
 

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ArrowLeftRight, Search, PlusCircle, Shield, Globe, Menu, X, 
-  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon
+  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio
 } from 'lucide-react'
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
@@ -19,6 +19,7 @@ interface NavbarProps {
   onOpenCreateItem?: () => void
   onOpenForbiddenPolicy?: () => void
   onOpenTrustVerification?: () => void
+  onOpenRadar?: () => void
   searchQuery?: string
   setSearchQuery?: (val: string) => void
 }
@@ -32,6 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCreateItem,
   onOpenForbiddenPolicy,
   onOpenTrustVerification,
+  onOpenRadar,
   searchQuery = '',
   setSearchQuery,
 }) => {
@@ -102,6 +104,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             {t.nav.jetMatch}
           </Link>
+
+          {/* JetRadar Button */}
+          <button
+            onClick={onOpenRadar}
+            className="text-xs font-bold text-cyan-800 hover:text-cyan-900 transition-colors flex items-center gap-1.5 cursor-pointer relative px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 shadow-2xs"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <Radio className="w-3.5 h-3.5 text-cyan-600" />
+            <span>{t.jetRadar.navbarBadge}</span>
+          </button>
+
           <button
             onClick={onOpenForbiddenPolicy}
             className="text-xs font-bold text-zinc-600 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
@@ -347,6 +363,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link href="#eslesmeler" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
               {t.nav.jetMatch}
             </Link>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false)
+                onOpenRadar?.()
+              }}
+              className="text-left py-2 hover:text-cyan-600 flex items-center gap-2 text-cyan-800"
+            >
+              <Radio className="w-4 h-4 text-cyan-600 animate-pulse" />
+              <span>{t.jetRadar.navbarBadge}</span>
+            </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false)

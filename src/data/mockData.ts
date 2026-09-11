@@ -361,7 +361,13 @@ export const mockItems: TradeItem[] = [
     createdAt: 'Bugün',
     daysAgo: 0,
     status: 'ACTIVE',
-    likesCount: 34
+    likesCount: 34,
+    isFlashTrade: true,
+    flashExpiresAt: new Date(Date.now() + 18 * 3600 * 1000 + 42 * 60 * 1000).toISOString(),
+    ecoImpact: {
+      co2SavedKg: 28,
+      wasteDivertedKg: 6.2
+    }
   },
   {
     id: 'item-2',
@@ -443,7 +449,13 @@ export const mockItems: TradeItem[] = [
     createdAt: '3 gün önce',
     daysAgo: 3,
     status: 'ACTIVE',
-    likesCount: 52
+    likesCount: 52,
+    isFlashTrade: true,
+    flashExpiresAt: new Date(Date.now() + 11 * 3600 * 1000 + 15 * 60 * 1000).toISOString(),
+    ecoImpact: {
+      co2SavedKg: 42,
+      wasteDivertedKg: 7.8
+    }
   },
   {
     id: 'item-4',

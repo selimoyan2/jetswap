@@ -5,12 +5,14 @@ import Image from 'next/image'
 import { 
   X, ArrowLeftRight, CheckCircle2, Clock, MessageSquare, Send, 
   ShieldCheck, Star, ThumbsUp, AlertCircle, Phone, Mail, MapPin, 
-  ChevronRight, Sparkles, User, RefreshCw, Handshake, Ban
+  ChevronRight, Sparkles, User, RefreshCw, Handshake, Ban, Leaf, Plus, Trash2, Scale
 } from 'lucide-react'
 import { mockCurrentUser, mockMyPortfolio, mockItems } from '@/data/mockData'
-import { TradeOfferStatus } from '@/types'
+import { TradeOfferStatus, TradeItem } from '@/types'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
+import FairBarterScale from '@/components/fair-barter-scale'
+import EcoImpactModal from '@/components/eco-impact-modal'
 
 interface MySwapsModalProps {
   isOpen: boolean
@@ -42,6 +44,10 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
   const [ratings, setRatings] = useState({ communication: 5, accuracy: 5, trust: 5 })
   const [reviewComment, setReviewComment] = useState('')
+  const [showEcoModal, setShowEcoModal] = useState(false)
+  const [isCounterDeskOpen, setIsCounterDeskOpen] = useState(false)
+  const [counterItemIds, setCounterItemIds] = useState<string[]>([mockMyPortfolio[0]?.id || 'item-p1'])
+  const [counterNote, setCounterNote] = useState('')
 
   // State for active offers
   const [offer, setOffer] = useState<MockOfferState>({
@@ -109,6 +115,41 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
       timeline: prev.timeline.map(t => ({ ...t, done: true }))
     }))
     setReviewSubmitted(true)
+  }
+
+  const targetItemForScale = mockItems[0]
+  const selectedCounterItems = mockMyPortfolio.filter(i => counterItemIds.includes(i.id))
+
+  const toggleCounterItem = (id: string) => {
+    setCounterItemIds(prev => 
+      prev.includes(id) ? (prev.length > 1 ? prev.filter(item => item !== id) : prev) : [...prev, id]
+    )
+  }
+
+  const handleSendCounterOffer = () => {
+    if (selectedCounterItems.length === 0) return
+    const itemTitles = selectedCounterItems.map(i => i.title)
+    
+    setOffer(prev => ({
+      ...prev,
+      myItems: itemTitles,
+      status: 'COUNTER_OFFERED',
+      messages: [
+        ...prev.messages,
+        {
+          sender: 'Selim',
+          text: `🔄 [Müzakere Masası Revizyonu]: Teklifim güncellendi (${selectedCounterItems.length} eşya). ${counterNote ? `Not: "${counterNote}"` : ''}`,
+          time: 'Şimdi',
+          isMe: true
+        }
+      ],
+      timeline: [
+        ...prev.timeline,
+        { time: 'Şimdi', text: 'Selim masadan yeni bir karşı teklif sundu', done: true }
+      ]
+    }))
+    setIsCounterDeskOpen(false)
+    setCounterNote('')
   }
 
   return (
@@ -251,6 +292,90 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
               </div>
             </div>
 
+            {/* Canlı Müzakere Masası (PRD & Innov #5) */}
+            {offer.status !== 'COMPLETED' && (
+              <div className="p-4 rounded-2xl border border-cyan-500/30 bg-cyan-950/5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Scale className="w-4 h-4 text-cyan-600" />
+                    <div>
+                      <h5 className="font-extrabold text-xs text-zinc-900">{t.counterDesk.title}</h5>
+                      <p className="text-[11px] text-zinc-500">{t.counterDesk.subtitle}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCounterDeskOpen(!isCounterDeskOpen)}
+                    className="px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    {isCounterDeskOpen ? 'Kapat' : 'Masayı Aç'}
+                  </button>
+                </div>
+
+                {isCounterDeskOpen && (
+                  <div className="pt-2 border-t border-cyan-500/20 space-y-3">
+                    <div className="text-[11px] font-bold text-zinc-700">
+                      {t.counterDesk.tableTitle} ({selectedCounterItems.length} eşya)
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      {mockMyPortfolio.map((item) => {
+                        const isSelected = counterItemIds.includes(item.id)
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => toggleCounterItem(item.id)}
+                            className={`p-2 rounded-xl border text-xs cursor-pointer flex items-center gap-2 transition-all ${
+                              isSelected
+                                ? 'bg-cyan-50 border-cyan-500 text-cyan-950 font-bold'
+                                : 'bg-white border-zinc-200 text-zinc-600'
+                            }`}
+                          >
+                            <img
+                              src={item.images[0]}
+                              alt={item.title}
+                              className="w-7 h-7 rounded-md object-cover"
+                            />
+                            <span className="truncate flex-1 text-[11px]">{item.title}</span>
+                            <span className="text-[10px]">{isSelected ? '✓' : '+'}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Live Fair Scale */}
+                    <FairBarterScale
+                      offeredItems={selectedCounterItems}
+                      targetItem={targetItemForScale}
+                    />
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-zinc-700 block mb-1">
+                        {t.counterDesk.noteLabel}
+                      </label>
+                      <input
+                        type="text"
+                        value={counterNote}
+                        onChange={(e) => setCounterNote(e.target.value)}
+                        placeholder={t.counterDesk.notePlaceholder}
+                        className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:border-cyan-500"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleSendCounterOffer}
+                      disabled={selectedCounterItems.length === 0}
+                      className="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-600/20 cursor-pointer"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      {t.counterDesk.sendCounterOffer}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* PRD Madde 30: İletişim Bilgilerini Açma Kartı */}
             <div className={`p-4 rounded-2xl border transition-all ${
               offer.contactUnlocked 
@@ -303,6 +428,15 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 <span>{t.mySwaps.markCompletedButton}</span>
               </button>
             )}
+
+            {/* Eko-Etki Karnesi Butonu */}
+            <button
+              onClick={() => setShowEcoModal(true)}
+              className="w-full py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <Leaf className="w-4 h-4 text-emerald-600" />
+              <span>{t.ecoImpact.title}</span>
+            </button>
           </div>
 
           {/* Right Column: In-Offer Messaging (PRD Madde 28) */}
@@ -465,6 +599,12 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
           </div>
         </div>
       )}
+
+      {/* Eco Impact Modal */}
+      <EcoImpactModal
+        isOpen={showEcoModal}
+        onClose={() => setShowEcoModal(false)}
+      />
     </div>
   )
 }
