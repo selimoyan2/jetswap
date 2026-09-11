@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X, User as UserIcon, Phone, MapPin, Building, ShieldCheck, Check, Sparkles, Truck, HandMetal, ArrowLeftRight } from 'lucide-react'
+import { X, User as UserIcon, Phone, MapPin, Building, ShieldCheck, Check, Sparkles, Truck, HandMetal, ArrowLeftRight, Globe } from 'lucide-react'
 import { User, TradeMethod } from '@/types'
+import { COUNTRIES } from '@/components/auth-modal'
 
 interface EditProfileModalProps {
   isOpen: boolean
@@ -33,6 +34,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 }) => {
   const [name, setName] = useState(currentUser.name)
   const [phone, setPhone] = useState(currentUser.phone || '')
+  const [country, setCountry] = useState(currentUser.country || 'TR')
   const [city, setCity] = useState(currentUser.city || 'İstanbul')
   const [district, setDistrict] = useState(currentUser.district || '')
   const [selectedAvatar, setSelectedAvatar] = useState(currentUser.avatar)
@@ -42,6 +44,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   useEffect(() => {
     setName(currentUser.name)
     setPhone(currentUser.phone || '')
+    setCountry(currentUser.country || 'TR')
     setCity(currentUser.city || 'İstanbul')
     setDistrict(currentUser.district || '')
     setSelectedAvatar(currentUser.avatar)
@@ -56,7 +59,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
       ...currentUser,
       name: name.trim(),
       phone: phone.trim(),
-      city,
+      country,
+      city: city.trim(),
       district: district.trim(),
       avatar: selectedAvatar,
     }
@@ -159,6 +163,35 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               </div>
             </div>
 
+            {/* Ülke Seçimi */}
+            <div>
+              <label className="text-xs font-bold text-zinc-700 block mb-1">
+                Ülke <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <select
+                  value={country}
+                  onChange={e => {
+                    const val = e.target.value
+                    setCountry(val)
+                    if (val === 'TR') {
+                      setCity('İstanbul')
+                    } else {
+                      setCity('')
+                    }
+                  }}
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium cursor-pointer"
+                >
+                  {COUNTRIES.map(c => (
+                    <option key={c.code} value={c.code}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
+                </select>
+                <Globe className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
+              </div>
+            </div>
+
             {/* Konum: Şehir & İlçe */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -166,22 +199,33 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   Şehir <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <select
-                    value={city}
-                    onChange={e => setCity(e.target.value)}
-                    className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
-                  >
-                    {TURKEY_CITIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                  <Building className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                  {country === 'TR' ? (
+                    <select
+                      value={city}
+                      onChange={e => setCity(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium cursor-pointer"
+                    >
+                      {TURKEY_CITIES.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      required
+                      value={city}
+                      onChange={e => setCity(e.target.value)}
+                      placeholder="Örn: Berlin, Londra, Bakü"
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
+                    />
+                  )}
+                  <Building className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
                 </div>
               </div>
 
               <div>
                 <label className="text-xs font-bold text-zinc-700 block mb-1">
-                  İlçe / Semt <span className="text-red-500">*</span>
+                  İlçe / Semt / Bölge <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -189,9 +233,10 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     required
                     value={district}
                     onChange={e => setDistrict(e.target.value)}
+                    placeholder="Örn: Kadıköy, Çankaya, Mitte"
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
                   />
-                  <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                  <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
                 </div>
               </div>
             </div>

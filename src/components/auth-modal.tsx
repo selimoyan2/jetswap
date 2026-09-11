@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   X, ArrowLeftRight, ShieldCheck, Mail, Lock, User as UserIcon, 
-  CheckCircle2, Phone, MapPin, AlertCircle, Sparkles, Building
+  CheckCircle2, Phone, MapPin, AlertCircle, Sparkles, Building, Globe
 } from 'lucide-react'
 import { User } from '@/types'
 
@@ -14,6 +14,17 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register'
   customPromptMessage?: string
 }
+
+export const COUNTRIES = [
+  { code: 'TR', name: 'Türkiye', flag: '🇹🇷' },
+  { code: 'DE', name: 'Almanya', flag: '🇩🇪' },
+  { code: 'AZ', name: 'Azerbaycan', flag: '🇦🇿' },
+  { code: 'NL', name: 'Hollanda', flag: '🇳🇱' },
+  { code: 'GB', name: 'Birleşik Krallık', flag: '🇬🇧' },
+  { code: 'US', name: 'Amerika Birleşik Devletleri', flag: '🇺🇸' },
+  { code: 'FR', name: 'Fransa', flag: '🇫🇷' },
+  { code: 'GLOBAL', name: 'Diğer / Global', flag: '🌍' },
+]
 
 const TURKEY_CITIES = [
   'İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Adana', 'Konya', 
@@ -29,10 +40,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const [isLogin, setIsLogin] = useState(initialMode === 'login')
   
+  // Sync tab mode whenever modal opens or initialMode changes
+  useEffect(() => {
+    if (isOpen) {
+      setIsLogin(initialMode === 'login')
+      setError('')
+    }
+  }, [isOpen, initialMode])
+
   // Registration Form State (Zorunlu Güvenlik Alanları)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [country, setCountry] = useState('TR')
   const [city, setCity] = useState('İstanbul')
   const [district, setDistrict] = useState('')
   const [password, setPassword] = useState('')
@@ -101,8 +121,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setError('Lütfen en az 10 haneli geçerli bir cep telefonu numarası giriniz (Güvenli SMS ve takas teslimatı için zorunludur).')
         return
       }
+      if (!city.trim()) {
+        setError('Şehir alanı zorunludur.')
+        return
+      }
       if (!district.trim()) {
-        setError('İlçe / Semt alanı elden takas eşleşmeleri için zorunludur.')
+        setError('İlçe / Semt / Bölge alanı takas eşleşmeleri için zorunludur.')
         return
       }
       if (password.length < 6) {
@@ -120,8 +144,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
-        country: 'TR',
-        city,
+        country,
+        city: city.trim(),
         district: district.trim(),
         avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
         jetTrust: 70, // Kayıt olan kullanıcı temel güven puanı
@@ -255,6 +279,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   </div>
                 </div>
 
+                {/* Country Selection (Ülke) */}
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 block mb-1">
+                    Ülke <span className="text-red-500">*</span>
+                    <span className="text-[10px] text-zinc-400 font-normal ml-1">(Takas operasyonları için)</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={country}
+                      onChange={e => {
+                        const val = e.target.value
+                        setCountry(val)
+                        if (val === 'TR') {
+                          setCity('İstanbul')
+                        } else {
+                          setCity('')
+                        }
+                      }}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                    >
+                      {COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>
+                          {c.flag} {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Globe className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
+                  </div>
+                </div>
+
                 {/* Location: City & District (Zorunlu) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
@@ -262,22 +316,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       Şehir <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <select
-                        value={city}
-                        onChange={e => setCity(e.target.value)}
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-                      >
-                        {TURKEY_CITIES.map(c => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                      <Building className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                      {country === 'TR' ? (
+                        <select
+                          value={city}
+                          onChange={e => setCity(e.target.value)}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                        >
+                          {TURKEY_CITIES.map(c => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          required
+                          value={city}
+                          onChange={e => setCity(e.target.value)}
+                          placeholder="Örn: Berlin, Londra, Bakü"
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        />
+                      )}
+                      <Building className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
                     </div>
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-zinc-700 block mb-1">
-                      İlçe / Semt <span className="text-red-500">*</span>
+                      İlçe / Semt / Bölge <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -285,10 +350,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         required
                         value={district}
                         onChange={e => setDistrict(e.target.value)}
-                        placeholder="Örn: Kadıköy, Çankaya"
+                        placeholder="Örn: Kadıköy, Çankaya, Mitte"
                         className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                       />
-                      <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
+                      <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
                     </div>
                   </div>
                 </div>
