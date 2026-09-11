@@ -1,0 +1,468 @@
+'use client'
+
+import React, { useState } from 'react'
+import Image from 'next/image'
+import { 
+  X, ArrowLeftRight, CheckCircle2, Clock, MessageSquare, Send, 
+  ShieldCheck, Star, ThumbsUp, AlertCircle, Phone, Mail, MapPin, 
+  ChevronRight, Sparkles, User, RefreshCw, Handshake, Ban
+} from 'lucide-react'
+import { mockCurrentUser, mockMyPortfolio, mockItems } from '@/data/mockData'
+import { TradeOfferStatus } from '@/types'
+import { detectCashKeywords } from '@/lib/cashFilter'
+
+interface MySwapsModalProps {
+  isOpen: boolean
+  onClose: () => void
+}
+
+interface MockOfferState {
+  id: string
+  partnerName: string
+  partnerAvatar: string
+  partnerTrust: number
+  partnerCity: string
+  partnerPhone: string
+  partnerEmail: string
+  myItems: string[]
+  partnerItems: string[]
+  status: TradeOfferStatus
+  contactUnlocked: boolean
+  messages: Array<{ sender: string; text: string; time: string; isMe: boolean }>
+  timeline: Array<{ time: string; text: string; done: boolean }>
+}
+
+export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) => {
+  const [activeTab, setActiveTab] = useState<'incoming' | 'outgoing' | 'completed'>('incoming')
+  const [selectedOfferId, setSelectedOfferId] = useState<string>('offer-1')
+  const [chatInput, setChatInput] = useState('')
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [reviewSubmitted, setReviewSubmitted] = useState(false)
+  const [ratings, setRatings] = useState({ communication: 5, accuracy: 5, trust: 5 })
+  const [reviewComment, setReviewComment] = useState('')
+
+  // State for active offers
+  const [offer, setOffer] = useState<MockOfferState>({
+    id: 'offer-1',
+    partnerName: 'Caner Demir',
+    partnerAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    partnerTrust: 96,
+    partnerCity: 'İstanbul (Kadıköy)',
+    partnerPhone: '+90 533 111 22 33',
+    partnerEmail: 'caner.demir@example.com',
+    myItems: ['Sony WH-1000XM4 Kablosuz ANC Kulaklık'],
+    partnerItems: ['Fender Player Stratocaster Elektro Gitar'],
+    status: 'NEGOTIATING',
+    contactUnlocked: false,
+    messages: [
+      { sender: 'Caner', text: 'Merhaba Selim, gitar çok temiz. Kulaklığın batarya durumu nasıl?', time: '11:05', isMe: false },
+      { sender: 'Selim', text: 'Selam Caner! Bataryası %100, 30 saat kesintisiz gidiyor. Kadıköy tarafında elden teslim edebilirim.', time: '11:12', isMe: true },
+      { sender: 'Caner', text: 'Harika! İletişim bilgilerini açalım mı, hafta sonu buluşup takası yapalım?', time: '11:20', isMe: false }
+    ],
+    timeline: [
+      { time: '10:32', text: 'Selim takas teklifini gönderdi', done: true },
+      { time: '10:45', text: 'Caner teklifi görüntüledi', done: true },
+      { time: '11:05', text: 'Görüşme ve müzakere başladı', done: true },
+      { time: '11:20', text: 'Ön anlaşma ve iletişim onayı bekleniyor', done: false },
+      { time: '--:--', text: 'Fiziksel takas ve kapanış onayı', done: false }
+    ]
+  })
+
+  if (!isOpen) return null
+
+  const chatCashCheck = detectCashKeywords(chatInput)
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatInput.trim()) return
+    if (chatCashCheck.hasCashViolation) return
+
+    setOffer(prev => ({
+      ...prev,
+      messages: [
+        ...prev.messages,
+        { sender: 'Selim', text: chatInput, time: 'Şimdi', isMe: true }
+      ]
+    }))
+    setChatInput('')
+  }
+
+  const handleUnlockContact = () => {
+    setOffer(prev => ({
+      ...prev,
+      contactUnlocked: true,
+      status: 'CONTACT_REVEALED',
+      timeline: prev.timeline.map((t, i) => i === 3 ? { ...t, done: true, text: 'İletişim bilgileri karşılıklı açıldı' } : t)
+    }))
+  }
+
+  const handleCompleteSwap = () => {
+    setShowReviewModal(true)
+  }
+
+  const handleSubmitReview = () => {
+    setOffer(prev => ({
+      ...prev,
+      status: 'COMPLETED',
+      timeline: prev.timeline.map(t => ({ ...t, done: true }))
+    }))
+    setReviewSubmitted(true)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl max-w-4xl w-full h-[90vh] max-h-[850px] flex flex-col overflow-hidden shadow-2xl border border-zinc-200">
+        {/* Top Header */}
+        <div className="px-6 py-4 bg-zinc-900 text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white">
+              <ArrowLeftRight className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-base">Takaslarım & Müzakere Paneli</h3>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-md uppercase">
+                  PRD Madde 37
+                </span>
+              </div>
+              <p className="text-xs text-zinc-400">Teklifleri yönetin, sohbet edin ve karşılıklı takas edin</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tab Selection */}
+        <div className="bg-zinc-100 px-6 pt-3 flex items-center gap-2 border-b border-zinc-200 shrink-0 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setActiveTab('incoming')}
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+              activeTab === 'incoming'
+                ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            <span>Gelen / Aktif Teklifler</span>
+            <span className="bg-emerald-100 text-emerald-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold">1</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('outgoing')}
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+              activeTab === 'outgoing'
+                ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            <span>Gönderdiğim Teklifler</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('completed')}
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+              activeTab === 'completed'
+                ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
+          >
+            <span>Tamamlanan Takaslar</span>
+            <span className="bg-zinc-200 text-zinc-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold">27</span>
+          </button>
+        </div>
+
+        {/* Main Content Body */}
+        <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-12">
+          {/* Left Column: Active Swap Info & Timeline */}
+          <div className="md:col-span-6 p-5 border-r border-zinc-200 overflow-y-auto space-y-4 bg-zinc-50/50">
+            {/* PRD Madde 28: Sabit Aktif Teklif Kartı */}
+            <div className="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                  Aktif Takas Paketi (1 ↔ 1)
+                </span>
+                <span className="text-xs font-black text-amber-600">
+                  {offer.status === 'COMPLETED' ? '✓ Takas Tamamlandı' : 'Görüşülüyor'}
+                </span>
+              </div>
+
+              {/* Side by side items */}
+              <div className="grid grid-cols-5 gap-2 items-center text-xs">
+                <div className="col-span-2 bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
+                  <span className="text-[9px] font-bold text-zinc-400 block uppercase">Sen Veriyorsun</span>
+                  <strong className="text-zinc-900 text-xs line-clamp-2 mt-0.5">{offer.myItems[0]}</strong>
+                </div>
+
+                <div className="col-span-1 flex justify-center">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <ArrowLeftRight className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="col-span-2 bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200">
+                  <span className="text-[9px] font-bold text-emerald-800 block uppercase">Karşı Taraf Veriyor</span>
+                  <strong className="text-emerald-950 text-xs line-clamp-2 mt-0.5">{offer.partnerItems[0]}</strong>
+                </div>
+              </div>
+
+              {/* Partner Card */}
+              <div className="mt-3 pt-3 border-t border-zinc-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="relative w-7 h-7 rounded-full overflow-hidden border border-zinc-200">
+                    <Image src={offer.partnerAvatar} alt={offer.partnerName} fill className="object-cover" />
+                  </div>
+                  <div>
+                    <strong className="text-xs text-zinc-900 block">{offer.partnerName}</strong>
+                    <span className="text-[10px] text-zinc-500">{offer.partnerCity}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                    {offer.partnerTrust} JetTrust
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* PRD Madde 27: Teklif Zaman Çizelgesi (Timeline) */}
+            <div className="bg-white p-4 rounded-2xl border border-zinc-200">
+              <h4 className="text-xs font-black uppercase tracking-wider text-zinc-600 mb-3 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-emerald-600" />
+                <span>Teklif Süreci & Zaman Çizelgesi</span>
+              </h4>
+
+              <div className="space-y-3 relative pl-3 border-l-2 border-emerald-200 ml-1">
+                {offer.timeline.map((t, idx) => (
+                  <div key={idx} className="relative flex items-start gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full -left-[18px] absolute mt-0.5 ${
+                      t.done ? 'bg-emerald-600 ring-2 ring-emerald-200' : 'bg-zinc-300'
+                    }`} />
+                    <div className="min-w-0 flex-1 text-xs">
+                      <span className="text-[10px] text-zinc-400 font-mono block">{t.time}</span>
+                      <span className={`font-semibold ${t.done ? 'text-zinc-800' : 'text-zinc-400'}`}>
+                        {t.text}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* PRD Madde 30: İletişim Bilgilerini Açma Kartı */}
+            <div className={`p-4 rounded-2xl border transition-all ${
+              offer.contactUnlocked 
+                ? 'bg-emerald-50 border-emerald-300' 
+                : 'bg-zinc-900 text-white border-zinc-800'
+            }`}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <ShieldCheck className={`w-4 h-4 ${offer.contactUnlocked ? 'text-emerald-700' : 'text-emerald-400'}`} />
+                <h5 className="font-extrabold text-xs">
+                  {offer.contactUnlocked ? 'İletişim Kartı Açıldı ✓' : 'İletişim Bilgileri Korumalı 🔒'}
+                </h5>
+              </div>
+
+              {offer.contactUnlocked ? (
+                <div className="space-y-1.5 text-xs text-emerald-950 mt-2 bg-white/80 p-3 rounded-xl border border-emerald-200">
+                  <p className="flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5 text-emerald-700" /> 
+                    <strong>Telefon / WhatsApp:</strong> {offer.partnerPhone}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5 text-emerald-700" /> 
+                    <strong>E-posta:</strong> {offer.partnerEmail}
+                  </p>
+                  <p className="text-[11px] text-emerald-800 pt-1">
+                    Artık yüz yüze buluşma noktasını veya kargo adresini doğrudan teyit edebilirsiniz.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-[11px] text-zinc-300 leading-relaxed mb-3">
+                    Telefon ve adres bilgileri her iki taraf karşılıklı onay verene kadar kilitlidir.
+                  </p>
+                  <button
+                    onClick={handleUnlockContact}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all shadow-md cursor-pointer"
+                  >
+                    İletişim Bilgilerini Karşılıklı Aç
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* PRD Madde 33: Takas Tamamlama Butonu */}
+            {offer.contactUnlocked && offer.status !== 'COMPLETED' && (
+              <button
+                onClick={handleCompleteSwap}
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-black py-3 px-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Handshake className="w-4 h-4" />
+                <span>Takası Tamamlandı Olarak İşaretle (PRD Madde 33)</span>
+              </button>
+            )}
+          </div>
+
+          {/* Right Column: In-Offer Messaging (PRD Madde 28) */}
+          <div className="md:col-span-6 flex flex-col h-full bg-white">
+            {/* Chat header */}
+            <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-zinc-800">Teklif Görüşmesi</span>
+              </div>
+              <span className="text-[10px] text-zinc-400">Teklif içi güvenli sohbet</span>
+            </div>
+
+            {/* Messages stream */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-zinc-50/30">
+              {offer.messages.map((m, idx) => (
+                <div
+                  key={idx}
+                  className={`flex flex-col ${m.isMe ? 'items-end' : 'items-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-xs ${
+                      m.isMe
+                        ? 'bg-emerald-600 text-white rounded-tr-none'
+                        : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-none shadow-2xs'
+                    }`}
+                  >
+                    <p className="leading-relaxed">{m.text}</p>
+                    <span className={`text-[9px] block mt-1 ${m.isMe ? 'text-emerald-100' : 'text-zinc-400'}`}>
+                      {m.time}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Chat Input form */}
+            <div className="border-t border-zinc-200 bg-white p-3">
+              {chatCashCheck.hasCashViolation && (
+                <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 flex items-center gap-1.5 animate-pulse">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                  <span><strong>Nakit Para Engellendi:</strong> {chatCashCheck.warningMessage}</span>
+                </div>
+              )}
+              <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  placeholder="Caner'e mesaj yaz..."
+                  className={`flex-1 bg-zinc-50 border rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 ${
+                    chatCashCheck.hasCashViolation ? 'border-red-400 focus:ring-red-300' : 'border-zinc-200 focus:ring-emerald-500/30'
+                  }`}
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim() || chatCashCheck.hasCashViolation}
+                  className="w-10 h-10 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white rounded-xl flex items-center justify-center transition-all shrink-0 cursor-pointer"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* PRD Madde 35: Değerlendirme Modalı (Takas Nasıl Geçti?) */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-zinc-200">
+            {reviewSubmitted ? (
+              <div className="text-center py-6 space-y-3">
+                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                  <CheckCircle2 className="w-10 h-10" />
+                </div>
+                <h3 className="text-2xl font-black text-zinc-900">🎉 Takas Tamamlandı!</h3>
+                <p className="text-xs text-zinc-600">
+                  Değerlendirmeniz kaydedildi. Başarılı takas sayesinde <strong>JetTrust</strong> puanınız güncellendi.
+                </p>
+                <button
+                  onClick={() => {
+                    setShowReviewModal(false)
+                    setReviewSubmitted(false)
+                  }}
+                  className="mt-3 bg-zinc-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl"
+                >
+                  Kapat
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-black text-base text-zinc-900">Takas Nasıldı? (PRD Madde 35)</h4>
+                  <button onClick={() => setShowReviewModal(false)} className="text-zinc-400 hover:text-zinc-700">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-xs text-zinc-500 mb-4">
+                  <strong>{offer.partnerName}</strong> ile gerçekleştirdiğiniz takas deneyimini 3 temel kriterde puanlayın:
+                </p>
+
+                {/* 3 Criteria Ratings */}
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="font-bold text-zinc-700 block mb-1">1. İletişim & Nezaket</label>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-zinc-700 block mb-1">2. Ürün Açıklamasının Doğruluğu</label>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-zinc-700 block mb-1">3. Güvenilirlik & Dakiklik</label>
+                    <div className="flex items-center gap-1 text-amber-500">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-zinc-700 block mb-1">Yorumunuz</label>
+                    <textarea
+                      rows={2}
+                      value={reviewComment}
+                      onChange={e => setReviewComment(e.target.value)}
+                      placeholder="Ürün anlatıldığı gibiydi, sorunsuz takas..."
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3">
+                  <button
+                    onClick={() => setShowReviewModal(false)}
+                    className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900"
+                  >
+                    Vazgeç
+                  </button>
+                  <button
+                    onClick={handleSubmitReview}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md cursor-pointer"
+                  >
+                    Değerlendirmeyi Gönder
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

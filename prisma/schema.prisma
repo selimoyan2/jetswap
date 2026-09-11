@@ -1,0 +1,156 @@
+// JetSwap Database Schema - Pure Barter Platform (No Money Transactions)
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum ItemCondition {
+  BRAND_NEW   // Sıfır / Kutusunda
+  LIKE_NEW    // Sıfır Ayarında / Az Kullanılmış
+  GOOD        // İyi Durumda
+  FAIR        // Yıpranmış / Çalışır Durumda
+}
+
+enum ItemStatus {
+  AVAILABLE      // Takasa Açık
+  PENDING_TRADE  // Teklif Onaylandı / Takas Aşamasında
+  TRADED         // Başarıyla Takaslandı
+  ARCHIVED       // Arşivlendi / Pasif
+}
+
+enum TradeMethod {
+  HAND_TO_HAND  // Yalnızca Elden Teslim
+  CARGO_ONLY    // Yalnızca Kargo
+  BOTH          // Hem Elden Hem Kargo
+}
+
+enum TradeOfferStatus {
+  PENDING         // Teklif Gönderildi (İncelemede)
+  ACCEPTED        // Karşılıklı Kabul Edildi (İletişim Bilgileri Açıldı)
+  REJECTED        // Reddedildi
+  COUNTER_OFFERED // Karşı Teklif Yapıldı
+  COMPLETED       // Takas Tamamlandı & Başarılı
+  CANCELLED       // İptal Edildi
+}
+
+enum OfferItemRole {
+  OFFERED    // Teklifi yapanın verdiği eşya(lar)
+  REQUESTED  // Karşı taraftan istenen eşya(lar)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  phone         String?   // SADECE takas karşılıklı kabul edildiğinde karşı tarafa gösterilir
+  avatar        String?
+  bio           String?
+  country       String    @default("TR")
+  city          String    @default("İstanbul")
+  rating        Float     @default(5.0)
+  reviewCount   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items           Item[]
+  sentOffers      TradeOffer[]   @relation("SentOffers")
+  receivedOffers  TradeOffer[]   @relation("ReceivedOffers")
+  messages        TradeMessage[]
+  givenReviews    Review[]       @relation("GivenReviews")
+  receivedReviews Review[]       @relation("ReceivedReviews")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  nameTr      String
+  nameEn      String
+  icon        String?  // Lucide icon name (e.g., 'Laptop', 'Car', 'Watch')
+  description String?
+  items       Item[]
+}
+
+model Item {
+  id                String         @id @default(cuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  categoryId        String
+  category          Category       @relation(fields: [categoryId], references: [id])
+  condition         ItemCondition  @default(GOOD)
+  tradeMethod       TradeMethod    @default(BOTH)
+  images            String[]       // Resim URL listesi
+  country           String         @default("TR")
+  city              String         @default("İstanbul")
+  
+  // Takas Tercihleri (Kullanıcının ne aradığı)
+  targetCategories  String[]       // İstenen kategoriler (örn: ["elektronik", "muzik-aletleri"])
+  targetDescription String         // Açık takas isteği (örn: "Sony kulaklık veya temiz elektro gitar arıyorum")
+  valueTier         String?        @default("MEDIUM") // LOW, MEDIUM, HIGH, PREMIUM (Öneri algoritması dengesi için)
+  
+  status            ItemStatus     @default(AVAILABLE)
+  viewCount         Int            @default(0)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  offerItems        TradeOfferItem[]
+}
+
+model TradeOffer {
+  id                String            @id @default(cuid())
+  senderId          String
+  sender            User              @relation("SentOffers", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId        String
+  receiver          User              @relation("ReceivedOffers", fields: [receiverId], references: [id], onDelete: Cascade)
+  status            TradeOfferStatus  @default(PENDING)
+  note              String?           // Teklif sahibinin notu
+  
+  // Güvenli İletişim Bariyeri (Contact Reveal Gate)
+  contactRevealed   Boolean           @default(false)
+  contactRevealedAt DateTime?
+  completedAt       DateTime?
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  items             TradeOfferItem[]
+  messages          TradeMessage[]
+  review            Review?
+}
+
+model TradeOfferItem {
+  id          String         @id @default(cuid())
+  offerId     String
+  offer       TradeOffer     @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  role        OfferItemRole  // OFFERED veya REQUESTED
+}
+
+model TradeMessage {
+  id          String     @id @default(cuid())
+  offerId     String
+  offer       TradeOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content     String
+  createdAt   DateTime   @default(now())
+}
+
+model Review {
+  id           String      @id @default(cuid())
+  offerId      String      @unique
+  offer        TradeOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User        @relation("GivenReviews", fields: [authorId], references: [id], onDelete: Cascade)
+  targetUserId String
+  targetUser   User        @relation("ReceivedReviews", fields: [targetUserId], references: [id], onDelete: Cascade)
+  rating       Int         @default(5)
+  comment      String?
+  createdAt    DateTime    @default(now())
+}
