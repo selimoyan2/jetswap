@@ -52,9 +52,11 @@ export async function POST(request: Request) {
     })
 
     return response
-  } catch (error) {
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : String(error)
+    console.error('Admin login error:', error)
     return NextResponse.json(
-      { success: false, message: 'Giriş işlemi sırasında bir hata oluştu.' },
+      { success: false, message: 'Giriş işlemi sırasında bir hata oluştu.', error: errMessage },
       { status: 500 }
     )
   }
