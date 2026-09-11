@@ -6,8 +6,10 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Enforce development environment for npm ci so devDependencies (TypeScript, Tailwind, etc.) are installed
+ENV NODE_ENV=development
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --include=dev
 
 # Step 2: Build the source code
 FROM base AS builder
@@ -34,6 +36,7 @@ ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+RUN npm install -g prisma@6.4.1
 
 COPY --from=builder /app/public ./public
 
@@ -43,7 +46,8 @@ RUN chown nextjs:nodejs .next
 
 # Copy Prisma schema and engine for runtime migrations
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/docker-entrypoint.sh ./docker-entrypoint.sh
+COPY --from=builder --chown=nextjs:nodejs /app/docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -53,4 +57,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+ENTRYPOINT ["/bin/sh", "./docker-entrypoint.sh"]
