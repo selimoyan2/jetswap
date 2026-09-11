@@ -256,6 +256,8 @@ export default function HomePage() {
       {/* Navbar with Guest vs Authenticated state */}
       <Navbar
         currentUser={currentUser}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         onOpenAuth={(mode) => {
           setAuthMode(mode || 'register')
           setAuthPromptReason('')
