@@ -59,7 +59,9 @@ HOSTNAME=0.0.0.0
 DATABASE_URL=postgresql://postgres:SIFRENIZ@postgres-servis-adi:5432/jetswap_db?schema=public
 NEXTAUTH_SECRET=guclu-rastgele-32-karakterli-gizli-anahtar
 NEXTAUTH_URL=https://jetswap.com.tr
-ADMIN_SECRET_KEY=JetSwap_Admin_Security_Key_2026
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=JetSwap2026!Admin
+ADMIN_SECRET_KEY=jetswap_admin_access_key_9988
 NEXT_PUBLIC_APP_NAME=JetSwap
 NEXT_PUBLIC_APP_URL=https://jetswap.com.tr
 ```

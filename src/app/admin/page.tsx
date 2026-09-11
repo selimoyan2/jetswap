@@ -1,18 +1,97 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ShieldAlert, Users, Package, ArrowLeftRight, CheckCircle2, 
   DollarSign, BarChart3, Settings, Ban, Flag, Star, Search, 
   ExternalLink, ArrowLeft, RefreshCw, Eye, AlertTriangle, Radio,
-  FolderTree, ChevronRight, Layers, Plus
+  FolderTree, ChevronRight, Layers, Plus, Lock, LogOut, EyeOff, ShieldCheck, KeyRound
 } from 'lucide-react'
 import { mockItems, mockCurrentUser, categories } from '@/data/mockData'
 
 export default function AdminPage() {
+  // Superadmin Auth State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+  const [adminUser, setAdminUser] = useState<{ username: string; role: string } | null>(null)
+  const [loginForm, setLoginForm] = useState({
+    username: '',
+    password: '',
+    error: '',
+    isSubmitting: false,
+    showPassword: false,
+  })
+
   const [activeTab, setActiveTab] = useState<'overview' | 'ads' | 'categories' | 'users' | 'listings' | 'moderation'>('overview')
+
+  // Check admin session on mount
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/admin/verify')
+        const data = await res.json()
+        if (data.authenticated) {
+          setIsAuthenticated(true)
+          setAdminUser(data.user)
+        } else {
+          setIsAuthenticated(false)
+        }
+      } catch {
+        setIsAuthenticated(false)
+      }
+    }
+    checkAuth()
+  }, [])
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoginForm(prev => ({ ...prev, error: '', isSubmitting: true }))
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: loginForm.username.trim(),
+          password: loginForm.password.trim(),
+        }),
+      })
+      const data = await res.json()
+
+      if (res.ok && data.success) {
+        setIsAuthenticated(true)
+        setAdminUser(data.admin)
+        setLoginForm({
+          username: '',
+          password: '',
+          error: '',
+          isSubmitting: false,
+          showPassword: false,
+        })
+      } else {
+        setLoginForm(prev => ({
+          ...prev,
+          error: data.message || 'Geçersiz kullanıcı adı veya şifre.',
+          isSubmitting: false,
+        }))
+      }
+    } catch {
+      setLoginForm(prev => ({
+        ...prev,
+        error: 'Sunucuya bağlanırken bir hata oluştu.',
+        isSubmitting: false,
+      }))
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+    } catch {}
+    setIsAuthenticated(false)
+    setAdminUser(null)
+  }
 
   // Ad Settings State
   const [adsensePublisherId, setAdsensePublisherId] = useState('ca-pub-1234567890123456')
@@ -72,6 +151,131 @@ export default function AdminPage() {
 
   const activeCategoryObj = categories.find(c => c.slug === selectedCatSlug) || categories[0]
 
+  // Loading state
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-amber-600 flex items-center justify-center text-white font-black text-lg animate-pulse mb-4 shadow-xl">
+          SA
+        </div>
+        <p className="text-xs font-semibold text-zinc-400">Yönetici oturumu kontrol ediliyor...</p>
+      </div>
+    )
+  }
+
+  // Superadmin Login Portal
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:24px_24px] opacity-25" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative w-full max-w-md z-10">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-600 to-amber-600 text-white font-black text-2xl shadow-xl shadow-red-900/30 mb-4 ring-4 ring-red-500/20">
+              SA
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">JetSwap Süperadmin</h1>
+            <p className="text-xs text-zinc-400 mt-1.5 flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-red-500" />
+              <span>Güvenli Yönetim & Moderasyon Portalı</span>
+            </p>
+          </div>
+
+          <div className="bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/50">
+            <form onSubmit={handleLogin} className="space-y-5">
+              {loginForm.error && (
+                <div className="p-3.5 bg-red-950/60 border border-red-800/80 rounded-2xl text-xs text-red-300 flex items-start gap-2.5 animate-in fade-in duration-200">
+                  <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                  <span>{loginForm.error}</span>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                  Yönetici Kullanıcı Adı
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={loginForm.username}
+                    onChange={e => setLoginForm(prev => ({ ...prev, username: e.target.value }))}
+                    placeholder="admin veya e-posta"
+                    className="w-full pl-10 pr-4 py-3 bg-zinc-950 border border-zinc-800 rounded-2xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-300 mb-1.5 uppercase tracking-wider">
+                  Yönetici Şifresi
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={loginForm.showPassword ? 'text' : 'password'}
+                    required
+                    value={loginForm.password}
+                    onChange={e => setLoginForm(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-11 py-3 bg-zinc-950 border border-zinc-800 rounded-2xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setLoginForm(prev => ({ ...prev, showPassword: !prev.showPassword }))}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                  >
+                    {loginForm.showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loginForm.isSubmitting}
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-sm rounded-2xl shadow-lg shadow-red-900/30 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+              >
+                {loginForm.isSubmitting ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Doğrulanıyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <KeyRound className="w-4 h-4" />
+                    <span>Süperadmin Girişi Yap</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center">
+              <p className="text-[11px] text-zinc-500 leading-relaxed">
+                Bu yönetim alanı yalnızca yetkili sistem yöneticileri içindir. Tüm erişim denemeleri loglanmaktadır.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-center mt-6">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>JetSwap Ana Sayfasına Dön</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-zinc-100 flex flex-col font-sans">
       {/* Superadmin Top Navigation */}
@@ -99,12 +303,21 @@ export default function AdminPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <span className="text-xs font-bold text-emerald-400 block flex items-center justify-end gap-1">
+              <div className="flex items-center justify-end gap-1.5 text-xs font-bold text-emerald-400">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                Sistem Çevrimiçi
-              </span>
-              <span className="text-[10px] text-zinc-500">Hostinger VPS • Coolify Standalone</span>
+                Süperadmin: {adminUser?.username || 'admin'}
+              </div>
+              <span className="text-[10px] text-zinc-400">Hostinger VPS • Coolify Standalone</span>
             </div>
+
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-xs bg-red-950/80 hover:bg-red-900 border border-red-800/80 text-red-200 px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer shadow-xs"
+              title="Oturumu Kapat"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Çıkış Yap</span>
+            </button>
           </div>
         </div>
       </header>
