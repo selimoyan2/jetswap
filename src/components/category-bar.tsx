@@ -4,7 +4,8 @@ import React from 'react'
 import { categories } from '@/data/mockData'
 import { 
   Smartphone, Laptop, Camera, Gamepad2, Guitar, Bike, 
-  Watch, Home, Compass, Car, Layers, ChevronRight 
+  Watch, Home, Compass, Car, Layers, ChevronRight,
+  Shirt, Baby, BookOpen, Palette, Wrench, Sparkles
 } from 'lucide-react'
 
 interface CategoryBarProps {
@@ -24,7 +25,13 @@ const iconMap: Record<string, any> = {
   Watch,
   Home,
   Compass,
-  Car
+  Car,
+  Shirt,
+  Baby,
+  BookOpen,
+  Palette,
+  Wrench,
+  Sparkles
 }
 
 export const CategoryBar: React.FC<CategoryBarProps> = ({

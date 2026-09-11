@@ -26,10 +26,11 @@ export const categories: Category[] = [
     icon: 'Smartphone', 
     count: 1840,
     subCategories: [
-      { id: '1-1', slug: 'akilli-telefon', nameTr: 'Akıllı Telefonlar', nameEn: 'Smartphones', count: 1210 },
-      { id: '1-2', slug: 'tablet', nameTr: 'Tabletler (iPad / Android)', nameEn: 'Tablets', count: 320 },
+      { id: '1-1', slug: 'akilli-telefon', nameTr: 'Akıllı Telefonlar (iPhone / Android)', nameEn: 'Smartphones', count: 1210 },
+      { id: '1-2', slug: 'tablet', nameTr: 'Tabletler (iPad / Galaxy Tab)', nameEn: 'Tablets', count: 320 },
       { id: '1-3', slug: 'akilli-saat-bileklik', nameTr: 'Akıllı Saat & Bileklik', nameEn: 'Smartwatches', count: 180 },
       { id: '1-4', slug: 'kulaklik-mobil-ses', nameTr: 'Kablosuz Kulaklık & Mobil Ses', nameEn: 'Wireless Earphones', count: 130 },
+      { id: '1-5', slug: 'sarj-guc-aksesuar', nameTr: 'MagSafe, Şarj İstasyonu & Powerbank', nameEn: 'Power & Accessories', count: 95 },
     ]
   },
   { 
@@ -40,10 +41,12 @@ export const categories: Category[] = [
     icon: 'Laptop', 
     count: 1420,
     subCategories: [
-      { id: '2-1', slug: 'dizustu-laptop', nameTr: 'Dizüstü Bilgisayar (Laptop / MacBook)', nameEn: 'Laptops / MacBooks', count: 760 },
-      { id: '2-2', slug: 'oyuncu-pc-masaustu', nameTr: 'Masaüstü & Oyuncu PC', nameEn: 'Desktops & Gaming PCs', count: 340 },
-      { id: '2-3', slug: 'monitor-ekran', nameTr: 'Monitör & Ekranlar', nameEn: 'Monitors', count: 190 },
-      { id: '2-4', slug: 'ekran-karti-donanim', nameTr: 'Ekran Kartı & Parçalar', nameEn: 'Components & GPUs', count: 130 },
+      { id: '2-1', slug: 'dizustu-laptop', nameTr: 'Dizüstü Bilgisayar (MacBook / Laptop)', nameEn: 'Laptops / MacBooks', count: 760 },
+      { id: '2-2', slug: 'oyuncu-pc-masaustu', nameTr: 'Masaüstü & Oyuncu PC Kasaları', nameEn: 'Desktops & Gaming PCs', count: 340 },
+      { id: '2-3', slug: 'monitor-ekran', nameTr: 'Monitör & Ekranlar (OLED / 4K / Curved)', nameEn: 'Monitors', count: 190 },
+      { id: '2-4', slug: 'ekran-karti-donanim', nameTr: 'Ekran Kartı (GPU), İşlemci & RAM', nameEn: 'Components & GPUs', count: 130 },
+      { id: '2-5', slug: 'klavye-mouse-ekipman', nameTr: 'Mekanik Klavye, Mouse & Kulaklık', nameEn: 'Keyboards & Peripherals', count: 115 },
+      { id: '2-6', slug: 'depolama-ag-cihazlari', nameTr: 'Harici SSD, NAS & Router / Ağ', nameEn: 'Storage & Networking', count: 85 },
     ]
   },
   { 
@@ -54,10 +57,11 @@ export const categories: Category[] = [
     icon: 'Camera', 
     count: 680,
     subCategories: [
-      { id: '3-1', slug: 'aynasiz-dslr', nameTr: 'Aynasız & DSLR Gövdeler', nameEn: 'Mirrorless & DSLR Bodies', count: 290 },
+      { id: '3-1', slug: 'aynasiz-dslr', nameTr: 'Aynasız & DSLR Gövdeler (Sony / Canon / Nikon)', nameEn: 'Mirrorless & DSLR Bodies', count: 290 },
       { id: '3-2', slug: 'kamera-lensleri', nameTr: 'Kamera Lensleri & Filtreler', nameEn: 'Camera Lenses', count: 210 },
-      { id: '3-3', slug: 'drone-aksiyon', nameTr: 'Drone & Aksiyon Kameraları', nameEn: 'Drones & Action Cams', count: 120 },
-      { id: '3-4', slug: 'tripod-gimbal-isik', nameTr: 'Gimbal, Tripod & Stüdyo Işığı', nameEn: 'Gimbals & Studio Lights', count: 60 },
+      { id: '3-3', slug: 'drone-aksiyon', nameTr: 'Drone & Aksiyon Kameraları (DJI / GoPro)', nameEn: 'Drones & Action Cams', count: 120 },
+      { id: '3-4', slug: 'tripod-gimbal-isik', nameTr: 'Gimbal, Tripod & Stüdyo Işıkları', nameEn: 'Gimbals & Studio Lights', count: 60 },
+      { id: '3-5', slug: 'kamera-mikrofon-ses', nameTr: 'Harici Mikrofon & Ses Kayıt Cihazları', nameEn: 'Microphones & Recorders', count: 45 },
     ]
   },
   { 
@@ -68,9 +72,10 @@ export const categories: Category[] = [
     icon: 'Gamepad2', 
     count: 890,
     subCategories: [
-      { id: '4-1', slug: 'konsol-cihazlari', nameTr: 'Oyun Konsolları (PS5, Xbox, Switch)', nameEn: 'Game Consoles', count: 480 },
-      { id: '4-2', slug: 'kutulu-oyunlar', nameTr: 'Kutulu Fiziksel Oyunlar', nameEn: 'Boxed Games', count: 260 },
-      { id: '4-3', slug: 'konsol-aksesuar-kol', nameTr: 'Kollar, Direksiyon & VR Gözlük', nameEn: 'Controllers & VR', count: 150 },
+      { id: '4-1', slug: 'konsol-cihazlari', nameTr: 'Oyun Konsolları (PS5, Xbox Series, Switch)', nameEn: 'Game Consoles', count: 480 },
+      { id: '4-2', slug: 'kutulu-oyunlar', nameTr: 'Kutulu Fiziksel Oyunlar (Disk / Kartuş)', nameEn: 'Boxed Games', count: 260 },
+      { id: '4-3', slug: 'konsol-aksesuar-kol', nameTr: 'Kollar, Direksiyon Seti & VR Gözlük', nameEn: 'Controllers & VR', count: 150 },
+      { id: '4-4', slug: 'retro-oyun-konsollari', nameTr: 'Retro Konsol & Klasik Oyun Cihazları', nameEn: 'Retro Consoles', count: 90 },
     ]
   },
   { 
@@ -81,10 +86,12 @@ export const categories: Category[] = [
     icon: 'Guitar', 
     count: 530,
     subCategories: [
-      { id: '5-1', slug: 'elektro-akustik-gitar', nameTr: 'Elektro & Akustik Gitarlar', nameEn: 'Electric & Acoustic Guitars', count: 220 },
+      { id: '5-1', slug: 'elektro-akustik-gitar', nameTr: 'Elektro, Akustik & Bas Gitarlar', nameEn: 'Guitars & Basses', count: 220 },
       { id: '5-2', slug: 'piyano-klavye', nameTr: 'Piyano, Org & Synthesizer', nameEn: 'Keyboards & Pianos', count: 140 },
-      { id: '5-3', slug: 'studyo-dj-ses', nameTr: 'Stüdyo, DJ Ekipmanı & Mikser', nameEn: 'Studio & DJ Gear', count: 110 },
-      { id: '5-4', slug: 'davul-perkusyon', nameTr: 'Davul & Perküsyon', nameEn: 'Drums & Percussion', count: 60 },
+      { id: '5-3', slug: 'studyo-dj-ses', nameTr: 'Stüdyo, DJ Ekipmanı, Ses Kartı & Mikser', nameEn: 'Studio & DJ Gear', count: 110 },
+      { id: '5-4', slug: 'davul-perkusyon', nameTr: 'Davul, Bateri & Perküsyon', nameEn: 'Drums & Percussion', count: 60 },
+      { id: '5-5', slug: 'yayli-nefesli-calgilar', nameTr: 'Keman, Saksafon, Klarnet & Nefesli / Yaylı', nameEn: 'Strings & Winds', count: 50 },
+      { id: '5-6', slug: 'amfi-pedal-efekt', nameTr: 'Gitar Amfileri, Pedallar & Prosesör', nameEn: 'Amps & FX Pedals', count: 65 },
     ]
   },
   { 
@@ -98,6 +105,8 @@ export const categories: Category[] = [
       { id: '6-1', slug: 'dag-yol-bisikleti', nameTr: 'Dağ & Yol / Gravel Bisikletleri', nameEn: 'Mountain & Road Bikes', count: 350 },
       { id: '6-2', slug: 'katlanir-sehir', nameTr: 'Katlanır & Şehir Bisikletleri', nameEn: 'Folding & City Bikes', count: 210 },
       { id: '6-3', slug: 'elektrikli-scooter-e-bike', nameTr: 'Elektrikli Scooter & E-Bike', nameEn: 'Electric Bikes & Scooters', count: 160 },
+      { id: '6-4', slug: 'paten-kaykay', nameTr: 'Paten, Kaykay & Longboard', nameEn: 'Skateboards & Rollerblades', count: 85 },
+      { id: '6-5', slug: 'bisiklet-kask-aksesuar', nameTr: 'Bisiklet Kaskı, Çanta & Yedek Parça', nameEn: 'Bike Gear & Parts', count: 70 },
     ]
   },
   { 
@@ -108,9 +117,11 @@ export const categories: Category[] = [
     icon: 'Watch', 
     count: 460,
     subCategories: [
-      { id: '7-1', slug: 'mekanik-otomatik-saat', nameTr: 'Mekanik & Otomatik Kol Saatleri', nameEn: 'Automatic Watches', count: 210 },
-      { id: '7-2', slug: 'vintage-antika', nameTr: 'Vintage & Antika Eşyalar', nameEn: 'Antiques & Vintage', count: 150 },
-      { id: '7-3', slug: 'koleksiyon-cizgi-roman', nameTr: 'Koleksiyon Kartları, Para & Çizgi Roman', nameEn: 'Comics & Cards', count: 100 },
+      { id: '7-1', slug: 'mekanik-otomatik-saat', nameTr: 'Mekanik & Otomatik Kol Saatleri (Seiko, Tissot vb.)', nameEn: 'Automatic Watches', count: 210 },
+      { id: '7-2', slug: 'vintage-antika', nameTr: 'Vintage & Antika Eşyalar (Objeler, Heykeller)', nameEn: 'Antiques & Vintage', count: 150 },
+      { id: '7-3', slug: 'koleksiyon-cizgi-roman', nameTr: 'Koleksiyon Kartları, Para & Madalyalar', nameEn: 'Cards & Coins', count: 100 },
+      { id: '7-4', slug: 'plak-pikap-nostalji', nameTr: 'Vinil Plak, Pikap & Nostalji Cihazları', nameEn: 'Vinyl Records & Players', count: 80 },
+      { id: '7-5', slug: 'diecast-maket-model', nameTr: 'Diecast Model Araç & Ölçekli Maketler', nameEn: 'Diecast & Models', count: 65 },
     ]
   },
   { 
@@ -121,9 +132,11 @@ export const categories: Category[] = [
     icon: 'Home', 
     count: 910,
     subCategories: [
-      { id: '8-1', slug: 'kahve-mutfak', nameTr: 'Kahve Makineleri & Mutfak', nameEn: 'Coffee & Kitchen', count: 380 },
-      { id: '8-2', slug: 'calisma-masasi-ergonomik', nameTr: 'Çalışma Masası & Ergonomik Koltuk', nameEn: 'Desks & Ergonomic Chairs', count: 320 },
-      { id: '8-3', slug: 'aydinlatma-dekorasyon', nameTr: 'Tasarım Aydınlatma & Dekorasyon', nameEn: 'Lighting & Decor', count: 210 },
+      { id: '8-1', slug: 'kahve-mutfak', nameTr: 'Espresso & Filtre Kahve Makineleri, Nitelikli Mutfak', nameEn: 'Coffee & Kitchen', count: 380 },
+      { id: '8-2', slug: 'calisma-masasi-ergonomik', nameTr: 'Çalışma Masası, Ergonomik & Oyuncu Koltuğu', nameEn: 'Desks & Ergonomic Chairs', count: 320 },
+      { id: '8-3', slug: 'aydinlatma-dekorasyon', nameTr: 'Tasarım Aydınlatma & Ev Dekorasyonu', nameEn: 'Lighting & Decor', count: 210 },
+      { id: '8-4', slug: 'robot-supurge-akilli-ev', nameTr: 'Robot Süpürge & Akıllı Ev Sistemleri', nameEn: 'Smart Home & Robot Vacuums', count: 175 },
+      { id: '8-5', slug: 'kucuk-ev-aletleri', nameTr: 'Airfryer, Blender & Mutfak Şefleri', nameEn: 'Small Appliances', count: 140 },
     ]
   },
   { 
@@ -134,9 +147,11 @@ export const categories: Category[] = [
     icon: 'Compass', 
     count: 640,
     subCategories: [
-      { id: '9-1', slug: 'cadir-kamp-malzemeleri', nameTr: 'Çadır, Uyku Tulumu & Kamp', nameEn: 'Tents & Camping', count: 290 },
-      { id: '9-2', slug: 'fitness-agirlik', nameTr: 'Fitness & Ağırlık Ekipmanı', nameEn: 'Fitness & Gym', count: 210 },
-      { id: '9-3', slug: 'kis-su-sporlari', nameTr: 'Kayak, Snowboard & Su Sporları', nameEn: 'Winter & Water Sports', count: 140 },
+      { id: '9-1', slug: 'cadir-kamp-malzemeleri', nameTr: 'Çadır, Uyku Tulumu & Kampçılık Malzemeleri', nameEn: 'Tents & Camping', count: 290 },
+      { id: '9-2', slug: 'fitness-agirlik', nameTr: 'Fitness, Ağırlık Setleri & Ev Spor Aletleri', nameEn: 'Fitness & Gym Gear', count: 210 },
+      { id: '9-3', slug: 'kis-sporlari-kayak', nameTr: 'Kayak, Snowboard & Kış Sporları', nameEn: 'Winter & Snow Sports', count: 140 },
+      { id: '9-4', slug: 'su-sporlari-sup-dalis', nameTr: 'Dalış, SUP Board & Su Sporları Ekipmanları', nameEn: 'Water Sports & Diving', count: 95 },
+      { id: '9-5', slug: 'trekking-taktik-outdoor', nameTr: 'Trekking Çanta, Taktik Giysi & Doğa Botu', nameEn: 'Trekking & Tactical Gear', count: 120 },
     ]
   },
   { 
@@ -147,9 +162,101 @@ export const categories: Category[] = [
     icon: 'Car', 
     count: 320,
     subCategories: [
-      { id: '10-1', slug: 'motosiklet-scooter', nameTr: 'Motosiklet & Maxi Scooter', nameEn: 'Motorcycles', count: 160 },
+      { id: '10-1', slug: 'motosiklet-scooter', nameTr: 'Motosiklet & Maxi Scooter', nameEn: 'Motorcycles & Scooters', count: 160 },
       { id: '10-2', slug: 'karavan-romork', nameTr: 'Çekme Karavan & Kamp Römorku', nameEn: 'Caravans & Trailers', count: 90 },
-      { id: '10-3', slug: 'tekne-deniz-araclari', nameTr: 'Tekne & Deniz Araçları', nameEn: 'Boats & Marine', count: 70 },
+      { id: '10-3', slug: 'tekne-deniz-araclari', nameTr: 'Tekne, Şişme Bot & Deniz Araçları', nameEn: 'Boats & Marine', count: 70 },
+      { id: '10-4', slug: 'motosiklet-kask-ekipman', nameTr: 'Motosiklet Kaskı, Deri Mont & Koruma', nameEn: 'Motorcycle Helmets & Gear', count: 130 },
+      { id: '10-5', slug: 'oto-multimedya-aksesuar', nameTr: 'Araç İçi Multimedya, Dashcam & Ses Sistemi', nameEn: 'Car Audio & Dashcams', count: 85 },
+    ]
+  },
+  { 
+    id: '11', 
+    slug: 'moda-giyim', 
+    nameTr: 'Moda, Giyim & Lüks Aksesuar', 
+    nameEn: 'Fashion & Luxury', 
+    icon: 'Shirt', 
+    count: 850,
+    subCategories: [
+      { id: '11-1', slug: 'sneaker-spor-ayakkabi', nameTr: 'Sneaker & Koleksiyonluk Spor Ayakkabılar (Jordan, Nike)', nameEn: 'Sneakers & Streetwear Shoes', count: 340 },
+      { id: '11-2', slug: 'canta-deri-cuzdan', nameTr: 'Marka Çanta, Cüzdan & Deri Aksesuarlar', nameEn: 'Luxury Bags & Wallets', count: 210 },
+      { id: '11-3', slug: 'mont-ceket-dis-giyim', nameTr: 'Deri Mont, Kaban & Tasarım Dış Giyim', nameEn: 'Jackets & Coats', count: 150 },
+      { id: '11-4', slug: 'gunes-gozlugu-taki', nameTr: 'Güneş Gözlüğü & Tasarım Takı / Aksesuar', nameEn: 'Sunglasses & Jewelry', count: 110 },
+      { id: '11-5', slug: 'ozel-gun-abiye-takim', nameTr: 'Takım Elbise, Abiye & Özel Gün Kıyafetleri', nameEn: 'Suits & Formal Wear', count: 40 },
+    ]
+  },
+  { 
+    id: '12', 
+    slug: 'bebek-cocuk-oyuncak', 
+    nameTr: 'Bebek, Çocuk & Oyuncak', 
+    nameEn: 'Baby, Kids & Toys', 
+    icon: 'Baby', 
+    count: 730,
+    subCategories: [
+      { id: '12-1', slug: 'bebek-arabasi-puset', nameTr: 'Bebek Arabası, Puset & Kanguru', nameEn: 'Strollers & Carriers', count: 260 },
+      { id: '12-2', slug: 'oto-koltugu-guvenlik', nameTr: 'Oto Koltuğu & Çocuk Güvenlik Ürünleri', nameEn: 'Car Seats & Safety', count: 180 },
+      { id: '12-3', slug: 'lego-kutu-oyunlari', nameTr: 'Lego Setleri, Puzzle & Akıl Oyunları', nameEn: 'Lego & Board Games', count: 150 },
+      { id: '12-4', slug: 'akulu-araba-cocuk-bisiklet', nameTr: 'Akülü Araba, Çocuk Bisikleti & Scooter', nameEn: 'Ride-on Cars & Kids Bikes', count: 95 },
+      { id: '12-5', slug: 'egitici-oyuncak-oda', nameTr: 'Eğitici Ahşap Oyuncaklar & Bebek Odası Mobilyası', nameEn: 'Educational Toys & Nursery', count: 45 },
+    ]
+  },
+  { 
+    id: '13', 
+    slug: 'kitap-kirtasiye', 
+    nameTr: 'Kitap, Çizgi Roman & Kırtasiye', 
+    nameEn: 'Books & Stationery', 
+    icon: 'BookOpen', 
+    count: 620,
+    subCategories: [
+      { id: '13-1', slug: 'roman-edebiyat-klasikler', nameTr: 'Roman, Dünya Edebiyatı & Klasikler', nameEn: 'Fiction & Literature', count: 240 },
+      { id: '13-2', slug: 'manga-cizgi-roman', nameTr: 'Manga, Çizgi Roman & Grafik Romanlar', nameEn: 'Manga & Comic Books', count: 160 },
+      { id: '13-3', slug: 'akademik-mesleki-kitaplar', nameTr: 'Akademik, Üniversite & Yabancı Dil Kitapları', nameEn: 'Academic & Language Books', count: 110 },
+      { id: '13-4', slug: 'nadir-imzali-ilk-baski', nameTr: 'İmzalı Eserler, Nadir & İlk Baskı Kitaplar', nameEn: 'Rare & Signed Editions', count: 65 },
+      { id: '13-5', slug: 'dolma-kalem-kirtasiye', nameTr: 'Koleksiyon Dolma Kalem & Özel Defter / Kırtasiye', nameEn: 'Fountain Pens & Stationery', count: 45 },
+    ]
+  },
+  { 
+    id: '14', 
+    slug: 'sanat-el-emegi', 
+    nameTr: 'Sanat, El Emeği & Tasarım', 
+    nameEn: 'Art & Handmade Crafts', 
+    icon: 'Palette', 
+    count: 410,
+    subCategories: [
+      { id: '14-1', slug: 'yagliboya-akrilik-tablo', nameTr: 'Orijinal Yağlıboya & Akrilik Tablolar', nameEn: 'Original Oil & Acrylic Paintings', count: 160 },
+      { id: '14-2', slug: 'heykel-seramik-cam', nameTr: 'Heykel, Seramik, Çömlek & Cam Sanatı', nameEn: 'Sculptures & Ceramics', count: 95 },
+      { id: '14-3', slug: 'ahsap-oyma-recine', nameTr: 'Özel Tasarım Ahşap Oymacılık & Reçine Sanatı', nameEn: 'Woodcraft & Resin Art', count: 65 },
+      { id: '14-4', slug: 'dijital-sanat-fineart', nameTr: 'İmzalı Dijital Sanat & Fine Art Sanat Baskıları', nameEn: 'Digital Art & Fine Prints', count: 50 },
+      { id: '14-5', slug: 'el-dokuma-hali-kilim', nameTr: 'El Dokuma Halı, Kilim & Geleneksel El Sanatları', nameEn: 'Handwoven Rugs & Crafts', count: 40 },
+    ]
+  },
+  { 
+    id: '15', 
+    slug: 'alet-bahce-atolye', 
+    nameTr: 'Alet, Atölye & Bahçe Ekipmanı', 
+    nameEn: 'Tools, Workshop & Garden', 
+    icon: 'Wrench', 
+    count: 540,
+    subCategories: [
+      { id: '15-1', slug: 'matkap-vidalama-akulu', nameTr: 'Akülü Vidalama, Kırıcı & Matkap Setleri (Bosch, DeWalt)', nameEn: 'Cordless Drills & Drivers', count: 190 },
+      { id: '15-2', slug: 'testere-dekupaj-zimpara', nameTr: 'Daire Testere, Dekupaj, Spiral & Zımpara', nameEn: 'Saws & Sanders', count: 130 },
+      { id: '15-3', slug: 'kaynak-kompresor-atolye', nameTr: 'Kaynak Makineleri, Kompresör & Atölye Takımları', nameEn: 'Welders & Workshop Tools', count: 90 },
+      { id: '15-4', slug: 'cim-bicme-bahce-bakim', nameTr: 'Çim Biçme, Çit Budama & Bahçe Bakım Cihazları', nameEn: 'Lawn Mowers & Garden Tools', count: 80 },
+      { id: '15-5', slug: 'basincli-yikama-makineleri', nameTr: 'Basınçlı Yıkama Makineleri & Oto Yıkama Setleri (Kärcher)', nameEn: 'Pressure Washers', count: 50 },
+    ]
+  },
+  { 
+    id: '16', 
+    slug: 'hizmet-beceri-takas', 
+    nameTr: 'Beceri, Hizmet & Freelance Takas', 
+    nameEn: 'Skills & Service Barter', 
+    icon: 'Sparkles', 
+    count: 380,
+    subCategories: [
+      { id: '16-1', slug: 'yazilim-web-mobil', nameTr: 'Yazılım Geliştirme, Web Sitesi & Mobil Uygulama', nameEn: 'Software & Web Development', count: 130 },
+      { id: '16-2', slug: 'grafik-3d-tasarim', nameTr: 'Logo, Grafik Tasarım, 3D Modelleme & UI/UX', nameEn: 'Graphic & 3D Design', count: 95 },
+      { id: '16-3', slug: 'video-kurgu-animasyon', nameTr: 'Video Kurgu, Ses Montajı & Animasyon', nameEn: 'Video Editing & Animation', count: 65 },
+      { id: '16-4', slug: 'ozel-ders-yabanci-dil', nameTr: 'Yabancı Dil, Müzik & Özel Ders Hizmetleri', nameEn: 'Tutoring & Language Lessons', count: 55 },
+      { id: '16-5', slug: 'dijital-pazarlama-seo', nameTr: 'Dijital Pazarlama, SEO & Sosyal Medya Danışmanlığı', nameEn: 'Digital Marketing & SEO', count: 35 },
     ]
   },
 ]

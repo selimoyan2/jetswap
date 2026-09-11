@@ -342,7 +342,7 @@ export default function AdminPage() {
             }`}
           >
             <FolderTree className="w-4 h-4 text-emerald-600" />
-            <span>Kategoriler & Alt Kategoriler (10 / 36)</span>
+            <span>Kategoriler & Alt Kategoriler ({categories.length} / {categories.reduce((acc, c) => acc + c.subCategories.length, 0)})</span>
           </button>
 
           <button
