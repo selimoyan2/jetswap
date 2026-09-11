@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { Navbar } from '@/components/navbar'
 import { UserDashboardBar } from '@/components/user-dashboard-bar'
@@ -18,15 +18,19 @@ import { ReportModal } from '@/components/report-modal'
 import { ForbiddenItemsModal } from '@/components/forbidden-items-modal'
 import { MySwapsModal } from '@/components/my-swaps-modal'
 import { AuthModal } from '@/components/auth-modal'
+import { EditProfileModal } from '@/components/edit-profile-modal'
 import { TrustVerificationModal } from '@/components/trust-verification-modal'
 import { MobileBottomNav } from '@/components/mobile-bottom-nav'
 import { AdBanner } from '@/components/ads/ad-banner'
-import { mockItems, mockMyPortfolio, mockCurrentUser, categories } from '@/data/mockData'
-import { TradeItem, TimeFilterScope, LocationFilterScope } from '@/types'
+import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
+import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
 import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield } from 'lucide-react'
 
 export default function HomePage() {
+  // Current logged in user (null = Guest / Visitor)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+
   const [items, setItems] = useState<TradeItem[]>(mockItems)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -45,7 +49,44 @@ export default function HomePage() {
   const [isForbiddenModalOpen, setIsForbiddenModalOpen] = useState(false)
   const [isSwapsOpen, setIsSwapsOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
   const [isTrustVerificationOpen, setIsTrustVerificationOpen] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
+  const [authPromptReason, setAuthPromptReason] = useState('')
+
+  // Check saved session on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('jetswap_active_user')
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (parsed && parsed.id) {
+          setCurrentUser(parsed)
+        }
+      }
+    } catch {}
+  }, [])
+
+  const handleAuthSuccess = (user: User) => {
+    setCurrentUser(user)
+    try {
+      localStorage.setItem('jetswap_active_user', JSON.stringify(user))
+    } catch {}
+  }
+
+  const handleLogout = () => {
+    setCurrentUser(null)
+    try {
+      localStorage.removeItem('jetswap_active_user')
+    } catch {}
+  }
+
+  const handleUpdateUser = (updated: User) => {
+    setCurrentUser(updated)
+    try {
+      localStorage.setItem('jetswap_active_user', JSON.stringify(updated))
+    } catch {}
+  }
 
   // Scope counts for QuickTimeFilter
   const scopeCounts = useMemo(() => {
@@ -54,11 +95,11 @@ export default function HomePage() {
       yesterday: items.filter(i => i.daysAgo === 1).length,
       week: items.filter(i => i.daysAgo <= 7).length,
       month: items.filter(i => i.daysAgo <= 30).length,
-      nearby: items.filter(i => i.district === mockCurrentUser.district).length,
-      city: items.filter(i => i.city === mockCurrentUser.city).length,
+      nearby: currentUser ? items.filter(i => i.district === currentUser.district).length : 0,
+      city: currentUser ? items.filter(i => i.city === currentUser.city).length : 0,
       all: items.length,
     }
-  }, [items])
+  }, [items, currentUser])
 
   // Filtered items (Kategori, Alt Kategori, Zaman & Konum Filtreleme)
   const filteredItems = useMemo(() => {
@@ -93,10 +134,10 @@ export default function HomePage() {
         return false
       }
       // Location scope quick filter (Yakınımdaki Takaslar / Şehrimdeki İlanlar)
-      if (locationScope === 'nearby' && item.district !== mockCurrentUser.district) {
+      if (locationScope === 'nearby' && currentUser && item.district !== currentUser.district) {
         return false
       }
-      if (locationScope === 'city' && item.city !== mockCurrentUser.city) {
+      if (locationScope === 'city' && currentUser && item.city !== currentUser.city) {
         return false
       }
       // Search query filter (Brand, Model, Title, Description, Target)
@@ -113,12 +154,51 @@ export default function HomePage() {
       }
       return true
     })
-  }, [items, selectedCategory, selectedSubCategory, selectedCity, selectedDistrict, timeScope, locationScope, searchQuery])
+  }, [items, selectedCategory, selectedSubCategory, selectedCity, selectedDistrict, timeScope, locationScope, searchQuery, currentUser])
 
-  // Handle open trade offer
+  // Handle open trade offer (Requires login)
   const handleOpenTradeOffer = (targetItem: TradeItem, myItem?: TradeItem) => {
+    if (!currentUser) {
+      setAuthMode('register')
+      setAuthPromptReason('Bu ürüne takas teklifi gönderebilmek için lütfen ücretsiz üye olun veya giriş yapın.')
+      setIsAuthOpen(true)
+      return
+    }
     setTargetItemForTrade(targetItem)
     setMyPreselectedItem(myItem || null)
+  }
+
+  // Handle open create listing (Requires login)
+  const handleOpenCreateListing = () => {
+    if (!currentUser) {
+      setAuthMode('register')
+      setAuthPromptReason('Takas ilanı yayınlayabilmek için lütfen ücretsiz kayıt olun veya giriş yapın.')
+      setIsAuthOpen(true)
+      return
+    }
+    setIsCreateListingOpen(true)
+  }
+
+  // Handle open portfolio (Requires login)
+  const handleOpenPortfolio = () => {
+    if (!currentUser) {
+      setAuthMode('login')
+      setAuthPromptReason('Takas portföyünüzü ve eşyalarınızı yönetmek için lütfen giriş yapın.')
+      setIsAuthOpen(true)
+      return
+    }
+    setIsPortfolioOpen(true)
+  }
+
+  // Handle open swaps (Requires login)
+  const handleOpenSwaps = () => {
+    if (!currentUser) {
+      setAuthMode('login')
+      setAuthPromptReason('Gelen ve giden takas tekliflerinizi görüntülemek için lütfen giriş yapın.')
+      setIsAuthOpen(true)
+      return
+    }
+    setIsSwapsOpen(true)
   }
 
   // Handle submit offer
@@ -128,6 +208,20 @@ export default function HomePage() {
 
   // Handle new item listing (HAVE)
   const handleItemCreated = (newItemData: Partial<TradeItem>) => {
+    const author: User = currentUser || {
+      id: `usr-${Date.now()}`,
+      name: 'Yeni Takasçı',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      country: 'TR',
+      city: newItemData.city || 'İstanbul',
+      district: newItemData.district || 'Merkez',
+      jetTrust: 70,
+      verifiedSwapper: false,
+      completedSwaps: 0,
+      rating: 5.0,
+      reviewCount: 0
+    }
+
     const created: TradeItem = {
       id: `item-${Date.now()}`,
       title: newItemData.title || '',
@@ -139,16 +233,16 @@ export default function HomePage() {
       condition: newItemData.condition || 'LIKE_NEW',
       tradeMethod: newItemData.tradeMethod || 'BOTH',
       images: newItemData.images || ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'],
-      city: newItemData.city || 'İstanbul',
-      district: newItemData.district || mockCurrentUser.district || 'Kadıköy',
-      country: newItemData.country || 'TR',
+      city: newItemData.city || author.city,
+      district: newItemData.district || author.district || 'Merkez',
+      country: newItemData.country || author.country,
       targetCategories: newItemData.targetCategories || ['bilgisayar'],
       targetSubCategories: newItemData.targetSubCategories || ['dizustu-laptop'],
       targetDescription: newItemData.targetDescription || 'Her türlü mantıklı takas teklifine açığım',
       openToOffers: newItemData.openToOffers ?? true,
       matchScore: 95,
       valueTier: 'HIGH',
-      user: mockCurrentUser,
+      user: author,
       createdAt: 'Bugün',
       daysAgo: 0,
       status: 'ACTIVE',
@@ -159,22 +253,34 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col font-sans selection:bg-emerald-500 selection:text-white pb-16 md:pb-0">
-      {/* Navbar */}
+      {/* Navbar with Guest vs Authenticated state */}
       <Navbar
-        onOpenPortfolio={() => setIsPortfolioOpen(true)}
-        onOpenCreateItem={() => setIsCreateListingOpen(true)}
+        currentUser={currentUser}
+        onOpenAuth={(mode) => {
+          setAuthMode(mode || 'register')
+          setAuthPromptReason('')
+          setIsAuthOpen(true)
+        }}
+        onLogout={handleLogout}
+        onOpenEditProfile={() => setIsEditProfileOpen(true)}
+        onOpenPortfolio={handleOpenPortfolio}
+        onOpenCreateItem={handleOpenCreateListing}
         onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)}
         onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
       />
 
       <main className="flex-1">
-        {/* User Greeting Dashboard Bar */}
-        <UserDashboardBar
-          onOpenSwaps={() => setIsSwapsOpen(true)}
-          onOpenPortfolio={() => setIsPortfolioOpen(true)}
-          onOpenCreateItem={() => setIsCreateListingOpen(true)}
-          onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
-        />
+        {/* User Greeting Dashboard Bar - YALNIZCA GİRİŞ YAPMIŞ ÜYELERE GÖRÜNÜR */}
+        {currentUser && (
+          <UserDashboardBar
+            currentUser={currentUser}
+            onOpenSwaps={handleOpenSwaps}
+            onOpenPortfolio={handleOpenPortfolio}
+            onOpenCreateItem={handleOpenCreateListing}
+            onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
+            onOpenEditProfile={() => setIsEditProfileOpen(true)}
+          />
+        )}
 
         {/* Hero Section */}
         <Hero
@@ -211,8 +317,8 @@ export default function HomePage() {
             setTimeScope={setTimeScope}
             locationScope={locationScope}
             setLocationScope={setLocationScope}
-            userCity={mockCurrentUser.city}
-            userDistrict={mockCurrentUser.district}
+            userCity={currentUser?.city || 'İstanbul'}
+            userDistrict={currentUser?.district || 'Kadıköy'}
             counts={scopeCounts}
           />
 
@@ -333,8 +439,9 @@ export default function HomePage() {
       <PortfolioModal
         isOpen={isPortfolioOpen}
         onClose={() => setIsPortfolioOpen(false)}
-        onOpenCreateItem={() => setIsCreateListingOpen(true)}
+        onOpenCreateItem={handleOpenCreateListing}
         onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
+        currentUser={currentUser}
       />
 
       <CreateListingModal
@@ -363,12 +470,24 @@ export default function HomePage() {
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
-        onSuccess={() => console.log('Auth success')}
+        onSuccess={handleAuthSuccess}
+        initialMode={authMode}
+        customPromptMessage={authPromptReason}
       />
+
+      {currentUser && (
+        <EditProfileModal
+          isOpen={isEditProfileOpen}
+          onClose={() => setIsEditProfileOpen(false)}
+          currentUser={currentUser}
+          onUpdateUser={handleUpdateUser}
+        />
+      )}
 
       <TrustVerificationModal
         isOpen={isTrustVerificationOpen}
         onClose={() => setIsTrustVerificationOpen(false)}
+        currentUser={currentUser}
       />
     </div>
   )

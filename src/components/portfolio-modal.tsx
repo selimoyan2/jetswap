@@ -4,13 +4,14 @@ import React from 'react'
 import Image from 'next/image'
 import { X, Plus, Package, ArrowLeftRight, CheckCircle2, Shield, Star, MapPin, ShieldCheck, Check, Sparkles } from 'lucide-react'
 import { mockCurrentUser, mockMyPortfolio } from '@/data/mockData'
-import { TradeItem } from '@/types'
+import { User, TradeItem } from '@/types'
 
 interface PortfolioModalProps {
   isOpen: boolean
   onClose: () => void
   onOpenCreateItem: () => void
   onOpenTrustVerification?: () => void
+  currentUser?: User | null
 }
 
 export const PortfolioModal: React.FC<PortfolioModalProps> = ({
@@ -18,7 +19,9 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
   onClose,
   onOpenCreateItem,
   onOpenTrustVerification,
+  currentUser,
 }) => {
+  const activeUser = currentUser || mockCurrentUser
   if (!isOpen) return null
 
   return (
@@ -28,12 +31,12 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
         <div className="sticky top-0 bg-white/95 backdrop-blur-md px-6 py-4 border-b border-zinc-100 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-600 shrink-0">
-              <Image src={mockCurrentUser.avatar} alt={mockCurrentUser.name} fill className="object-cover" />
+              <Image src={activeUser.avatar} alt={activeUser.name} fill className="object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-black text-base text-zinc-900">{mockCurrentUser.name}</h3>
-                {mockCurrentUser.verifiedSwapper && (
+                <h3 className="font-black text-base text-zinc-900">{activeUser.name}</h3>
+                {activeUser.verifiedSwapper && (
                   <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                     Verified Swapper
@@ -41,11 +44,11 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 )}
               </div>
               <p className="text-xs text-zinc-500 flex items-center gap-2 mt-0.5">
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-zinc-400" /> {mockCurrentUser.city}, {mockCurrentUser.country}</span>
+                <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-zinc-400" /> {activeUser.city}, {activeUser.country}</span>
                 <span>•</span>
-                <span className="font-bold text-amber-600 flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {mockCurrentUser.rating}</span>
+                <span className="font-bold text-amber-600 flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {activeUser.rating}</span>
                 <span>•</span>
-                <span className="text-emerald-700 font-bold">{mockCurrentUser.completedSwaps} Başarılı Takas</span>
+                <span className="text-emerald-700 font-bold">{activeUser.completedSwaps} Başarılı Takas</span>
               </p>
             </div>
           </div>
@@ -65,7 +68,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 JetTrust Skoru
               </span>
-              <span className="text-base font-black text-emerald-950 leading-none">{mockCurrentUser.jetTrust} / 100</span>
+              <span className="text-base font-black text-emerald-950 leading-none">{activeUser.jetTrust} / 100</span>
             </button>
             <button
               onClick={onClose}

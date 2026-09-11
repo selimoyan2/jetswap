@@ -2,33 +2,47 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package } from 'lucide-react'
-import { mockCurrentUser } from '@/data/mockData'
+import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package, Settings, MapPin } from 'lucide-react'
+import { User } from '@/types'
 
 interface UserDashboardBarProps {
+  currentUser: User
   onOpenSwaps: () => void
   onOpenPortfolio: () => void
   onOpenCreateItem: () => void
   onOpenTrustVerification?: () => void
+  onOpenEditProfile?: () => void
 }
 
 export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
+  currentUser,
   onOpenSwaps,
   onOpenPortfolio,
   onOpenCreateItem,
   onOpenTrustVerification,
+  onOpenEditProfile,
 }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
       <div className="bg-white rounded-3xl border border-zinc-200/90 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         {/* User Info */}
         <div className="flex items-center gap-3.5">
-          <div className="relative w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-600 shrink-0">
-            <Image src={mockCurrentUser.avatar} alt={mockCurrentUser.name} fill className="object-cover" />
-          </div>
+          <button
+            type="button"
+            onClick={onOpenEditProfile}
+            className="relative w-12 h-12 rounded-2xl overflow-hidden border-2 border-emerald-600 shrink-0 hover:opacity-90 transition-opacity cursor-pointer group"
+            title="Profili Düzenle"
+          >
+            <Image src={currentUser.avatar} alt={currentUser.name} fill className="object-cover" />
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
+              <Settings className="w-4 h-4" />
+            </div>
+          </button>
+
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-black text-zinc-900">Günaydın, {mockCurrentUser.name} 👋</h2>
+              <h2 className="text-base font-black text-zinc-900">Günaydın, {currentUser.name} 👋</h2>
+              
               <button
                 type="button"
                 onClick={onOpenTrustVerification}
@@ -36,11 +50,26 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
                 title="Doğrulama Durumunu Görüntüle"
               >
                 <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                <span>{mockCurrentUser.jetTrust} JetTrust (Doğrulanmış)</span>
+                <span>{currentUser.jetTrust} JetTrust {currentUser.verifiedSwapper ? '(Doğrulanmış)' : ''}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onOpenEditProfile}
+                className="text-[11px] text-zinc-500 hover:text-emerald-700 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+              >
+                <Settings className="w-3 h-3" />
+                <span>Profili Düzenle</span>
               </button>
             </div>
-            <p className="text-xs text-zinc-500 mt-0.5">
-              Portföyünüzde 2 aktif eşya yayında • 3'lü akıllı takas döngüleri aktif
+
+            <p className="text-xs text-zinc-500 mt-0.5 flex items-center gap-1.5">
+              <MapPin className="w-3 h-3 text-emerald-600" />
+              <span>{currentUser.district ? `${currentUser.district}, ` : ''}{currentUser.city}</span>
+              <span>•</span>
+              <span>{currentUser.completedSwaps} Başarılı Takas</span>
+              <span>•</span>
+              <span className="text-emerald-700 font-bold">Akıllı takas döngüleri aktif</span>
             </p>
           </div>
         </div>
@@ -73,7 +102,7 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer"
           >
             <Package className="w-4 h-4 text-teal-600" />
-            <span>Portföyüm (2)</span>
+            <span>Portföyüm</span>
           </button>
 
           {/* New Item button */}

@@ -4,12 +4,16 @@ import React, { useState } from 'react'
 import { X, ShieldCheck, CheckCircle2, Lock, Smartphone, Mail, FileText, ArrowRight, Sparkles, Award } from 'lucide-react'
 import { mockCurrentUser } from '@/data/mockData'
 
+import { User } from '@/types'
+
 interface TrustVerificationModalProps {
   isOpen: boolean
   onClose: () => void
+  currentUser?: User | null
 }
 
-export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ isOpen, onClose }) => {
+export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ isOpen, onClose, currentUser }) => {
+  const activeUser = currentUser || mockCurrentUser
   const [activeStep, setActiveStep] = useState<number>(2) // User has Level 1 verified by default
   const [smsCode, setSmsCode] = useState('')
   const [isSmsSent, setIsSmsSent] = useState(false)
@@ -51,7 +55,7 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                 Mevcut Güven Skoru
               </span>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-3xl font-black">{mockCurrentUser.jetTrust}</span>
+                <span className="text-3xl font-black">{activeUser.jetTrust}</span>
                 <span className="text-xs text-emerald-200">/ 100 Puan</span>
               </div>
               <p className="text-[11px] text-emerald-100 mt-1">
