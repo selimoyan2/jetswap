@@ -216,6 +216,8 @@ export interface TranslationSchema {
     done: string
     cashBlockedTitle: string
     jetMatchSubcatTip: string
+    welcomeNewUserTitle: string
+    welcomeNewUserDesc: string
   }
   tradeOffer: {
     title: string

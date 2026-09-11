@@ -53,6 +53,7 @@ export default function HomePage() {
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
   const [isTrustVerificationOpen, setIsTrustVerificationOpen] = useState(false)
+  const [isFirstListingWelcome, setIsFirstListingWelcome] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [authPromptReason, setAuthPromptReason] = useState('')
 
@@ -64,16 +65,32 @@ export default function HomePage() {
         const parsed = JSON.parse(stored)
         if (parsed && parsed.id) {
           setCurrentUser(parsed)
+          // Yeni üye ilk girdiğinde ilan penceresi kontrolü
+          const pendingFirstListing = sessionStorage.getItem('jetswap_first_listing_prompt')
+          if (pendingFirstListing === 'true') {
+            setIsFirstListingWelcome(true)
+            setIsCreateListingOpen(true)
+            sessionStorage.removeItem('jetswap_first_listing_prompt')
+          }
         }
       }
     } catch {}
   }, [])
 
-  const handleAuthSuccess = (user: User) => {
+  const handleAuthSuccess = (user: User, isNewRegistration?: boolean) => {
     setCurrentUser(user)
     try {
       localStorage.setItem('jetswap_active_user', JSON.stringify(user))
     } catch {}
+
+    // Yeni üye sisteme ilk girdiğinde hemen elindeki eşyayı girmesi için pencere açılsın
+    if (isNewRegistration) {
+      setIsFirstListingWelcome(true)
+      setIsCreateListingOpen(true)
+      try {
+        sessionStorage.setItem('jetswap_first_listing_prompt', 'true')
+      } catch {}
+    }
   }
 
   const handleLogout = () => {
@@ -251,6 +268,10 @@ export default function HomePage() {
       likesCount: 0
     }
     setItems(prev => [created, ...prev])
+    setIsFirstListingWelcome(false)
+    try {
+      sessionStorage.removeItem('jetswap_first_listing_prompt')
+    } catch {}
   }
 
   return (
@@ -456,9 +477,16 @@ export default function HomePage() {
 
       <CreateListingModal
         isOpen={isCreateListingOpen}
-        onClose={() => setIsCreateListingOpen(false)}
+        onClose={() => {
+          setIsCreateListingOpen(false)
+          setIsFirstListingWelcome(false)
+          try {
+            sessionStorage.removeItem('jetswap_first_listing_prompt')
+          } catch {}
+        }}
         onItemCreated={handleItemCreated}
         onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)}
+        isFirstTimeUser={isFirstListingWelcome}
       />
 
       <MySwapsModal

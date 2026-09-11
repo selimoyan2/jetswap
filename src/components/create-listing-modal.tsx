@@ -14,6 +14,7 @@ interface CreateListingModalProps {
   onClose: () => void
   onItemCreated: (newItem: Partial<TradeItem>) => void
   onOpenForbiddenPolicy: () => void
+  isFirstTimeUser?: boolean
 }
 
 export const CreateListingModal: React.FC<CreateListingModalProps> = ({
@@ -21,6 +22,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
   onClose,
   onItemCreated,
   onOpenForbiddenPolicy,
+  isFirstTimeUser = false,
 }) => {
   const { t, language } = useLanguage()
   const [title, setTitle] = useState('')
@@ -151,6 +153,19 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
+            {/* New User Welcome Banner */}
+            {isFirstTimeUser && (
+              <div className="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-300/80 rounded-2xl flex items-start gap-3 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <Sparkles className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-emerald-950">{t.createListing.welcomeNewUserTitle}</h4>
+                  <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">{t.createListing.welcomeNewUserDesc}</p>
+                </div>
+              </div>
+            )}
+
             {/* Cash Violation Alert */}
             {cashCheck.hasCashViolation && (
               <div className="p-3.5 bg-red-50 border-2 border-red-300 rounded-2xl text-xs text-red-900 flex items-start gap-2.5 animate-pulse">

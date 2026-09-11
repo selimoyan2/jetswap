@@ -203,7 +203,9 @@ export const en: TranslationSchema = {
     addedToPortfolioDesc: 'Your listing is live. JetMatch algorithm has started computing matches based on your subcategory criteria.',
     done: 'Done',
     cashBlockedTitle: 'Cash Demand Blocked:',
-    jetMatchSubcatTip: 'Subcategory matching ensures 100% targeted barter matches.'
+    jetMatchSubcatTip: 'Subcategory matching ensures 100% targeted barter matches.',
+    welcomeNewUserTitle: '🎉 Welcome to JetSwap Network!',
+    welcomeNewUserDesc: 'To start swapping and take advantage of JetMatch smart recommendations, please add your first barter item.'
   },
   tradeOffer: {
     title: 'Send Swap Offer',

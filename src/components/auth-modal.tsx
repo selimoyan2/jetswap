@@ -11,7 +11,7 @@ import { useLanguage } from '@/i18n'
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (user: User) => void
+  onSuccess: (user: User, isNewRegistration?: boolean) => void
   initialMode?: 'login' | 'register'
   customPromptMessage?: string
 }
@@ -92,7 +92,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       setIsSuccess(true)
       setTimeout(() => {
-        onSuccess(loggedUser)
+        onSuccess(loggedUser, false)
         onClose()
         setIsSuccess(false)
       }, 1000)
@@ -154,7 +154,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       setIsSuccess(true)
       setTimeout(() => {
-        onSuccess(newUser)
+        onSuccess(newUser, true)
         onClose()
         setIsSuccess(false)
       }, 1200)

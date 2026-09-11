@@ -203,7 +203,9 @@ export const tr: TranslationSchema = {
     addedToPortfolioDesc: 'İlanınız başarıyla yayına alındı. JetMatch motorumuz belirlediğiniz alt kategori kriterlerine göre eşleşmeleri hesaplamaya başladı.',
     done: 'Tamam',
     cashBlockedTitle: 'Para Talebi Engellendi:',
-    jetMatchSubcatTip: 'Alt kategori eşleşmesi sayesinde %100 doğrudan isabet sağlanır.'
+    jetMatchSubcatTip: 'Alt kategori eşleşmesi sayesinde %100 doğrudan isabet sağlanır.',
+    welcomeNewUserTitle: '🎉 JetSwap Ailesine Hoş Geldiniz!',
+    welcomeNewUserDesc: 'Takas yapmaya başlamak ve JetMatch akıllı eşleşmelerinden yararlanabilmek için lütfen elinizdeki takaslık ilk eşyayı ekleyin.'
   },
   tradeOffer: {
     title: 'Takas Teklifi Gönder',
