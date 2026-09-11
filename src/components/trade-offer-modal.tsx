@@ -6,6 +6,7 @@ import { X, ArrowLeftRight, ShieldCheck, CheckCircle2, AlertCircle, Plus, Send, 
 import { TradeItem } from '@/types'
 import { mockMyPortfolio } from '@/data/mockData'
 import { detectCashKeywords } from '@/lib/cashFilter'
+import { useLanguage } from '@/i18n'
 
 interface TradeOfferModalProps {
   targetItem: TradeItem | null
@@ -20,6 +21,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
   onClose,
   onSubmitOffer,
 }) => {
+  const { t } = useLanguage()
   const [selectedMyItemIds, setSelectedMyItemIds] = useState<string[]>(
     initialMyItem ? [initialMyItem.id] : [mockMyPortfolio[0]?.id || '']
   )
@@ -63,13 +65,13 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
               <ArrowLeftRight className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-zinc-900">Takas Teklifi Oluştur (PRD Madde 14 & 15)</h3>
-              <p className="text-xs text-zinc-500">Çoklu Ürün Desteği (1 ↔ 1 veya 2 ↔ 1) • Sıfır Para</p>
+              <h3 className="font-extrabold text-base text-zinc-900">{t.tradeOffer.title}</h3>
+              <p className="text-xs text-zinc-500">{t.tradeOffer.subtitle}</p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 transition-colors"
+            className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -80,40 +82,39 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h4 className="text-2xl font-black text-zinc-900">Takas Teklifi İletildi!</h4>
+            <h4 className="text-2xl font-black text-zinc-900">{t.tradeOffer.offerSentSuccess}</h4>
             <p className="text-sm text-zinc-600 max-w-md mx-auto">
-              Teklifiniz <strong>{targetItem.user.name}</strong> kullanıcısına gönderildi. 
-              Durum: <strong>Gönderildi → Görüldü</strong> aşamasına geçecektir.
+              {t.tradeOffer.offerSentDesc}
             </p>
 
             {/* PRD Madde 16: Teklif Aşamaları Özeti */}
             <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 max-w-lg mx-auto text-left">
               <h5 className="text-xs font-bold text-zinc-700 uppercase tracking-wider mb-2">
-                Teklif Süreci (PRD Madde 16 & 19):
+                {t.tradeOffer.tradeProcessTitle}
               </h5>
               <div className="flex items-center justify-between text-[11px] text-zinc-500 font-medium">
-                <span className="text-emerald-700 font-bold">1. Gönderildi ✓</span>
+                <span className="text-emerald-700 font-bold">1. {t.statuses.SUBMITTED} ✓</span>
                 <span>→</span>
-                <span>2. Müzakere</span>
+                <span>2. {t.statuses.NEGOTIATING}</span>
                 <span>→</span>
-                <span>3. Ön Anlaşma</span>
+                <span>3. {t.statuses.PRE_AGREEMENT}</span>
                 <span>→</span>
-                <span className="text-amber-700 font-bold">4. İletişim Açılır</span>
+                <span className="text-amber-700 font-bold">4. {t.statuses.CONTACT_REVEALED}</span>
               </div>
             </div>
 
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 max-w-md mx-auto text-xs text-amber-800 text-left flex gap-2">
               <ShieldCheck className="w-5 h-5 shrink-0 text-amber-600" />
               <span>
-                <strong>Gizlilik Bariyeri:</strong> Telefon ve açık adresiniz iki taraf karşılıklı "Ön Anlaşma" onaylayana kadar kesinlikle paylaşılmaz.
+                <strong>{t.tradeOffer.privacyBarrierTitle}:</strong> {t.tradeOffer.privacyBarrierDesc}
               </span>
             </div>
 
             <button
               onClick={handleResetAndClose}
-              className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all"
+              className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all cursor-pointer"
             >
-              Tamam
+              {t.createListing.done}
             </button>
           </div>
         ) : (
@@ -123,10 +124,10 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
               <div className="p-3.5 bg-red-50 border-2 border-red-300 rounded-2xl text-xs text-red-900 flex items-start gap-2.5 animate-pulse">
                 <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block font-bold">Para Talebi / Teklifi Yasaktır (PRD Madde 38):</strong>
+                  <strong className="block font-bold">{t.createListing.cashBlockedTitle}</strong>
                   {cashCheck.warningMessage}
                   <p className="mt-1 text-[11px] text-red-700">
-                    "Üstüne para vereyim / satılık mı?" gibi para içeren teklifler sistem tarafından engellenmektedir.
+                    {t.tradeOffer.pureBarterWarning}
                   </p>
                 </div>
               </div>
@@ -135,7 +136,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
             {/* Target Item (What you want) */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 block mb-2">
-                1. Karşı Taraftan İstediğin Eşya (WANT)
+                1. {t.tradeOffer.targetItemTitle}
               </label>
               <div className="flex items-center gap-3.5 bg-zinc-50 p-3.5 rounded-2xl border border-zinc-200">
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0">
@@ -163,10 +164,10 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-                  2. Portföyünden Vereceğin Eşya(lar) — Çoklu Seçim Yapabilirsin
+                  2. {t.tradeOffer.selectMyItem}
                 </label>
                 <span className="text-[11px] text-emerald-600 font-bold">
-                  {selectedMyItemIds.length} Eşya Seçildi
+                  {selectedMyItemIds.length} {t.tradeOffer.itemsSelected}
                 </span>
               </div>
 
@@ -193,7 +194,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
                       </div>
                       <div className="min-w-0 flex-1">
                         <h5 className="font-bold text-xs text-zinc-900 truncate">{item.title}</h5>
-                        <span className="text-[10px] text-zinc-500 block truncate">Portföyünüzde</span>
+                        <span className="text-[10px] text-zinc-500 block truncate">{t.tradeOffer.inYourPortfolio}</span>
                       </div>
                       <div
                         className={`w-5 h-5 rounded-full flex items-center justify-center border transition-colors ${
@@ -209,7 +210,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
 
               {selectedMyItemIds.length === 0 && (
                 <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" /> Lütfen portföyünüzden en az bir eşya seçiniz.
+                  <AlertCircle className="w-3.5 h-3.5" /> {t.tradeOffer.atLeastOneItem}
                 </p>
               )}
             </div>
@@ -217,13 +218,13 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
             {/* Note to the Owner */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-500 block mb-2">
-                3. Takas Teklifi Notunuz
+                3. {t.tradeOffer.offerNoteLabel}
               </label>
               <textarea
                 rows={3}
                 value={note}
                 onChange={e => setNote(e.target.value)}
-                placeholder="Örn: Merhaba, eşyamın kondisyonu çok iyi. İsterseniz Kadıköy'de yüz yüze veya kargo ile değişimi sağlayabiliriz..."
+                placeholder={t.tradeOffer.offerNotePlaceholder}
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-2xl p-3 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
               />
             </div>
@@ -232,8 +233,8 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
             <div className="p-4 rounded-2xl bg-zinc-900 text-zinc-200 text-xs flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white block font-bold mb-0.5">Gizlilik & İletişim Bariyeri (PRD Madde 19)</strong>
-                Telefon numaranız, WhatsApp veya açık adresiniz; her iki taraf teklifi karşılıklı onaylayıp "Ön Anlaşma" sağlayana kadar sistem tarafından kesinlikle gizli tutulur.
+                <strong className="text-white block font-bold mb-0.5">{t.tradeOffer.privacyBarrierTitle}</strong>
+                {t.tradeOffer.privacyBarrierDesc}
               </div>
             </div>
 
@@ -242,9 +243,9 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetAndClose}
-                className="px-4 py-2.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900"
+                className="px-4 py-2.5 text-xs font-semibold text-zinc-600 hover:text-zinc-900 cursor-pointer"
               >
-                Vazgeç
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
@@ -252,7 +253,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
                 className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>Teklifi İlet</span>
+                <span>{t.tradeOffer.submitOffer}</span>
               </button>
             </div>
           </form>

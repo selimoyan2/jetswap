@@ -26,8 +26,10 @@ import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
 import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
 import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield } from 'lucide-react'
+import { useLanguage } from '@/i18n'
 
 export default function HomePage() {
+  const { t } = useLanguage()
   // Current logged in user (null = Guest / Visitor)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
@@ -334,12 +336,12 @@ export default function HomePage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-3 py-0.5 rounded-full border border-emerald-200">
-                  Canlı Takas Pazarı
+                  {t.feed.badge}
                 </span>
-                <span className="text-xs text-zinc-500 font-bold">({filteredItems.length} Takaslık Eşya)</span>
+                <span className="text-xs text-zinc-500 font-bold">({filteredItems.length} {t.feed.itemCount})</span>
               </div>
               <h2 className="text-2xl font-black text-zinc-900 tracking-tight mt-1">
-                Güncel Takas İlanları
+                {t.feed.title}
               </h2>
             </div>
 
@@ -357,7 +359,7 @@ export default function HomePage() {
                 }}
                 className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline self-start sm:self-auto cursor-pointer"
               >
-                Tüm Filtreleri Temizle
+                {t.feed.resetButton}
               </button>
             )}
           </div>
@@ -400,9 +402,9 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-16 bg-white rounded-3xl border border-zinc-200 mt-6 p-8 shadow-xs">
               <PackageOpen className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
-              <h3 className="font-extrabold text-base text-zinc-800">Aramanıza Uygun Takas İlanı Bulunamadı</h3>
+              <h3 className="font-extrabold text-base text-zinc-800">{t.feed.emptyTitle}</h3>
               <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
-                Farklı bir alt kategori veya arama kelimesi seçebilirsiniz.
+                {t.feed.emptyDesc}
               </p>
               <button
                 onClick={() => {
@@ -413,7 +415,7 @@ export default function HomePage() {
                 }}
                 className="mt-4 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer"
               >
-                Tüm İlanları Göster
+                {t.common.viewAll}
               </button>
             </div>
           )}

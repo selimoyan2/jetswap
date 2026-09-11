@@ -10,6 +10,7 @@ import {
 import { mockCurrentUser, mockMyPortfolio, mockItems } from '@/data/mockData'
 import { TradeOfferStatus } from '@/types'
 import { detectCashKeywords } from '@/lib/cashFilter'
+import { useLanguage } from '@/i18n'
 
 interface MySwapsModalProps {
   isOpen: boolean
@@ -33,6 +34,7 @@ interface MockOfferState {
 }
 
 export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<'incoming' | 'outgoing' | 'completed'>('incoming')
   const [selectedOfferId, setSelectedOfferId] = useState<string>('offer-1')
   const [chatInput, setChatInput] = useState('')
@@ -120,17 +122,17 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-black text-base">Takaslarım & Müzakere Paneli</h3>
+                <h3 className="font-black text-base">{t.mySwaps.title}</h3>
                 <span className="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-md uppercase">
                   PRD Madde 37
                 </span>
               </div>
-              <p className="text-xs text-zinc-400">Teklifleri yönetin, sohbet edin ve karşılıklı takas edin</p>
+              <p className="text-xs text-zinc-400">{t.mySwaps.subtitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors"
+            className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -140,34 +142,34 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
         <div className="bg-zinc-100 px-6 pt-3 flex items-center gap-2 border-b border-zinc-200 shrink-0 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab('incoming')}
-            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'incoming'
                 ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
                 : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
-            <span>Gelen / Aktif Teklifler</span>
+            <span>{t.mySwaps.tabIncoming}</span>
             <span className="bg-emerald-100 text-emerald-900 text-[10px] px-1.5 py-0.2 rounded-full font-bold">1</span>
           </button>
           <button
             onClick={() => setActiveTab('outgoing')}
-            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'outgoing'
                 ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
                 : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
-            <span>Gönderdiğim Teklifler</span>
+            <span>{t.mySwaps.tabOutgoing}</span>
           </button>
           <button
             onClick={() => setActiveTab('completed')}
-            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-t-2xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'completed'
                 ? 'bg-white text-emerald-800 border-t-2 border-emerald-600 shadow-xs'
                 : 'text-zinc-600 hover:text-zinc-900'
             }`}
           >
-            <span>Tamamlanan Takaslar</span>
+            <span>{t.mySwaps.tabCompleted}</span>
             <span className="bg-zinc-200 text-zinc-700 text-[10px] px-1.5 py-0.2 rounded-full font-bold">27</span>
           </button>
         </div>
@@ -180,17 +182,17 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
             <div className="bg-white p-4 rounded-2xl border-2 border-emerald-200 shadow-xs">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
-                  Aktif Takas Paketi (1 ↔ 1)
+                  {t.mySwaps.activeSwapPackage} (1 ↔ 1)
                 </span>
                 <span className="text-xs font-black text-amber-600">
-                  {offer.status === 'COMPLETED' ? '✓ Takas Tamamlandı' : 'Görüşülüyor'}
+                  {offer.status === 'COMPLETED' ? `✓ ${t.statuses.COMPLETED}` : t.statuses[offer.status] || offer.status}
                 </span>
               </div>
 
               {/* Side by side items */}
               <div className="grid grid-cols-5 gap-2 items-center text-xs">
                 <div className="col-span-2 bg-zinc-50 p-2.5 rounded-xl border border-zinc-200">
-                  <span className="text-[9px] font-bold text-zinc-400 block uppercase">Sen Veriyorsun</span>
+                  <span className="text-[9px] font-bold text-zinc-400 block uppercase">{t.mySwaps.youGive}</span>
                   <strong className="text-zinc-900 text-xs line-clamp-2 mt-0.5">{offer.myItems[0]}</strong>
                 </div>
 
@@ -201,7 +203,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 </div>
 
                 <div className="col-span-2 bg-emerald-50/60 p-2.5 rounded-xl border border-emerald-200">
-                  <span className="text-[9px] font-bold text-emerald-800 block uppercase">Karşı Taraf Veriyor</span>
+                  <span className="text-[9px] font-bold text-emerald-800 block uppercase">{t.mySwaps.partnerGives}</span>
                   <strong className="text-emerald-950 text-xs line-clamp-2 mt-0.5">{offer.partnerItems[0]}</strong>
                 </div>
               </div>
@@ -229,19 +231,19 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
             <div className="bg-white p-4 rounded-2xl border border-zinc-200">
               <h4 className="text-xs font-black uppercase tracking-wider text-zinc-600 mb-3 flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-emerald-600" />
-                <span>Teklif Süreci & Zaman Çizelgesi</span>
+                <span>{t.mySwaps.timelineTitle}</span>
               </h4>
 
               <div className="space-y-3 relative pl-3 border-l-2 border-emerald-200 ml-1">
-                {offer.timeline.map((t, idx) => (
+                {offer.timeline.map((tItem, idx) => (
                   <div key={idx} className="relative flex items-start gap-2">
                     <div className={`w-2.5 h-2.5 rounded-full -left-[18px] absolute mt-0.5 ${
-                      t.done ? 'bg-emerald-600 ring-2 ring-emerald-200' : 'bg-zinc-300'
+                      tItem.done ? 'bg-emerald-600 ring-2 ring-emerald-200' : 'bg-zinc-300'
                     }`} />
                     <div className="min-w-0 flex-1 text-xs">
-                      <span className="text-[10px] text-zinc-400 font-mono block">{t.time}</span>
-                      <span className={`font-semibold ${t.done ? 'text-zinc-800' : 'text-zinc-400'}`}>
-                        {t.text}
+                      <span className="text-[10px] text-zinc-400 font-mono block">{tItem.time}</span>
+                      <span className={`font-semibold ${tItem.done ? 'text-zinc-800' : 'text-zinc-400'}`}>
+                        {tItem.text}
                       </span>
                     </div>
                   </div>
@@ -258,7 +260,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
               <div className="flex items-center gap-2 mb-1.5">
                 <ShieldCheck className={`w-4 h-4 ${offer.contactUnlocked ? 'text-emerald-700' : 'text-emerald-400'}`} />
                 <h5 className="font-extrabold text-xs">
-                  {offer.contactUnlocked ? 'İletişim Kartı Açıldı ✓' : 'İletişim Bilgileri Korumalı 🔒'}
+                  {offer.contactUnlocked ? t.mySwaps.contactUnlockedTitle : t.mySwaps.contactLockedTitle}
                 </h5>
               </div>
 
@@ -266,26 +268,26 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 <div className="space-y-1.5 text-xs text-emerald-950 mt-2 bg-white/80 p-3 rounded-xl border border-emerald-200">
                   <p className="flex items-center gap-2">
                     <Phone className="w-3.5 h-3.5 text-emerald-700" /> 
-                    <strong>Telefon / WhatsApp:</strong> {offer.partnerPhone}
+                    <strong>{t.auth.phone}:</strong> {offer.partnerPhone}
                   </p>
                   <p className="flex items-center gap-2">
                     <Mail className="w-3.5 h-3.5 text-emerald-700" /> 
-                    <strong>E-posta:</strong> {offer.partnerEmail}
+                    <strong>{t.auth.email}:</strong> {offer.partnerEmail}
                   </p>
                   <p className="text-[11px] text-emerald-800 pt-1">
-                    Artık yüz yüze buluşma noktasını veya kargo adresini doğrudan teyit edebilirsiniz.
+                    {t.mySwaps.contactRevealedNotice}
                   </p>
                 </div>
               ) : (
                 <div>
                   <p className="text-[11px] text-zinc-300 leading-relaxed mb-3">
-                    Telefon ve adres bilgileri her iki taraf karşılıklı onay verene kadar kilitlidir.
+                    {t.mySwaps.contactLockedNotice}
                   </p>
                   <button
                     onClick={handleUnlockContact}
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 px-3 rounded-xl transition-all shadow-md cursor-pointer"
                   >
-                    İletişim Bilgilerini Karşılıklı Aç
+                    {t.mySwaps.unlockContactButton}
                   </button>
                 </div>
               )}
@@ -298,7 +300,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white text-xs font-black py-3 px-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Handshake className="w-4 h-4" />
-                <span>Takası Tamamlandı Olarak İşaretle (PRD Madde 33)</span>
+                <span>{t.mySwaps.markCompletedButton}</span>
               </button>
             )}
           </div>
@@ -309,9 +311,9 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
             <div className="px-5 py-3 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span className="text-xs font-bold text-zinc-800">Teklif Görüşmesi</span>
+                <span className="text-xs font-bold text-zinc-800">{t.mySwaps.chatHeader}</span>
               </div>
-              <span className="text-[10px] text-zinc-400">Teklif içi güvenli sohbet</span>
+              <span className="text-[10px] text-zinc-400">{t.mySwaps.chatSubtitle}</span>
             </div>
 
             {/* Messages stream */}
@@ -342,7 +344,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
               {chatCashCheck.hasCashViolation && (
                 <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 flex items-center gap-1.5 animate-pulse">
                   <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
-                  <span><strong>Nakit Para Engellendi:</strong> {chatCashCheck.warningMessage}</span>
+                  <span><strong>{t.createListing.cashBlockedTitle}</strong> {chatCashCheck.warningMessage}</span>
                 </div>
               )}
               <form onSubmit={handleSendMessage} className="flex items-center gap-2">
@@ -350,7 +352,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                   type="text"
                   value={chatInput}
                   onChange={e => setChatInput(e.target.value)}
-                  placeholder="Caner'e mesaj yaz..."
+                  placeholder={t.mySwaps.chatPlaceholder}
                   className={`flex-1 bg-zinc-50 border rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 ${
                     chatCashCheck.hasCashViolation ? 'border-red-400 focus:ring-red-300' : 'border-zinc-200 focus:ring-emerald-500/30'
                   }`}
@@ -377,36 +379,36 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
-                <h3 className="text-2xl font-black text-zinc-900">🎉 Takas Tamamlandı!</h3>
+                <h3 className="text-2xl font-black text-zinc-900">{t.mySwaps.reviewSuccessTitle}</h3>
                 <p className="text-xs text-zinc-600">
-                  Değerlendirmeniz kaydedildi. Başarılı takas sayesinde <strong>JetTrust</strong> puanınız güncellendi.
+                  {t.mySwaps.reviewSuccessDesc}
                 </p>
                 <button
                   onClick={() => {
                     setShowReviewModal(false)
                     setReviewSubmitted(false)
                   }}
-                  className="mt-3 bg-zinc-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl"
+                  className="mt-3 bg-zinc-900 text-white text-xs font-bold px-6 py-2.5 rounded-xl cursor-pointer"
                 >
-                  Kapat
+                  {t.common.close}
                 </button>
               </div>
             ) : (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-black text-base text-zinc-900">Takas Nasıldı? (PRD Madde 35)</h4>
-                  <button onClick={() => setShowReviewModal(false)} className="text-zinc-400 hover:text-zinc-700">
+                  <h4 className="font-black text-base text-zinc-900">{t.mySwaps.reviewTitle}</h4>
+                  <button onClick={() => setShowReviewModal(false)} className="text-zinc-400 hover:text-zinc-700 cursor-pointer">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 <p className="text-xs text-zinc-500 mb-4">
-                  <strong>{offer.partnerName}</strong> ile gerçekleştirdiğiniz takas deneyimini 3 temel kriterde puanlayın:
+                  <strong>{offer.partnerName}</strong> {t.mySwaps.reviewSubtitle}
                 </p>
 
                 {/* 3 Criteria Ratings */}
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="font-bold text-zinc-700 block mb-1">1. İletişim & Nezaket</label>
+                    <label className="font-bold text-zinc-700 block mb-1">{t.mySwaps.critCommunication}</label>
                     <div className="flex items-center gap-1 text-amber-500">
                       {[1, 2, 3, 4, 5].map(star => (
                         <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
@@ -415,7 +417,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                   </div>
 
                   <div>
-                    <label className="font-bold text-zinc-700 block mb-1">2. Ürün Açıklamasının Doğruluğu</label>
+                    <label className="font-bold text-zinc-700 block mb-1">{t.mySwaps.critAccuracy}</label>
                     <div className="flex items-center gap-1 text-amber-500">
                       {[1, 2, 3, 4, 5].map(star => (
                         <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
@@ -424,7 +426,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                   </div>
 
                   <div>
-                    <label className="font-bold text-zinc-700 block mb-1">3. Güvenilirlik & Dakiklik</label>
+                    <label className="font-bold text-zinc-700 block mb-1">{t.mySwaps.critTrust}</label>
                     <div className="flex items-center gap-1 text-amber-500">
                       {[1, 2, 3, 4, 5].map(star => (
                         <Star key={star} className="w-5 h-5 fill-amber-500 cursor-pointer" />
@@ -433,12 +435,12 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                   </div>
 
                   <div>
-                    <label className="font-bold text-zinc-700 block mb-1">Yorumunuz</label>
+                    <label className="font-bold text-zinc-700 block mb-1">{t.mySwaps.yourComment}</label>
                     <textarea
                       rows={2}
                       value={reviewComment}
                       onChange={e => setReviewComment(e.target.value)}
-                      placeholder="Ürün anlatıldığı gibiydi, sorunsuz takas..."
+                      placeholder={t.mySwaps.commentPlaceholder}
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-800"
                     />
                   </div>
@@ -447,15 +449,15 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                 <div className="flex items-center justify-end gap-2 pt-3">
                   <button
                     onClick={() => setShowReviewModal(false)}
-                    className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900"
+                    className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 cursor-pointer"
                   >
-                    Vazgeç
+                    {t.common.cancel}
                   </button>
                   <button
                     onClick={handleSubmitReview}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-5 py-2.5 rounded-xl shadow-md cursor-pointer"
                   >
-                    Değerlendirmeyi Gönder
+                    {t.mySwaps.submitReview}
                   </button>
                 </div>
               </div>

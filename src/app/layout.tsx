@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { LanguageProvider } from "@/i18n";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +36,11 @@ export default function RootLayout({
       lang="tr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">{children}</body>
+      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
+      </body>
     </html>
   );
 }

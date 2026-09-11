@@ -8,6 +8,7 @@ import {
   Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon
 } from 'lucide-react'
 import { User } from '@/types'
+import { useLanguage } from '@/i18n'
 
 interface NavbarProps {
   currentUser: User | null
@@ -18,8 +19,6 @@ interface NavbarProps {
   onOpenCreateItem?: () => void
   onOpenForbiddenPolicy?: () => void
   onOpenTrustVerification?: () => void
-  onSelectLanguage?: (lang: 'TR' | 'EN') => void
-  currentLang?: 'TR' | 'EN'
   searchQuery?: string
   setSearchQuery?: (val: string) => void
 }
@@ -33,28 +32,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenCreateItem,
   onOpenForbiddenPolicy,
   onOpenTrustVerification,
-  currentLang = 'TR',
   searchQuery = '',
   setSearchQuery,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
-  const [lang, setLang] = useState<'TR' | 'EN'>(currentLang)
-
-  const toggleLang = () => {
-    setLang(prev => (prev === 'TR' ? 'EN' : 'TR'))
-  }
+  const { language, toggleLanguage, t, availableLanguages } = useLanguage()
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-emerald-900/10 bg-white/95 backdrop-blur-md shadow-xs">
       {/* Zero Cash Ribbon (PRD Madde 3.1 & 38) */}
       <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white text-xs py-1.5 px-4 text-center font-bold tracking-wide flex items-center justify-center gap-2">
         <Shield className="w-3.5 h-3.5 text-emerald-200" />
-        <span>
-          {lang === 'TR' 
-            ? '⚡ PARA YOK. TAKAS VAR. (PRD v1.0) • Kesinlikle nakit kabul edilmez. Yalnızca doğrudan eşya/hizmet takası geçerlidir.'
-            : '⚡ NO MONEY. JUST SWAP. • Pure item and service barter only. No cash allowed.'}
-        </span>
+        <span>{t.nav.zeroCashRibbon}</span>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
@@ -87,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery?.(e.target.value)}
-            placeholder={lang === 'TR' ? "Ne takas etmek istiyorsun? (örn: iPhone, Kamera, Bisiklet...)" : "What do you want to swap? (e.g. Camera, Bike...)"}
+            placeholder={t.nav.searchPlaceholder}
             className="w-full bg-zinc-50 border border-zinc-200 rounded-full pl-10 pr-9 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all font-medium"
           />
           <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 pointer-events-none" />
@@ -96,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="button"
               onClick={() => setSearchQuery?.('')}
               className="absolute right-3 p-1 text-zinc-400 hover:text-zinc-600 rounded-full cursor-pointer hover:bg-zinc-200/60 transition-colors"
-              title="Aramayı Temizle"
+              title={t.common.clear}
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -106,30 +96,30 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Navigation & Actions */}
         <div className="hidden lg:flex items-center gap-3">
           <Link href="#nasil-calisir" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors">
-            {lang === 'TR' ? 'Nasıl Çalışır?' : 'How It Works'}
+            {t.nav.howItWorks}
           </Link>
           <Link href="#eslesmeler" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            {lang === 'TR' ? 'JetMatch' : 'JetMatch'}
+            {t.nav.jetMatch}
           </Link>
           <button
             onClick={onOpenForbiddenPolicy}
             className="text-xs font-bold text-zinc-600 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-zinc-400" />
-            <span>{lang === 'TR' ? 'Yasaklı Ürünler' : 'Forbidden Items'}</span>
+            <span>{t.nav.forbiddenItems}</span>
           </button>
 
           <div className="h-4 w-px bg-zinc-200 mx-1" />
 
           {/* Language Toggle */}
           <button
-            onClick={toggleLang}
-            className="flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-700 transition-colors cursor-pointer"
-            title="Dili Değiştir / Change Language"
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 text-xs font-black px-2.5 py-1.5 rounded-xl border border-zinc-200 hover:bg-zinc-50 text-zinc-800 transition-colors cursor-pointer bg-white shadow-2xs"
+            title="Dili Değiştir / Switch Language"
           >
-            <Globe className="w-3.5 h-3.5 text-zinc-500" />
-            <span>{lang}</span>
+            <Globe className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{language === 'tr' ? '🇹🇷 TR' : '🇬🇧 EN'}</span>
           </button>
 
           {/* AUTHENTICATION STATE: GUEST vs LOGGED IN */}
@@ -150,7 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={onOpenTrustVerification}
                 className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-xl text-xs font-black transition-colors cursor-pointer"
-                title="JetTrust Doğrulama Merkezi"
+                title={t.nav.jetTrustCenter}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>{currentUser.jetTrust} JT</span>
@@ -173,7 +163,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
-                    <span>Portföyüm</span>
+                    <span>{t.nav.myPortfolio}</span>
                   </button>
 
                   <button
@@ -184,7 +174,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <Settings className="w-4 h-4 text-zinc-500" />
-                    <span>Profili Düzenle</span>
+                    <span>{t.nav.editProfile}</span>
                   </button>
 
                   <button
@@ -195,7 +185,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <ShieldCheck className="w-4 h-4 text-amber-500" />
-                    <span>JetTrust Doğrulama</span>
+                    <span>{t.nav.jetTrustCenter}</span>
                   </button>
 
                   <div className="h-px bg-zinc-100 my-1" />
@@ -208,7 +198,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <LogOut className="w-4 h-4 text-red-500" />
-                    <span>Çıkış Yap</span>
+                    <span>{t.nav.logout}</span>
                   </button>
                 </div>
               )}
@@ -220,7 +210,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-zinc-700 hover:text-emerald-700 hover:bg-zinc-50 rounded-xl transition-all cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Giriş Yap</span>
+                <span>{t.nav.login}</span>
               </button>
 
               <button
@@ -228,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl transition-all cursor-pointer shadow-2xs"
               >
                 <UserPlus className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Kayıt Ol</span>
+                <span>{t.nav.register}</span>
               </button>
             </div>
           )}
@@ -239,18 +229,25 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all cursor-pointer ml-1"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>{lang === 'TR' ? 'Takas İlanı Ver' : 'List for Swap'}</span>
+            <span>{t.nav.listForSwap}</span>
           </button>
         </div>
 
         {/* Mobile Menu Actions */}
         <div className="flex items-center gap-2 lg:hidden">
+          {/* Mobile Language Toggle */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 text-[11px] font-black px-2 py-1.5 rounded-lg border border-zinc-200 text-zinc-800 bg-white"
+          >
+            <span>{language === 'tr' ? '🇹🇷 TR' : '🇬🇧 EN'}</span>
+          </button>
           <button
             onClick={onOpenCreateItem}
             className="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1"
           >
             <PlusCircle className="w-3.5 h-3.5" />
-            <span>İlan Ver</span>
+            <span>{t.common.apply}</span>
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -279,7 +276,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery?.(e.target.value)}
-              placeholder={lang === 'TR' ? "Ne takas etmek istiyorsun?" : "Search items..."}
+              placeholder={t.nav.searchPlaceholder}
               className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-8 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
             />
             <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5 pointer-events-none" />
@@ -288,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 type="button"
                 onClick={() => setSearchQuery?.('')}
                 className="absolute right-2.5 top-2 p-0.5 text-zinc-400 hover:text-zinc-600 rounded-full cursor-pointer"
-                title="Aramayı Temizle"
+                title={t.common.clear}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -317,13 +314,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                     onClick={() => { setMobileMenuOpen(false); onOpenEditProfile(); }}
                     className="flex-1 py-1.5 bg-white border border-zinc-200 rounded-xl text-[11px] font-bold text-zinc-700 text-center"
                   >
-                    Profili Düzenle
+                    {t.nav.editProfile}
                   </button>
                   <button
                     onClick={() => { setMobileMenuOpen(false); onLogout(); }}
                     className="px-3 py-1.5 bg-red-50 border border-red-200 rounded-xl text-[11px] font-bold text-red-700 text-center"
                   >
-                    Çıkış
+                    {t.nav.logout}
                   </button>
                 </div>
               </div>
@@ -333,22 +330,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => { setMobileMenuOpen(false); onOpenAuth('login'); }}
                   className="flex-1 py-2.5 bg-zinc-100 rounded-xl text-center text-xs font-bold text-zinc-800"
                 >
-                  Giriş Yap
+                  {t.nav.login}
                 </button>
                 <button
                   onClick={() => { setMobileMenuOpen(false); onOpenAuth('register'); }}
                   className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-center text-xs font-black"
                 >
-                  Kayıt Ol
+                  {t.nav.register}
                 </button>
               </div>
             )}
 
             <Link href="#nasil-calisir" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
-              {lang === 'TR' ? 'Nasıl Çalışır?' : 'How It Works'}
+              {t.nav.howItWorks}
             </Link>
             <Link href="#eslesmeler" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
-              {lang === 'TR' ? 'JetMatch' : 'JetMatch'}
+              {t.nav.jetMatch}
             </Link>
             <button
               onClick={() => {
@@ -358,7 +355,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="text-left py-2 hover:text-red-600 flex items-center gap-1"
             >
               <ShieldAlert className="w-3.5 h-3.5 text-zinc-400" />
-              <span>Yasaklı Ürünler & Kurallar</span>
+              <span>{t.nav.forbiddenItems}</span>
             </button>
           </div>
         </div>

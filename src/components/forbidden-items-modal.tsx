@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { X, ShieldAlert, Ban, AlertOctagon, CheckCircle } from 'lucide-react'
+import { useLanguage } from '@/i18n'
 
 interface ForbiddenItemsModalProps {
   isOpen: boolean
@@ -9,17 +10,14 @@ interface ForbiddenItemsModalProps {
 }
 
 export const ForbiddenItemsModal: React.FC<ForbiddenItemsModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useLanguage()
   if (!isOpen) return null
 
   const forbiddenList = [
-    { title: 'Nakit Para & Para Karşılığı Satış', desc: 'Kesinlikle takas haricinde fiyat belirtmek, nakit talep etmek veya banka havalesi istemek yasaktır.' },
-    { title: 'Yasa Dışı Maddeler & Reçeteli İlaçlar', desc: 'Uyuşturucu maddeler, tıbbi cihazlar ve reçeteye tabi ilaçların takası kabul edilmez.' },
-    { title: 'Silahlar, Patlayıcılar & Mühimmat', desc: 'Ateşli veya kesici saldırı silahları, havalı tüfekler ve mühimmatlar takasa açılamaz.' },
-    { title: 'Sahte & İmitasyon Ürünler', desc: 'Orijinal olmayan, lisanssız veya sahte marka taklidi ürünler sistem tarafından engellenir.' },
-    { title: 'Ahlaka Aykırı & Pornografik İçerikler', desc: 'Genel ahlaka, aile yapısına aykırı her türlü müstehcen materyal ve yetişkin içerikleri.' },
-    { title: 'Çalıntı Eşyalar & Seri Numarası Silinmiş Cihazlar', desc: 'Fatura veya meşru mülkiyeti şüpheli eşyalar.' },
-    { title: 'Kişisel Veriler & Yasa Dışı Dijital Hesaplar', desc: 'Oyun hilesi, çalıntı hesap veya veri tabanı içeren dijital materyaller.' },
-    { title: 'Yasa Dışı Canlı Hayvan Ticareti', desc: 'Nesli tükenmekte olan ve koruma altındaki yaban hayvanları.' }
+    { title: t.forbiddenModal.rule1Title, desc: t.forbiddenModal.rule1Desc },
+    { title: t.forbiddenModal.rule2Title, desc: t.forbiddenModal.rule2Desc },
+    { title: t.forbiddenModal.rule3Title, desc: t.forbiddenModal.rule3Desc },
+    { title: t.forbiddenModal.rule4Title, desc: t.forbiddenModal.rule4Desc },
   ]
 
   return (
@@ -29,18 +27,18 @@ export const ForbiddenItemsModal: React.FC<ForbiddenItemsModalProps> = ({ isOpen
           <div className="flex items-center gap-2.5 text-red-600">
             <Ban className="w-5 h-5" />
             <div>
-              <h3 className="font-extrabold text-base text-zinc-900">Yasaklı Ürünler & Ahlak Politikası</h3>
-              <p className="text-xs text-zinc-500">PRD Madde 4 Uyarınca Genel Standartlar</p>
+              <h3 className="font-extrabold text-base text-zinc-900">{t.forbiddenModal.title}</h3>
+              <p className="text-xs text-zinc-500">{t.forbiddenModal.subtitle}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100">
+          <button onClick={onClose} className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 space-y-4">
           <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 leading-relaxed">
-            <strong>Önemli Hatırlatma:</strong> JetSwap güvenli, ahlaki kurallara saygılı ve yasal bir takas ekosistemi sunar. Aşağıda listelenen ürünlerin listelenmesi durumunda kullanıcı hesabı süresiz askıya alınır.
+            <strong>{t.forbiddenModal.penaltyNotice}</strong>
           </div>
 
           <div className="space-y-3">
@@ -57,12 +55,16 @@ export const ForbiddenItemsModal: React.FC<ForbiddenItemsModalProps> = ({ isOpen
             ))}
           </div>
 
+          <div className="p-3 bg-zinc-100 rounded-xl text-xs text-zinc-600">
+            {t.forbiddenModal.bannedItemsList}
+          </div>
+
           <div className="pt-2 flex justify-end">
             <button
               onClick={onClose}
-              className="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all"
+              className="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all cursor-pointer"
             >
-              Anladım, Kapat
+              {t.common.close}
             </button>
           </div>
         </div>

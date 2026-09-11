@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { X, User as UserIcon, Phone, MapPin, Building, ShieldCheck, Check, Sparkles, Truck, HandMetal, ArrowLeftRight, Globe } from 'lucide-react'
 import { User, TradeMethod } from '@/types'
 import { COUNTRIES, TURKEY_CITIES } from '@/data/locations'
+import { useLanguage } from '@/i18n'
 
 interface EditProfileModalProps {
   isOpen: boolean
@@ -27,6 +28,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   currentUser,
   onUpdateUser,
 }) => {
+  const { t } = useLanguage()
   const [name, setName] = useState(currentUser.name)
   const [phone, setPhone] = useState(currentUser.phone || '')
   const [country, setCountry] = useState(currentUser.country || 'TR')
@@ -78,8 +80,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <UserIcon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-black text-base text-zinc-900">Profil & Hesap Bilgilerini Düzenle</h3>
-              <p className="text-[11px] text-zinc-500">Takas eşleşmelerinde görünecek güncel bilgileriniz</p>
+              <h3 className="font-black text-base text-zinc-900">{t.profile.title}</h3>
+              <p className="text-[11px] text-zinc-500">{t.profile.subtitle}</p>
             </div>
           </div>
           <button
@@ -95,15 +97,15 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
               <Check className="w-8 h-8" />
             </div>
-            <h4 className="text-lg font-black text-zinc-900">Bilgileriniz Başarıyla Güncellendi!</h4>
-            <p className="text-xs text-zinc-600">Takas profiliniz yenilendi.</p>
+            <h4 className="text-lg font-black text-zinc-900">{t.profile.savedSuccess}</h4>
+            <p className="text-xs text-zinc-600">{t.common.success}</p>
           </div>
         ) : (
           <form onSubmit={handleSave} className="p-6 space-y-4">
             {/* Avatar Seçimi */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-2">
-                Profil Avatarı Seçin
+                {t.profile.selectAvatar}
               </label>
               <div className="flex items-center gap-3 overflow-x-auto pb-1">
                 {AVATAR_OPTIONS.map((img, idx) => (
@@ -126,7 +128,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {/* Ad & Soyad */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Ad & Soyad <span className="text-red-500">*</span>
+                {t.profile.fullName} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -143,8 +145,8 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {/* Telefon */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Cep Telefonu <span className="text-red-500">*</span>
-                <span className="text-[10px] text-zinc-400 font-normal ml-1">(Takas teslimatlarında kullanılır)</span>
+                {t.profile.phone} <span className="text-red-500">*</span>
+                <span className="text-[10px] text-zinc-400 font-normal ml-1">{t.auth.phoneHint}</span>
               </label>
               <div className="relative">
                 <input
@@ -161,7 +163,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {/* Ülke Seçimi */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Ülke <span className="text-red-500">*</span>
+                {t.profile.country} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
@@ -191,7 +193,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-xs font-bold text-zinc-700 block mb-1">
-                  Şehir <span className="text-red-500">*</span>
+                  {t.profile.city} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   {country === 'TR' ? (
@@ -210,7 +212,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                       required
                       value={city}
                       onChange={e => setCity(e.target.value)}
-                      placeholder="Örn: Berlin, Londra, Bakü"
+                      placeholder={t.auth.cityPlaceholder}
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
                     />
                   )}
@@ -220,7 +222,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
               <div>
                 <label className="text-xs font-bold text-zinc-700 block mb-1">
-                  İlçe / Semt / Bölge <span className="text-red-500">*</span>
+                  {t.profile.district} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -228,7 +230,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                     required
                     value={district}
                     onChange={e => setDistrict(e.target.value)}
-                    placeholder="Örn: Kadıköy, Çankaya, Mitte"
+                    placeholder={t.auth.districtPlaceholder}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-medium"
                   />
                   <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
@@ -239,7 +241,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             {/* Tercih Edilen Takas Yöntemi */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1.5">
-                Varsayılan Takas Teslimat Tercihi
+                {t.profile.tradePreference}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 <button
@@ -252,7 +254,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   }`}
                 >
                   <HandMetal className="w-4 h-4 text-emerald-600" />
-                  <span>Elden Teslim</span>
+                  <span>{t.tradeMethods.HAND_TO_HAND}</span>
                 </button>
 
                 <button
@@ -265,7 +267,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   }`}
                 >
                   <Truck className="w-4 h-4 text-teal-600" />
-                  <span>Kargo İle</span>
+                  <span>{t.tradeMethods.CARGO_ONLY}</span>
                 </button>
 
                 <button
@@ -278,7 +280,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   }`}
                 >
                   <ArrowLeftRight className="w-4 h-4 text-emerald-700" />
-                  <span>Fark Etmez</span>
+                  <span>{t.tradeMethods.BOTH}</span>
                 </button>
               </div>
             </div>
@@ -287,7 +289,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-[11px] text-emerald-900 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-700" />
-                <span>Mevcut JetTrust Skoru:</span>
+                <span>{t.trustCenter.currentScore}:</span>
               </div>
               <span className="font-black text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-300">
                 {currentUser.jetTrust}/100
@@ -298,7 +300,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               type="submit"
               className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs py-3.5 rounded-xl shadow-md transition-all cursor-pointer"
             >
-              Değişiklikleri Kaydet
+              {t.profile.saveChanges}
             </button>
           </form>
         )}

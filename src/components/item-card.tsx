@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { MapPin, ArrowLeftRight, Shield, Star, Sparkles, Heart, Flag, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { TradeItem } from '@/types'
+import { useLanguage, getConditionLabel, getTradeMethodLabel } from '@/i18n'
 
 interface ItemCardProps {
   item: TradeItem
@@ -12,6 +13,7 @@ interface ItemCardProps {
 }
 
 export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport }) => {
+  const { language, t } = useLanguage()
   const [isFav, setIsFav] = useState(false)
   const [likes, setLikes] = useState(item.likesCount || 0)
 
@@ -21,22 +23,18 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
     setLikes(prev => (isFav ? prev - 1 : prev + 1))
   }
 
-  const conditionLabels: Record<string, { label: string; color: string }> = {
-    BRAND_NEW: { label: 'Sıfır / Kutulu', color: 'bg-emerald-600 text-white' },
-    LIKE_NEW: { label: 'Sıfıra Yakın', color: 'bg-blue-600 text-white' },
-    VERY_GOOD: { label: 'Çok İyi', color: 'bg-teal-600 text-white' },
-    GOOD: { label: 'İyi Durumda', color: 'bg-amber-600 text-white' },
-    FAIR: { label: 'Kullanılmış', color: 'bg-zinc-600 text-white' },
-    REPAIR_NEEDED: { label: 'Onarım Gerekli', color: 'bg-red-600 text-white' },
+  const conditionColors: Record<string, string> = {
+    BRAND_NEW: 'bg-emerald-600 text-white',
+    LIKE_NEW: 'bg-blue-600 text-white',
+    VERY_GOOD: 'bg-teal-600 text-white',
+    GOOD: 'bg-amber-600 text-white',
+    FAIR: 'bg-zinc-600 text-white',
+    REPAIR_NEEDED: 'bg-red-600 text-white',
   }
 
-  const deliveryMethodLabels: Record<string, string> = {
-    HAND_TO_HAND: '🤝 Yüz Yüze',
-    CARGO_ONLY: '📦 Kargo',
-    BOTH: '🤝 Yüz Yüze / 📦 Kargo',
-  }
-
-  const conditionInfo = conditionLabels[item.condition] || { label: item.condition, color: 'bg-zinc-600 text-white' }
+  const conditionText = getConditionLabel(item.condition, language)
+  const deliveryText = getTradeMethodLabel(item.tradeMethod, language)
+  const badgeColor = conditionColors[item.condition] || 'bg-zinc-600 text-white'
 
   return (
     <div className="bg-white rounded-3xl border border-zinc-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group relative">
@@ -53,8 +51,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
         {/* Top Floating Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           <div className="flex items-center gap-1.5">
-            <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg shadow-xs ${conditionInfo.color}`}>
-              {conditionInfo.label}
+            <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg shadow-xs ${badgeColor}`}>
+              {conditionText}
             </span>
             {item.matchScore && (
               <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg bg-amber-500 text-white flex items-center gap-1 shadow-xs">
@@ -64,7 +62,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
             )}
           </div>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-black/75 text-zinc-100 backdrop-blur-xs w-fit">
-            {deliveryMethodLabels[item.tradeMethod]}
+            {deliveryText}
           </span>
         </div>
 
@@ -75,7 +73,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
             className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${
               isFav ? 'bg-red-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
             }`}
-            title="Favorilere Ekle"
+            title={isFav ? t.itemCard.liked : t.itemCard.like}
           >
             <Heart className={`w-4 h-4 ${isFav ? 'fill-white' : ''}`} />
           </button>
@@ -85,7 +83,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
               onReport(item)
             }}
             className="w-8 h-8 rounded-full bg-black/40 hover:bg-red-600 text-white flex items-center justify-center backdrop-blur-md transition-all"
-            title="İlanı Şikayet Et"
+            title={t.itemCard.reportItem}
           >
             <Flag className="w-3.5 h-3.5" />
           </button>
@@ -111,17 +109,19 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
                 <div className="flex items-center gap-1">
                   <span className="text-xs font-bold text-zinc-800 truncate">{item.user.name}</span>
                   {item.user.verifiedSwapper && (
-                    <span title="Doğrulanmış Swapper (Verified)">
+                    <span title={t.trustCenter.verifiedBadge}>
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-zinc-400 block">{item.user.completedSwaps} başarılı takas</span>
+                <span className="text-[10px] text-zinc-400 block">
+                  {item.user.completedSwaps} {language === 'en' ? 'completed swaps' : 'başarılı takas'}
+                </span>
               </div>
             </div>
 
             {/* JetTrust Score Badge */}
-            <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg" title="JetTrust Güven Skoru">
+            <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg" title={t.trustCenter.title}>
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
               <span className="text-[11px] font-black text-emerald-900">{item.user.jetTrust}/100</span>
             </div>
@@ -157,11 +157,11 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
             <div className="flex items-center justify-between gap-1 mb-1">
               <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-900 uppercase tracking-wide">
                 <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Ne İstiyor? (WANT)</span>
+                <span>{t.itemCard.wantedItem} (WANT)</span>
               </div>
               {item.openToOffers && (
                 <span className="text-[9px] font-extrabold uppercase bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded">
-                  Tekliflere Açık
+                  {language === 'en' ? 'Open to Offers' : 'Tekliflere Açık'}
                 </span>
               )}
             </div>
@@ -175,7 +175,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
         <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
           <div className="flex items-center gap-1 text-[11px] text-zinc-400">
             <Shield className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Korumalı Takas</span>
+            <span>{language === 'en' ? 'Protected Barter' : 'Korumalı Takas'}</span>
           </div>
 
           <button
@@ -183,7 +183,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
           >
             <ArrowLeftRight className="w-3.5 h-3.5" />
-            <span>Takas Teklifi Yap</span>
+            <span>{t.itemCard.makeOffer}</span>
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { categories } from '@/data/mockData'
+import { useLanguage } from '@/i18n'
 import { 
   Smartphone, Laptop, Camera, Gamepad2, Guitar, Bike, 
   Watch, Home, Compass, Car, Layers, ChevronRight,
@@ -40,6 +41,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
   selectedSubCategory = 'all',
   onSelectSubCategory
 }) => {
+  const { language, t } = useLanguage()
   const currentCategoryObj = categories.find(c => c.slug === selectedCategory)
 
   return (
@@ -59,12 +61,13 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>Tüm Kategoriler</span>
+            <span>{t.categories.allCategories}</span>
           </button>
 
           {categories.map(c => {
             const Icon = iconMap[c.icon] || Layers
             const isSelected = selectedCategory === c.slug
+            const categoryName = language === 'en' ? c.nameEn : c.nameTr
 
             return (
               <button
@@ -80,7 +83,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{c.nameTr}</span>
+                <span>{categoryName}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                   isSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-zinc-100 text-zinc-500'
                 }`}>
@@ -97,7 +100,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
         <div className="overflow-x-auto no-scrollbar pt-1 animate-in fade-in slide-in-from-top-1 duration-200">
           <div className="flex items-center gap-2 min-w-max p-1.5 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 px-2 flex items-center gap-1">
-              <span>{currentCategoryObj.nameTr}</span>
+              <span>{language === 'en' ? currentCategoryObj.nameEn : currentCategoryObj.nameTr}</span>
               <ChevronRight className="w-3 h-3" />
             </span>
 
@@ -110,12 +113,14 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
                   : 'bg-white text-emerald-900 hover:bg-emerald-100/60 border border-emerald-200'
               }`}
             >
-              Tüm Alt Başlıklar
+              {language === 'en' ? 'All Subcategories' : 'Tüm Alt Başlıklar'}
             </button>
 
             {/* Individual Subcategories */}
             {currentCategoryObj.subCategories.map(sub => {
               const isSubSelected = selectedSubCategory === sub.slug
+              const subName = language === 'en' ? sub.nameEn : sub.nameTr
+
               return (
                 <button
                   key={sub.id}
@@ -126,7 +131,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
                       : 'bg-white text-zinc-800 hover:bg-emerald-100/60 border border-emerald-200/80'
                   }`}
                 >
-                  <span>{sub.nameTr}</span>
+                  <span>{subName}</span>
                   {sub.count && (
                     <span className={`text-[9px] px-1.5 rounded-full ${
                       isSubSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-zinc-100 text-zinc-500'

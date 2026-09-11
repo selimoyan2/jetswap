@@ -6,6 +6,8 @@ import { categories } from '@/data/mockData'
 import { TURKEY_CITIES, COUNTRIES } from '@/data/locations'
 import { TradeItem, ItemCondition, TradeMethod } from '@/types'
 import { detectCashKeywords } from '@/lib/cashFilter'
+import { useLanguage } from '@/i18n'
+import { getConditionLabel, getTradeMethodLabel } from '@/i18n/helpers'
 
 interface CreateListingModalProps {
   isOpen: boolean
@@ -20,6 +22,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
   onItemCreated,
   onOpenForbiddenPolicy,
 }) => {
+  const { t, language } = useLanguage()
   const [title, setTitle] = useState('')
   const [brand, setBrand] = useState('')
   const [modelName, setModelName] = useState('')
@@ -118,13 +121,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               <Plus className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-zinc-900">Takasa Ürün Ekle (HAVE → WANT)</h3>
-              <p className="text-xs text-zinc-500">Kategori & Alt Kategori Bazlı İsabetli Eşleşme</p>
+              <h3 className="font-extrabold text-base text-zinc-900">{t.createListing.modalTitle}</h3>
+              <p className="text-xs text-zinc-500">{t.createListing.modalSubtitle}</p>
             </div>
           </div>
           <button
             onClick={handleResetAndClose}
-            className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100"
+            className="p-1.5 text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -135,15 +138,15 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto animate-bounce">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h4 className="text-2xl font-black text-zinc-900">İlan Portföyünüze Eklendi!</h4>
+            <h4 className="text-2xl font-black text-zinc-900">{t.createListing.addedToPortfolio}</h4>
             <p className="text-sm text-zinc-600 max-w-md mx-auto">
-              İlanınız başarıyla yayına alındı. <strong>JetMatch motorumuz</strong> belirlediğiniz alt kategori kriterlerine göre eşleşmeleri hesaplamaya başladı.
+              {t.createListing.addedToPortfolioDesc}
             </p>
             <button
               onClick={handleResetAndClose}
-              className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all"
+              className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl transition-all cursor-pointer"
             >
-              Tamam
+              {t.createListing.done}
             </button>
           </div>
         ) : (
@@ -153,7 +156,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               <div className="p-3.5 bg-red-50 border-2 border-red-300 rounded-2xl text-xs text-red-900 flex items-start gap-2.5 animate-pulse">
                 <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block font-bold">Para Talebi Engellendi (PRD Madde 3.1 & 38):</strong>
+                  <strong className="block font-bold">{t.createListing.cashBlockedTitle}</strong>
                   {cashCheck.warningMessage}
                 </div>
               </div>
@@ -162,14 +165,14 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             {/* Title */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                1. Ürün Başlığı *
+                {t.createListing.titleLabel} *
               </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="Örn: iPhone 16 Pro 256GB veya Fender Player Stratocaster"
+                placeholder={t.createListing.titlePlaceholder}
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
@@ -178,25 +181,25 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Marka (Brand)
+                  {t.createListing.brandLabel}
                 </label>
                 <input
                   type="text"
                   value={brand}
                   onChange={e => setBrand(e.target.value)}
-                  placeholder="Apple, Sony, Fender, Trek..."
+                  placeholder={t.createListing.brandPlaceholder}
                   className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                 />
               </div>
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Model
+                  {t.createListing.modelLabel}
                 </label>
                 <input
                   type="text"
                   value={modelName}
                   onChange={e => setModelName(e.target.value)}
-                  placeholder="16 Pro, WH-1000XM4, Stratocaster..."
+                  placeholder={t.createListing.modelPlaceholder}
                   className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                 />
               </div>
@@ -206,30 +209,30 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-zinc-50 rounded-2xl border border-zinc-200">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-700 block mb-1.5">
-                  Ana Kategori *
+                  {t.createListing.categoryLabel} *
                 </label>
                 <select
                   value={category}
                   onChange={e => handleCategoryChange(e.target.value)}
-                  className="w-full bg-white border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  className="w-full bg-white border border-zinc-300 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                 >
                   {categories.map(c => (
-                    <option key={c.slug} value={c.slug}>{c.nameTr}</option>
+                    <option key={c.slug} value={c.slug}>{language === 'en' ? c.nameEn : c.nameTr}</option>
                   ))}
                 </select>
               </div>
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-emerald-800 block mb-1.5">
-                  Alt Kategori (Spesifik Alan) *
+                  {t.createListing.subCategoryLabel} *
                 </label>
                 <select
                   value={subCategory}
                   onChange={e => setSubCategory(e.target.value)}
-                  className="w-full bg-white border border-emerald-300 rounded-xl px-3.5 py-2.5 text-xs text-emerald-950 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  className="w-full bg-white border border-emerald-300 rounded-xl px-3.5 py-2.5 text-xs text-emerald-950 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                 >
                   {activeCategoryObj.subCategories.map(sub => (
-                    <option key={sub.slug} value={sub.slug}>{sub.nameTr}</option>
+                    <option key={sub.slug} value={sub.slug}>{language === 'en' ? sub.nameEn : sub.nameTr}</option>
                   ))}
                 </select>
               </div>
@@ -239,34 +242,34 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Ürün Durumu (PRD Madde 7)
+                  {t.createListing.conditionLabel}
                 </label>
                 <select
                   value={condition}
                   onChange={e => setCondition(e.target.value as ItemCondition)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                 >
-                  <option value="BRAND_NEW">Sıfır / Kutusunda</option>
-                  <option value="LIKE_NEW">Sıfıra Yakın (Çok Az Kullanılmış)</option>
-                  <option value="VERY_GOOD">Çok İyi</option>
-                  <option value="GOOD">İyi Durumda</option>
-                  <option value="FAIR">Kullanılmış</option>
-                  <option value="REPAIR_NEEDED">Onarım Gerekli</option>
+                  <option value="BRAND_NEW">{getConditionLabel('BRAND_NEW', language)}</option>
+                  <option value="LIKE_NEW">{getConditionLabel('LIKE_NEW', language)}</option>
+                  <option value="VERY_GOOD">{getConditionLabel('VERY_GOOD', language)}</option>
+                  <option value="GOOD">{getConditionLabel('GOOD', language)}</option>
+                  <option value="FAIR">{getConditionLabel('FAIR', language)}</option>
+                  <option value="REPAIR_NEEDED">{getConditionLabel('REPAIR_NEEDED', language)}</option>
                 </select>
               </div>
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Teslim Yöntemi (PRD Madde 26)
+                  {t.createListing.tradeMethodLabel}
                 </label>
                 <select
                   value={tradeMethod}
                   onChange={e => setTradeMethod(e.target.value as TradeMethod)}
-                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                 >
-                  <option value="BOTH">Yüz Yüze veya Kargo</option>
-                  <option value="HAND_TO_HAND">Yalnızca Yüz Yüze Takas</option>
-                  <option value="CARGO_ONLY">Yalnızca Kargo ile Takas</option>
+                  <option value="BOTH">{getTradeMethodLabel('BOTH', language)}</option>
+                  <option value="HAND_TO_HAND">{getTradeMethodLabel('HAND_TO_HAND', language)}</option>
+                  <option value="CARGO_ONLY">{getTradeMethodLabel('CARGO_ONLY', language)}</option>
                 </select>
               </div>
             </div>
@@ -275,7 +278,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Ülke
+                  {t.createListing.countryLabel}
                 </label>
                 <select
                   value={country}
@@ -300,7 +303,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                  Şehir / Bölge
+                  {t.createListing.cityLabel}
                 </label>
                 {country === 'TR' ? (
                   <select
@@ -318,7 +321,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                     required
                     value={city}
                     onChange={e => setCity(e.target.value)}
-                    placeholder="Örn: Berlin, Londra, Bakü"
+                    placeholder={t.auth.cityPlaceholder}
                     className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3.5 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   />
                 )}
@@ -330,16 +333,16 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-emerald-950">
                   <ArrowLeftRight className="w-4 h-4 text-emerald-700" />
-                  <span>Karşılığında Ne Almak İstersin? (WANT)</span>
+                  <span>{t.createListing.wantSectionTitle}</span>
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-emerald-300">
                   <input
                     type="checkbox"
                     checked={openToOffers}
                     onChange={e => setOpenToOffers(e.target.checked)}
-                    className="w-3.5 h-3.5 accent-emerald-600 rounded"
+                    className="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer"
                   />
-                  <span className="text-[11px] font-bold text-emerald-800">Tekliflere Açığım</span>
+                  <span className="text-[11px] font-bold text-emerald-800">{t.createListing.openToAllOffers}</span>
                 </label>
               </div>
 
@@ -347,30 +350,30 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                    İstediğin Kategori
+                    {t.createListing.targetCategoryLabel}
                   </label>
                   <select
                     value={targetCategory}
                     onChange={e => handleTargetCategoryChange(e.target.value)}
-                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                   >
                     {categories.map(c => (
-                      <option key={c.slug} value={c.slug}>{c.nameTr}</option>
+                      <option key={c.slug} value={c.slug}>{language === 'en' ? c.nameEn : c.nameTr}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
                   <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                    İstediğin Alt Kategori
+                    {t.createListing.targetSubCategoryLabel}
                   </label>
                   <select
                     value={targetSubCategory}
                     onChange={e => setTargetSubCategory(e.target.value)}
-                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-emerald-950 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-emerald-950 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                   >
                     {activeTargetCategoryObj.subCategories.map(sub => (
-                      <option key={sub.slug} value={sub.slug}>{sub.nameTr}</option>
+                      <option key={sub.slug} value={sub.slug}>{language === 'en' ? sub.nameEn : sub.nameTr}</option>
                     ))}
                   </select>
                 </div>
@@ -378,19 +381,19 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
 
               <div>
                 <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                  Açık Takas İsteğin & Detaylar *
+                  {t.createListing.targetDescLabel} *
                 </label>
                 <textarea
                   required={!openToOffers}
                   rows={2}
                   value={targetDescription}
                   onChange={e => setTargetDescription(e.target.value)}
-                  placeholder={openToOffers ? "Örn: Her türlü mantıklı teklife açığım..." : "Örn: MacBook Air M2 veya Sony aynasız gövde arıyorum..."}
+                  placeholder={openToOffers ? t.createListing.openToAllOffers : t.createListing.targetDescPlaceholder}
                   className="w-full bg-white border border-emerald-300 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                 />
                 <p className="text-[10px] text-emerald-800 mt-1 flex items-center gap-1 font-medium">
                   <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-                  <strong>JetMatch:</strong> Alt kategori eşleşmesi sayesinde %100 doğrudan isabet sağlanır.
+                  <strong>JetMatch:</strong> {t.createListing.jetMatchSubcatTip}
                 </p>
               </div>
             </div>
@@ -398,14 +401,14 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             {/* Description */}
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-zinc-600 block mb-1.5">
-                Eşyanın Detaylı Açıklaması *
+                {t.createListing.descriptionLabel} *
               </label>
               <textarea
                 required
                 rows={3}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="Kutu içeriği, kozmetik durumu, batarya sağlığı veya bilinen kusurlarını dürüstçe yazınız..."
+                placeholder={t.createListing.descriptionPlaceholder}
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-3 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
@@ -415,16 +418,16 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               <button
                 type="button"
                 onClick={handleResetAndClose}
-                className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900"
+                className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 cursor-pointer"
               >
-                Vazgeç
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
                 disabled={cashCheck.hasCashViolation}
                 className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
               >
-                İlanı Portföye Ekle & Yayınla
+                {t.createListing.submitButton}
               </button>
             </div>
           </form>

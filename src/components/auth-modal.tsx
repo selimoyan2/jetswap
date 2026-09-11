@@ -6,6 +6,7 @@ import {
   CheckCircle2, Phone, MapPin, AlertCircle, Sparkles, Building, Globe
 } from 'lucide-react'
 import { User } from '@/types'
+import { useLanguage } from '@/i18n'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -25,6 +26,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialMode = 'register',
   customPromptMessage
 }) => {
+  const { t } = useLanguage()
   const [isLogin, setIsLogin] = useState(initialMode === 'login')
   
   // Sync tab mode whenever modal opens or initialMode changes
@@ -56,7 +58,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     if (isLogin) {
       // Login validation
       if (!email || !password) {
-        setError('Lütfen e-posta ve şifrenizi girin.')
+        setError(t.auth.errors.fillEmailPass)
         return
       }
 
@@ -97,31 +99,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } else {
       // Register validation (Zorunlu Güvenlik Kuralları)
       if (!name.trim()) {
-        setError('Ad ve Soyad alanı gerçek kişi doğrulaması için zorunludur.')
+        setError(t.auth.errors.nameRequired)
         return
       }
       if (!email.trim() || !email.includes('@')) {
-        setError('Geçerli bir e-posta adresi giriniz.')
+        setError(t.auth.errors.validEmail)
         return
       }
       if (!phone.trim() || phone.replace(/\D/g, '').length < 10) {
-        setError('Lütfen en az 10 haneli geçerli bir cep telefonu numarası giriniz (Güvenli SMS ve takas teslimatı için zorunludur).')
+        setError(t.auth.errors.validPhone)
         return
       }
       if (!city.trim()) {
-        setError('Şehir alanı zorunludur.')
+        setError(t.auth.errors.cityRequired)
         return
       }
       if (!district.trim()) {
-        setError('İlçe / Semt / Bölge alanı takas eşleşmeleri için zorunludur.')
+        setError(t.auth.errors.districtRequired)
         return
       }
       if (password.length < 6) {
-        setError('Şifreniz en az 6 karakter olmalıdır.')
+        setError(t.auth.errors.passwordMin)
         return
       }
       if (!termsAccepted) {
-        setError('JetSwap "Para Yok. Takas Var." ilkelerini ve kullanıcı sözleşmesini onaylamanız zorunludur.')
+        setError(t.auth.errors.termsRequired)
         return
       }
 
@@ -176,10 +178,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
 
           <h3 className="text-xl font-black">
-            {isLogin ? 'JetSwap Hesabına Giriş Yap' : 'JetSwap Takas Topluluğuna Katıl'}
+            {isLogin ? t.auth.loginTitle : t.auth.registerTitle}
           </h3>
           <p className="text-xs text-emerald-200 mt-1">
-            {customPromptMessage || 'Para yok. Eşyanı ekle, istediğini söyle, doğrudan takas et.'}
+            {customPromptMessage || t.auth.tagline}
           </p>
 
           {/* Mode Tabs */}
@@ -191,7 +193,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 !isLogin ? 'bg-white text-emerald-900 shadow-xs' : 'text-emerald-200 hover:text-white'
               }`}
             >
-              Ücretsiz Kayıt Ol
+              {t.auth.tabRegister}
             </button>
             <button
               type="button"
@@ -200,7 +202,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 isLogin ? 'bg-white text-emerald-900 shadow-xs' : 'text-emerald-200 hover:text-white'
               }`}
             >
-              Giriş Yap
+              {t.auth.tabLogin}
             </button>
           </div>
         </div>
@@ -211,10 +213,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <h4 className="text-xl font-black text-zinc-900">
-              {isLogin ? 'Giriş Başarılı!' : 'Hoş Geldiniz!'}
+              {isLogin ? t.auth.successLogin : t.auth.successRegister}
             </h4>
             <p className="text-xs text-zinc-600">
-              Profiliniz başarıyla yüklendi. Takas dünyasına yönlendiriliyorsunuz...
+              {t.auth.redirecting}
             </p>
           </div>
         ) : (
@@ -231,8 +233,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {/* Full Name (Zorunlu) */}
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Ad & Soyad <span className="text-red-500">*</span>
-                    <span className="text-[10px] text-zinc-400 font-normal ml-1">(Takas güvenliği için zorunludur)</span>
+                    {t.auth.fullName} <span className="text-red-500">*</span>
+                    <span className="text-[10px] text-zinc-400 font-normal ml-1">{t.auth.fullNameHint}</span>
                   </label>
                   <div className="relative">
                     <input
@@ -240,7 +242,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       required
                       value={name}
                       onChange={e => setName(e.target.value)}
-                      placeholder="Örn: Ahmet Yılmaz"
+                      placeholder={t.auth.fullNamePlaceholder}
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                     />
                     <UserIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
@@ -250,8 +252,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {/* Phone Number (Zorunlu) */}
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Cep Telefonu <span className="text-red-500">*</span>
-                    <span className="text-[10px] text-zinc-400 font-normal ml-1">(Takas teslimatı ve SMS onayı için zorunlu)</span>
+                    {t.auth.phone} <span className="text-red-500">*</span>
+                    <span className="text-[10px] text-zinc-400 font-normal ml-1">{t.auth.phoneHint}</span>
                   </label>
                   <div className="relative">
                     <input
@@ -259,7 +261,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       required
                       value={phone}
                       onChange={e => setPhone(e.target.value)}
-                      placeholder="05XX XXX XX XX"
+                      placeholder={t.auth.phonePlaceholder}
                       className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                     />
                     <Phone className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
@@ -269,8 +271,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 {/* Country Selection (Ülke) */}
                 <div>
                   <label className="text-xs font-bold text-zinc-700 block mb-1">
-                    Ülke <span className="text-red-500">*</span>
-                    <span className="text-[10px] text-zinc-400 font-normal ml-1">(Takas operasyonları için)</span>
+                    {t.auth.country} <span className="text-red-500">*</span>
+                    <span className="text-[10px] text-zinc-400 font-normal ml-1">{t.auth.countryHint}</span>
                   </label>
                   <div className="relative">
                     <select
@@ -300,7 +302,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-bold text-zinc-700 block mb-1">
-                      Şehir <span className="text-red-500">*</span>
+                      {t.auth.city} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       {country === 'TR' ? (
@@ -319,7 +321,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                           required
                           value={city}
                           onChange={e => setCity(e.target.value)}
-                          placeholder="Örn: Berlin, Londra, Bakü"
+                          placeholder={t.auth.cityPlaceholder}
                           className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                         />
                       )}
@@ -329,7 +331,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label className="text-xs font-bold text-zinc-700 block mb-1">
-                      İlçe / Semt / Bölge <span className="text-red-500">*</span>
+                      {t.auth.district} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -337,7 +339,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         required
                         value={district}
                         onChange={e => setDistrict(e.target.value)}
-                        placeholder="Örn: Kadıköy, Çankaya, Mitte"
+                        placeholder={t.auth.districtPlaceholder}
                         className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                       />
                       <MapPin className="w-4 h-4 text-zinc-400 absolute left-3 top-3 pointer-events-none" />
@@ -350,7 +352,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {/* Email (Zorunlu) */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                E-posta Adresi <span className="text-red-500">*</span>
+                {t.auth.email} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -368,7 +370,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {/* Password (Zorunlu) */}
             <div>
               <label className="text-xs font-bold text-zinc-700 block mb-1">
-                Şifre <span className="text-red-500">*</span>
+                {t.auth.password} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -376,7 +378,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="En az 6 karakter"
+                  placeholder={t.auth.passwordHint}
                   className="w-full bg-zinc-50 border border-zinc-200 rounded-xl pl-9 pr-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-mono"
                 />
                 <Lock className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
@@ -394,7 +396,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4"
                   />
                   <span className="text-[11px] text-zinc-700 leading-snug">
-                    <strong className="text-emerald-900">JetSwap Takas Taahhüdü:</strong> Platformda <strong>nakit para talep etmeyeceğimi</strong>, yalnızca doğrudan eşya/hizmet takası yapacağımı ve <a href="#kurallar" className="underline font-bold text-emerald-800">Kullanıcı Güvenlik Sözleşmesini</a> kabul ediyorum.
+                    <strong className="text-emerald-900">{t.auth.commitmentTitle} </strong>
+                    {t.auth.termsPledge} <a href="#kurallar" className="underline font-bold text-emerald-800">{t.auth.termsLink}</a> {t.auth.termsNotice}
                   </span>
                 </label>
               </div>
@@ -404,7 +407,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div className="p-3 bg-zinc-50 border border-zinc-200 rounded-xl text-[11px] text-zinc-600 flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <span>
-                JetSwap güvenli bir topluluktur. Bilgileriniz şifrelenir ve yalnızca başarılı takas anlaşmalarında karşı tarafa güvenli olarak aktarılır.
+                {t.auth.trustNote}
               </span>
             </div>
 
@@ -416,12 +419,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {isLogin ? (
                 <>
                   <Lock className="w-4 h-4" />
-                  <span>Güvenli Giriş Yap</span>
+                  <span>{t.auth.submitLogin}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>Kayıt Ol & Takasa Başla</span>
+                  <span>{t.auth.submitRegister}</span>
                 </>
               )}
             </button>

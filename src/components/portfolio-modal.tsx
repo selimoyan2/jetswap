@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { X, Plus, Package, ArrowLeftRight, CheckCircle2, Shield, Star, MapPin, ShieldCheck, Check, Sparkles } from 'lucide-react'
 import { mockCurrentUser, mockMyPortfolio } from '@/data/mockData'
 import { User, TradeItem } from '@/types'
+import { useLanguage } from '@/i18n'
+import { getConditionLabel } from '@/i18n/helpers'
 
 interface PortfolioModalProps {
   isOpen: boolean
@@ -21,6 +23,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
   onOpenTrustVerification,
   currentUser,
 }) => {
+  const { t, language } = useLanguage()
   const activeUser = currentUser || mockCurrentUser
   if (!isOpen) return null
 
@@ -39,7 +42,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 {activeUser.verifiedSwapper && (
                   <span className="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                    Verified Swapper
+                    {t.portfolioModal.verifiedSwapper}
                   </span>
                 )}
               </div>
@@ -48,7 +51,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 <span>•</span>
                 <span className="font-bold text-amber-600 flex items-center gap-0.5"><Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {activeUser.rating}</span>
                 <span>•</span>
-                <span className="text-emerald-700 font-bold">{activeUser.completedSwaps} Başarılı Takas</span>
+                <span className="text-emerald-700 font-bold">{activeUser.completedSwaps} {t.portfolioModal.successfulSwaps}</span>
               </p>
             </div>
           </div>
@@ -62,11 +65,11 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 if (onOpenTrustVerification) onOpenTrustVerification()
               }}
               className="hidden sm:flex flex-col items-end bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-xl text-right transition-colors cursor-pointer"
-              title="JetTrust Profil Doğrulama Merkezini Aç"
+              title="JetTrust"
             >
               <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                JetTrust Skoru
+                {t.portfolioModal.jetTrustScore}
               </span>
               <span className="text-base font-black text-emerald-950 leading-none">{activeUser.jetTrust} / 100</span>
             </button>
@@ -85,11 +88,11 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
             <div>
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white/10 text-emerald-200 text-[10px] font-bold uppercase mb-1">
                 <Sparkles className="w-3 h-3" />
-                HAVE Portföyü (PRD Madde 6)
+                {t.portfolioModal.bannerBadge}
               </div>
-              <h4 className="text-lg font-black">Takasa Açık {mockMyPortfolio.length} Eşyanız Listeleniyor</h4>
+              <h4 className="text-lg font-black">{t.portfolioModal.bannerTitle.replace('{count}', String(mockMyPortfolio.length))}</h4>
               <p className="text-xs text-emerald-100 mt-1 max-w-md">
-                JetMatch motorumuz portföyünüzdeki eşyaları 7/24 tarayarak aradığınız ürünleri sunan kullanıcılarla sizi eşleştirir.
+                {t.portfolioModal.bannerDesc}
               </p>
             </div>
             <button
@@ -100,7 +103,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
               className="shrink-0 flex items-center gap-1.5 bg-white text-emerald-900 font-bold text-xs px-4 py-2.5 rounded-xl shadow-md hover:bg-emerald-50 transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span>Yeni Eşya Ekle</span>
+              <span>{t.portfolioModal.addNewItem}</span>
             </button>
           </div>
 
@@ -109,9 +112,9 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
                 <Package className="w-4 h-4 text-emerald-600" />
-                <span>Portföyümdeki Eşyalar & Takas Kriterleri</span>
+                <span>{t.portfolioModal.myItemsTitle}</span>
               </h4>
-              <span className="text-xs text-zinc-400">Durum: Aktif (Yayında)</span>
+              <span className="text-xs text-zinc-400">{t.portfolioModal.activeStatus}</span>
             </div>
 
             <div className="space-y-4">
@@ -132,25 +135,25 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                           </span>
                         )}
                         <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                          {item.condition}
+                          {getConditionLabel(item.condition, language)}
                         </span>
                         {item.openToOffers && (
                           <span className="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md">
-                            Tekliflere Açık
+                            {t.portfolioModal.openToOffers}
                           </span>
                         )}
                       </div>
                       <h5 className="font-bold text-sm text-zinc-900 mt-1 truncate">{item.title}</h5>
                       <div className="flex items-center gap-1 text-xs text-emerald-800 font-medium mt-1">
                         <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span className="truncate"><strong>Aradığın (WANT):</strong> {item.targetDescription}</span>
+                        <span className="truncate"><strong>{t.smartMatch.wantYou}:</strong> {item.targetDescription}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
                     <span className="text-xs bg-emerald-600 text-white font-semibold px-3 py-1 rounded-lg shadow-xs">
-                      Aktif İlanda
+                      {t.portfolioModal.activeListingBadge}
                     </span>
                   </div>
                 </div>
@@ -162,8 +165,8 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
           <div className="bg-zinc-100 rounded-2xl p-4 border border-zinc-200 flex items-start gap-3 text-xs text-zinc-600">
             <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <strong className="text-zinc-900 block font-bold mb-0.5">Gizli İletişim Bilgileriniz (PRD Madde 19)</strong>
-              Kayıtlı telefonunuz (<strong>{mockCurrentUser.phone}</strong>) ve e-posta adresiniz (<strong>{mockCurrentUser.email}</strong>) takas teklifi iki tarafça kabul edilene kadar diğer kullanıcılardan tamamen gizlidir.
+              <strong className="text-zinc-900 block font-bold mb-0.5">{t.portfolioModal.privacyNoticeTitle}</strong>
+              {t.portfolioModal.privacyNoticeDesc.replace('{phone}', mockCurrentUser.phone || '').replace('{email}', mockCurrentUser.email || '')}
             </div>
           </div>
         </div>

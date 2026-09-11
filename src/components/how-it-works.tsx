@@ -2,44 +2,47 @@
 
 import React from 'react'
 import { PlusCircle, Search, ArrowLeftRight, Lock, CheckCircle2, ShieldCheck, Cpu, Sparkles, Handshake } from 'lucide-react'
+import { useLanguage } from '@/i18n'
 
 export const HowItWorks: React.FC = () => {
+  const { t } = useLanguage()
+
   // PRD Madde 33: 5 Adımlı "Nasıl Çalışır?"
   const steps = [
     {
       step: '01',
-      title: '1. Ürününü Ekle (HAVE)',
-      desc: 'Takas etmek istediğin ürünü marka, model, fotoğraflar ve durumuyla birkaç dakikada portföyüne ekle.',
+      title: t.howItWorks.step1Title,
+      desc: t.howItWorks.step1Desc,
       icon: PlusCircle,
-      badge: 'Portföy'
+      badge: t.howItWorks.step1Badge
     },
     {
       step: '02',
-      title: '2. Ne İstediğini Söyle (WANT)',
-      desc: 'Karşılığında almak istediğin kategorileri ve ürünleri seç veya "Tekliflere Açığım" olarak işaretle.',
+      title: t.howItWorks.step2Title,
+      desc: t.howItWorks.step2Desc,
       icon: Search,
-      badge: 'İstek Listesi'
+      badge: t.howItWorks.step2Badge
     },
     {
       step: '03',
-      title: '3. JetMatch Eşleştirsin (MATCH)',
-      desc: 'Sistem aradığın eşyaya sahip ve senin ürününü isteyen kullanıcıları akıllı algoritmasıyla anında bulur.',
+      title: t.howItWorks.step3Title,
+      desc: t.howItWorks.step3Desc,
       icon: Cpu,
-      badge: 'JetMatch'
+      badge: t.howItWorks.step3Badge
     },
     {
       step: '04',
-      title: '4. Teklif Yap & Müzakere',
-      desc: '1\'e 1 veya portföyünden çoklu ürün seçerek teklifini sun. Karşı tekliflerle ortak noktada buluş.',
+      title: t.howItWorks.step4Title,
+      desc: t.howItWorks.step4Desc,
       icon: ArrowLeftRight,
-      badge: 'Çoklu Takas'
+      badge: t.howItWorks.step4Badge
     },
     {
       step: '05',
-      title: '5. Takas Et & Değerlendir (SWAP)',
-      desc: 'Karşılıklı mutabakatta iletişim kartı açılır. Para kullanmadan değişimi tamamla, JetTrust puanı kazan!',
+      title: t.howItWorks.step5Title,
+      desc: t.howItWorks.step5Desc,
       icon: Handshake,
-      badge: 'Sıfır Para'
+      badge: t.howItWorks.step5Badge
     },
   ]
 
@@ -47,13 +50,13 @@ export const HowItWorks: React.FC = () => {
     <section id="nasil-calisir" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center max-w-3xl mx-auto mb-14">
         <span className="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-3.5 py-1 rounded-full border border-emerald-200">
-          PRD Madde 33 • 5 Adımda Süreç
+          {t.howItWorks.badge}
         </span>
         <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 tracking-tight mt-3">
-          JetSwap Nasıl Çalışır?
+          {t.howItWorks.title}
         </h2>
         <p className="text-sm text-zinc-600 mt-3 font-medium max-w-xl mx-auto">
-          Tek bir kuruş ödemeden, güvenli ve şeffaf adımlarla eşyalarınızı yeni sahipleriyle buluşturun.
+          {t.howItWorks.desc}
         </p>
       </div>
 

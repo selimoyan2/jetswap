@@ -5,6 +5,7 @@ import { X, ShieldCheck, CheckCircle2, Lock, Smartphone, Mail, FileText, ArrowRi
 import { mockCurrentUser } from '@/data/mockData'
 
 import { User } from '@/types'
+import { useLanguage } from '@/i18n'
 
 interface TrustVerificationModalProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ interface TrustVerificationModalProps {
 }
 
 export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ isOpen, onClose, currentUser }) => {
+  const { t } = useLanguage()
   const activeUser = currentUser || mockCurrentUser
   const [activeStep, setActiveStep] = useState<number>(2) // User has Level 1 verified by default
   const [smsCode, setSmsCode] = useState('')
@@ -32,9 +34,9 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-zinc-900">JetTrust Doğrulama Merkezi</h2>
+              <h2 className="text-base font-extrabold text-zinc-900">{t.trustCenter.title}</h2>
               <p className="text-xs text-zinc-500 font-medium">
-                Profilini doğrula, güvenilirlik rozeti kazan ve takaslarda 3 kat daha hızlı eşleş.
+                {t.trustCenter.subtitle}
               </p>
             </div>
           </div>
@@ -52,19 +54,19 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
           <div className="bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-2xl p-5 flex items-center justify-between">
             <div>
               <span className="text-[10px] font-black uppercase tracking-wider text-emerald-300 block">
-                Mevcut Güven Skoru
+                {t.trustCenter.currentScore}
               </span>
               <div className="flex items-baseline gap-2 mt-1">
                 <span className="text-3xl font-black">{activeUser.jetTrust}</span>
-                <span className="text-xs text-emerald-200">/ 100 Puan</span>
+                <span className="text-xs text-emerald-200">/ 100</span>
               </div>
               <p className="text-[11px] text-emerald-100 mt-1">
-                Doğrulanmış Üye (Verified Swapper) statüsündesiniz.
+                {t.trustCenter.verifiedBadge}
               </p>
             </div>
             <div className="w-14 h-14 rounded-2xl bg-emerald-800/80 border border-emerald-400/40 flex flex-col items-center justify-center text-center">
               <Award className="w-6 h-6 text-amber-400" />
-              <span className="text-[9px] font-black uppercase tracking-wider text-white mt-0.5">Seviye 2</span>
+              <span className="text-[9px] font-black uppercase tracking-wider text-white mt-0.5">Level 2</span>
             </div>
           </div>
 
@@ -78,12 +80,12 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-black text-zinc-900">Seviye 1: E-Posta Doğrulaması</h4>
+                    <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level1Title}</h4>
                     <span className="text-[9px] font-black bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded">
-                      Tamamlandı (+30 Puan)
+                      {t.trustCenter.completedBadge} (+30)
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-0.5">{mockCurrentUser.email}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{activeUser.email || mockCurrentUser.email}</p>
                 </div>
               </div>
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-1" />
@@ -97,12 +99,12 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-black text-zinc-900">Seviye 2: SMS & Mobil Doğrulama</h4>
+                    <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level2Title}</h4>
                     <span className="text-[9px] font-black bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded">
-                      Tamamlandı (+40 Puan)
+                      {t.trustCenter.completedBadge} (+40)
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-0.5">{mockCurrentUser.phone}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{activeUser.phone || mockCurrentUser.phone}</p>
                 </div>
               </div>
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-1" />
@@ -117,13 +119,13 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-black text-zinc-900">Seviye 3: Kimlik & Güven Rozeti (Opsiyonel)</h4>
+                      <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level3Title}</h4>
                       <span className="text-[9px] font-black bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded">
-                        +30 Puan (Maksimum 100 JT)
+                        +30 (Max 100 JT)
                       </span>
                     </div>
                     <p className="text-xs text-zinc-500 mt-0.5">
-                      Yüksek değerli takaslar (araç, profesyonel kamera, lüks saat) için profilinde 'Tam Onaylı' altın rozet çıkartır.
+                      {t.trustCenter.level3Desc}
                     </p>
                   </div>
                 </div>
@@ -132,7 +134,7 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
               {level3Status === 'pending' ? (
                 <div className="bg-zinc-50 rounded-xl p-3 border border-dashed border-zinc-300 text-center">
                   <p className="text-xs text-zinc-600 mb-2">
-                    Kimlik ön yüzü veya e-Devlet ikametgah belgesini yükleyin. Veriler şifrelenir ve asla 3. şahıslarla paylaşılmaz.
+                    {t.trustCenter.privacyNote}
                   </p>
                   <button
                     type="button"
@@ -140,13 +142,13 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                     className="bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-black px-4 py-2 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Belge Yükle & İncelemeye Gönder</span>
+                    <span>{t.trustCenter.uploadDoc}</span>
                   </button>
                 </div>
               ) : (
                 <div className="bg-emerald-50 rounded-xl p-3 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Belgeleriniz incelemeye alındı. Ortalama onay süresi 15 dakikadır.</span>
+                  <span>{t.trustCenter.underReview}</span>
                 </div>
               )}
             </div>
@@ -156,7 +158,7 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
           <div className="text-[11px] text-zinc-400 flex items-center gap-2 pt-2 border-t border-zinc-100">
             <Lock className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span>
-              JetSwap gizlilik ilkesi: Doğrulama belgeleri şifrelenmiş sunucularda tutulur, hiçbir üye ile paylaşılmaz.
+              {t.trustCenter.privacyNote}
             </span>
           </div>
         </div>
@@ -167,7 +169,7 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
             onClick={onClose}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-5 py-2.5 rounded-xl transition-all cursor-pointer"
           >
-            Kapat
+            {t.common.close}
           </button>
         </div>
       </div>

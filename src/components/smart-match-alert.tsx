@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Sparkles, ArrowLeftRight, CheckCircle2, MapPin, Zap, ShieldCheck, RefreshCw, Layers, ArrowRight, UserCheck } from 'lucide-react'
 import { TradeItem } from '@/types'
 import { mockMyPortfolio, mockItems, mockSwapChains } from '@/data/mockData'
+import { useLanguage } from '@/i18n'
 
 interface SmartMatchAlertProps {
   onSelectTrade?: (targetItem: TradeItem, myItem: TradeItem) => void
@@ -12,6 +13,7 @@ interface SmartMatchAlertProps {
 }
 
 export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade, onSelectChain }) => {
+  const { t, language } = useLanguage()
   const [matchMode, setMatchMode] = useState<'bilateral' | 'chain'>('bilateral')
   const [isChainConfirmed, setIsChainConfirmed] = useState(false)
 
@@ -34,13 +36,13 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-amber-400 bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-400/30">
-                  {matchMode === 'bilateral' ? '%100 JETMATCH EŞLEŞMESİ (PRD Madde 10 & 11)' : "3'LÜ ZİNCİRLEME TAKAS (SWAP CHAIN - PRD MADDE 12)"}
+                  {matchMode === 'bilateral' ? t.smartMatch.bilateralBadge : t.smartMatch.chainBadge}
                 </span>
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-white mt-1">
                 {matchMode === 'bilateral'
-                  ? 'Portföyünüz İçin Doğrudan Karşılıklı Eşleşme Bulundu!'
-                  : "3'lü Takas Döngüsü: A → B → C → A (Hiç Para Harcamadan!)"}
+                  ? t.smartMatch.bilateralTitle
+                  : t.smartMatch.chainTitle}
               </h3>
             </div>
           </div>
@@ -57,7 +59,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
               }`}
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
-              <span>2'li Direkt (%100)</span>
+              <span>{t.smartMatch.bilateralTab}</span>
             </button>
             <button
               type="button"
@@ -69,7 +71,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
               }`}
             >
               <RefreshCw className="w-3.5 h-3.5 animate-spin-slow" />
-              <span>3'lü Zincir (%99)</span>
+              <span>{t.smartMatch.chainTab}</span>
             </button>
           </div>
         </div>
@@ -90,16 +92,16 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                     className="object-cover"
                   />
                   <span className="absolute top-1 left-1 bg-emerald-700 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
-                    HAVE (Senin)
+                    {t.smartMatch.haveYou}
                   </span>
                 </div>
                 <div className="min-w-0">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded">
-                    Portföyünden
+                    {t.smartMatch.fromPortfolio}
                   </span>
                   <h4 className="text-sm sm:text-base font-bold text-white truncate mt-1">{myItem.title}</h4>
                   <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
-                    <strong>Aradığın (WANT):</strong> {myItem.targetDescription}
+                    <strong>{t.smartMatch.wantYou}:</strong> {myItem.targetDescription}
                   </p>
                   <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-2">
                     <MapPin className="w-3 h-3 text-zinc-500" />
@@ -113,7 +115,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 animate-bounce">
                   <ArrowLeftRight className="w-6 h-6" />
                 </div>
-                <span className="text-[9px] font-black text-emerald-400 mt-1 uppercase">Takas</span>
+                <span className="text-[9px] font-black text-emerald-400 mt-1 uppercase">{t.smartMatch.swap}</span>
               </div>
 
               {/* Side B: Target Item (MATCH) */}
@@ -127,7 +129,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                     className="object-cover"
                   />
                   <span className="absolute top-1 left-1 bg-amber-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded">
-                    MATCH (%98)
+                    {t.smartMatch.matchPercent}
                   </span>
                 </div>
                 <div className="min-w-0">
@@ -139,7 +141,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white truncate mt-1">{targetItem.title}</h4>
                   <p className="text-xs text-zinc-400 mt-1 line-clamp-1">
-                    <strong>Aradığı (WANT):</strong> {targetItem.targetDescription}
+                    <strong>{t.smartMatch.wantTarget}:</strong> {targetItem.targetDescription}
                   </p>
                   <div className="flex items-center gap-1 text-[11px] text-zinc-400 mt-2">
                     <MapPin className="w-3 h-3 text-zinc-500" />
@@ -154,7 +156,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
               <div className="flex items-center gap-2 text-xs sm:text-sm text-emerald-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>
-                  <strong>JetMatch Analizi:</strong> Caner stüdyo kulaklığı arıyor, siz ise elektro gitar arıyorsunuz! Çift taraflı tam uyum.
+                  {t.smartMatch.jetMatchAnalysis}
                 </span>
               </div>
 
@@ -163,7 +165,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                 className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs sm:text-sm font-extrabold px-6 py-3 rounded-2xl shadow-xl shadow-emerald-600/30 transition-all cursor-pointer"
               >
                 <Zap className="w-4 h-4" />
-                <span>Teklifi Başlat (Karşılaştır & Onayla)</span>
+                <span>{t.smartMatch.startOffer}</span>
               </button>
             </div>
           </>
@@ -174,10 +176,10 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-black text-amber-400 flex items-center gap-2">
                   <RefreshCw className="w-4 h-4 text-amber-400" />
-                  3 Kişilik Kapalı Döngü Eşleşmesi (%99 Uyum)
+                  {t.smartMatch.chainClosedLoop}
                 </span>
                 <span className="text-[11px] font-bold text-zinc-400">
-                  Herkes veriyor, herkes istediğini alıyor!
+                  {t.smartMatch.chainTagline}
                 </span>
               </div>
 
@@ -188,27 +190,27 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-700">
                       <div className="flex items-center gap-2">
                         <span className="w-6 h-6 rounded-full bg-emerald-500 text-zinc-900 font-black text-xs flex items-center justify-center">1</span>
-                        <span className="text-xs font-black text-white">Sen (Selim)</span>
+                        <span className="text-xs font-black text-white">{t.smartMatch.you}</span>
                       </div>
-                      <span className="text-[10px] font-bold bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded">Başlatıcı</span>
+                      <span className="text-[10px] font-bold bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded">{t.smartMatch.initiator}</span>
                     </div>
 
                     <div className="space-y-2 text-xs">
                       <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">Verdiğin Ürün</span>
+                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.itemGiven}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[0].givesItem.title}</span>
                       </div>
                       <div className="flex justify-center text-emerald-400 py-0.5">
                         <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
                       </div>
                       <div className="bg-zinc-900/80 p-2 rounded-xl border border-emerald-500/40">
-                        <span className="text-[9px] font-bold text-emerald-400 block uppercase">Aldığın Ürün</span>
+                        <span className="text-[9px] font-bold text-emerald-400 block uppercase">{t.smartMatch.itemReceived}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[0].receivesItem.title}</span>
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    Bora Aktaş'tan teslim alacaksın.
+                    {t.smartMatch.chainDelivery1}
                   </div>
                 </div>
 
@@ -225,20 +227,20 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
 
                     <div className="space-y-2 text-xs">
                       <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">Verdiği Ürün</span>
+                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.giverItem}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[1].givesItem.title}</span>
                       </div>
                       <div className="flex justify-center text-amber-400 py-0.5">
                         <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
                       </div>
                       <div className="bg-zinc-900/80 p-2 rounded-xl border border-amber-500/40">
-                        <span className="text-[9px] font-bold text-amber-400 block uppercase">Aldığı Ürün</span>
+                        <span className="text-[9px] font-bold text-amber-400 block uppercase">{t.smartMatch.receiverItem}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[1].receivesItem.title}</span>
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    Senin iPad Air'ini teslim alacak.
+                    {t.smartMatch.chainDelivery2}
                   </div>
                 </div>
 
@@ -255,20 +257,20 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
 
                     <div className="space-y-2 text-xs">
                       <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">Verdiği Ürün</span>
+                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.giverItem}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[2].givesItem.title}</span>
                       </div>
                       <div className="flex justify-center text-teal-400 py-0.5">
                         <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
                       </div>
                       <div className="bg-zinc-900/80 p-2 rounded-xl border border-teal-500/40">
-                        <span className="text-[9px] font-bold text-teal-400 block uppercase">Aldığı Ürün</span>
+                        <span className="text-[9px] font-bold text-teal-400 block uppercase">{t.smartMatch.receiverItem}</span>
                         <span className="font-bold text-white line-clamp-1">{chain.nodes[2].receivesItem.title}</span>
                       </div>
                     </div>
                   </div>
                   <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    Elif'in Sony A7 III kamerasını alacak.
+                    {t.smartMatch.chainDelivery3}
                   </div>
                 </div>
               </div>
@@ -278,7 +280,7 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                 <div className="text-xs text-zinc-300 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>
-                    3 taraf da onay verdiğinde takas kodu oluşturulur ve teslimat kargo/elden başlatılır.
+                    {t.smartMatch.chainNotice}
                   </span>
                 </div>
 
@@ -294,12 +296,12 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
                   {isChainConfirmed ? (
                     <>
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>3'lü Takas Onayınız İletildi! (2/3 Onay Bekleniyor)</span>
+                      <span>{t.smartMatch.chainConfirmed}</span>
                     </>
                   ) : (
                     <>
                       <RefreshCw className="w-4 h-4" />
-                      <span>3'lü Takas Zincirini Onayla & Başlat</span>
+                      <span>{t.smartMatch.chainConfirmBtn}</span>
                     </>
                   )}
                 </button>

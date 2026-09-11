@@ -3,6 +3,7 @@
 import React from 'react'
 import { Zap, Clock, Calendar, CalendarDays, MapPin, Building2, Globe2 } from 'lucide-react'
 import { TimeFilterScope, LocationFilterScope } from '@/types'
+import { useLanguage } from '@/i18n'
 
 interface QuickTimeFilterProps {
   timeScope: TimeFilterScope
@@ -35,6 +36,8 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
   onRequireLogin,
   counts,
 }) => {
+  const { t } = useLanguage()
+
   return (
     <div className="bg-white rounded-2xl border border-zinc-200/90 p-3 sm:p-4 shadow-xs mb-6">
       {/* Scope Header */}
@@ -42,10 +45,10 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
         <div>
           <h3 className="text-xs font-black uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Hızlı Zaman & Bölge Filtreleri</span>
+            <span>{t.quickFilter.title}</span>
           </h3>
           <p className="text-[11px] text-zinc-500 font-medium mt-0.5">
-            Zaman dilimine veya konumuna (semt & şehir) göre tek tıkla filtrele.
+            {t.quickFilter.subtitle}
           </p>
         </div>
 
@@ -53,11 +56,11 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
         {(timeScope !== 'all' || locationScope !== 'all') && (
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
-              Aktif Filtre: {timeScope !== 'all' ? (
-                timeScope === 'today' ? 'Bugünün İlanları' :
-                timeScope === 'yesterday' ? 'Dünkü İlanlar' :
-                timeScope === '7days' ? 'Son 7 Gün' : 'Son 30 Gün'
-              ) : ''} {locationScope !== 'all' ? `• ${locationScope === 'nearby' ? `Semt (${userDistrict})` : `Şehir (${userCity})`}` : ''}
+              {t.quickFilter.activeFilter}: {timeScope !== 'all' ? (
+                timeScope === 'today' ? t.quickFilter.today :
+                timeScope === 'yesterday' ? t.quickFilter.yesterday :
+                timeScope === '7days' ? t.quickFilter.last7Days : t.quickFilter.last30Days
+              ) : ''} {locationScope !== 'all' ? `• ${locationScope === 'nearby' ? `${t.quickFilter.nearbyDistrict} (${userDistrict})` : `${t.quickFilter.inMyCity} (${userCity})`}` : ''}
             </span>
             <button
               type="button"
@@ -67,7 +70,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }}
               className="text-[11px] font-bold text-zinc-500 hover:text-zinc-800 underline cursor-pointer"
             >
-              Sıfırla
+              {t.quickFilter.reset}
             </button>
           </div>
         )}
@@ -77,7 +80,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
         {/* TIME SCOPE BUTTONS */}
         <div>
           <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-1.5">
-            Tarihe Göre İlanlar
+            {t.quickFilter.timeSectionTitle}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {/* Bugün */}
@@ -91,7 +94,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Zap className="w-3 h-3 text-amber-400" />
-              <span>Bugünün İlanları</span>
+              <span>{t.quickFilter.today}</span>
               {counts?.today !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${timeScope === 'today' ? 'bg-emerald-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.today}
@@ -110,7 +113,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Clock className="w-3 h-3" />
-              <span>Dünkü İlanlar</span>
+              <span>{t.quickFilter.yesterday}</span>
               {counts?.yesterday !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${timeScope === 'yesterday' ? 'bg-emerald-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.yesterday}
@@ -129,7 +132,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Calendar className="w-3 h-3" />
-              <span>Son 7 Gün</span>
+              <span>{t.quickFilter.last7Days}</span>
               {counts?.week !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${timeScope === '7days' ? 'bg-emerald-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.week}
@@ -148,7 +151,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <CalendarDays className="w-3 h-3" />
-              <span>Son 30 Gün</span>
+              <span>{t.quickFilter.last30Days}</span>
               {counts?.month !== undefined && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${timeScope === '30days' ? 'bg-emerald-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.month}
@@ -161,7 +164,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
         {/* LOCATION / NEIGHBORHOOD SCOPE BUTTONS */}
         <div>
           <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400 block mb-1.5">
-            Konum & Yakınlık
+            {t.quickFilter.locationSectionTitle}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {/* Yakınımdaki Takaslar (Semt) */}
@@ -169,12 +172,12 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               type="button"
               onClick={() => {
                 if (!isLoggedIn && onRequireLogin) {
-                  onRequireLogin('Bulunduğunuz semtteki takas ilanlarını listelemek için lütfen giriş yapın veya kayıt olun.')
+                  onRequireLogin(t.quickFilter.requireLoginNearby)
                   return
                 }
                 setLocationScope(locationScope === 'nearby' ? 'all' : 'nearby')
               }}
-              title={isLoggedIn ? `Semtiniz: ${userDistrict}` : 'Semtinizdeki ilanları görmek için giriş yapın'}
+              title={isLoggedIn ? `${t.quickFilter.nearbyDistrict}: ${userDistrict}` : t.quickFilter.requireLoginNearby}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                 locationScope === 'nearby'
                   ? 'bg-teal-700 text-white shadow-xs'
@@ -182,7 +185,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <MapPin className="w-3 h-3 text-rose-500" />
-              <span>{isLoggedIn ? `Yakınımdaki Takaslar (${userDistrict})` : 'Yakınımdaki Takaslar (Giriş Yap)'}</span>
+              <span>{isLoggedIn ? `${t.quickFilter.nearbyDistrict} (${userDistrict})` : `${t.quickFilter.nearbyDistrict} (${t.nav.login})`}</span>
               {counts?.nearby !== undefined && isLoggedIn && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${locationScope === 'nearby' ? 'bg-teal-800 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.nearby}
@@ -195,12 +198,12 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               type="button"
               onClick={() => {
                 if (!isLoggedIn && onRequireLogin) {
-                  onRequireLogin('Bulunduğunuz şehirdeki takas ilanlarını listelemek için lütfen giriş yapın veya kayıt olun.')
+                  onRequireLogin(t.quickFilter.requireLoginCity)
                   return
                 }
                 setLocationScope(locationScope === 'city' ? 'all' : 'city')
               }}
-              title={isLoggedIn ? `Şehriniz: ${userCity}` : 'Şehrinizdeki ilanları görmek için giriş yapın'}
+              title={isLoggedIn ? `${t.quickFilter.inMyCity}: ${userCity}` : t.quickFilter.requireLoginCity}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                 locationScope === 'city'
                   ? 'bg-teal-700 text-white shadow-xs'
@@ -208,7 +211,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Building2 className="w-3 h-3" />
-              <span>{isLoggedIn ? `Şehrimdeki İlanlar (${userCity})` : 'Şehrimdeki İlanlar (Giriş Yap)'}</span>
+              <span>{isLoggedIn ? `${t.quickFilter.inMyCity} (${userCity})` : `${t.quickFilter.inMyCity} (${t.nav.login})`}</span>
               {counts?.city !== undefined && isLoggedIn && (
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${locationScope === 'city' ? 'bg-teal-800 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
                   {counts.city}
@@ -230,7 +233,7 @@ export const QuickTimeFilter: React.FC<QuickTimeFilterProps> = ({
               }`}
             >
               <Globe2 className="w-3 h-3" />
-              <span>Tüm İlanlar</span>
+              <span>{t.quickFilter.allListings}</span>
             </button>
           </div>
         </div>
