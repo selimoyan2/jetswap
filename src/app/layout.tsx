@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "JetSwap | Para Trafiği Olmayan Küresel Takas Platformu",
   description: "Cebinden para çıkmasın. Kullanmadığın eşyalarını portföyüne ekle, ne ile takas etmek istediğini seç, akıllı öneri motoruyla eşleş ve güvenle takas et. %100 nakitsiz takas ekonomisi.",
   keywords: ["takas", "barter", "para olmadan takas", "eşya takası", "jetswap", "nakitsiz ekonomi", "küresel takas platformu"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "JetSwap",
+  },
 };
 
 export default function RootLayout({
