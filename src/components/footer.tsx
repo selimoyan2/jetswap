@@ -39,8 +39,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
             <ul className="space-y-2.5">
               <li><Link href="#nasil-calisir" className="hover:text-emerald-400 transition-colors">{t.footer.howItWorksLink}</Link></li>
               <li><Link href="#eslesmeler" className="hover:text-emerald-400 transition-colors">{t.footer.jetMatchLink}</Link></li>
-              <li><Link href="#" className="hover:text-emerald-400 transition-colors">{t.footer.swapChainLink}</Link></li>
-              <li><Link href="#" className="hover:text-emerald-400 transition-colors">{t.footer.portfolioGuideLink}</Link></li>
+              <li><Link href="/blog" className="text-emerald-400 font-bold hover:underline">Rehber & Blog Merkezi</Link></li>
+              <li><Link href="/blog/esyadan-esyaya-takas-nasil-yapilir" className="hover:text-emerald-400 transition-colors">Eşya Takası Nasıl Yapılır?</Link></li>
             </ul>
           </div>
 
@@ -57,9 +57,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
                   <span>{t.footer.forbiddenPolicyLink}</span>
                 </button>
               </li>
-              <li><Link href="#" className="hover:text-emerald-400 transition-colors">{t.footer.trustScoreGuideLink}</Link></li>
-              <li><Link href="#" className="hover:text-emerald-400 transition-colors">{t.footer.privacyBarrierLink}</Link></li>
-              <li><Link href="#" className="hover:text-emerald-400 transition-colors">{t.footer.antiCashSystemLink}</Link></li>
+              <li><Link href="/blog/guvenli-elden-takas-icin-5-altin-kural" className="hover:text-emerald-400 transition-colors">Güvenli Elden Takas Kılavuzu</Link></li>
+              <li><Link href="/blog/takasta-deger-dengesi-nasil-saglanir" className="hover:text-emerald-400 transition-colors">Adil Terazi & Değer Dengesi</Link></li>
+              <li><Link href="/blog/dongusel-ekonomi-ve-sifir-atik" className="hover:text-emerald-400 transition-colors">Sıfır Atık & Döngüsel Ekonomi</Link></li>
             </ul>
           </div>
 

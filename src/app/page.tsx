@@ -27,6 +27,7 @@ import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
 import FlashTradeShowcase from '@/components/flash-trade-showcase'
 import JetRadarModal from '@/components/jet-radar-modal'
+import FaqSection from '@/components/faq-section'
 import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield } from 'lucide-react'
 import { useLanguage } from '@/i18n'
 
@@ -463,6 +464,9 @@ export default function HomePage() {
 
         {/* How It Works Section */}
         <HowItWorks />
+
+        {/* Frequently Asked Questions (FAQ) Section with JSON-LD Schema */}
+        <FaqSection className="bg-white border-t border-zinc-200" />
       </main>
 
       {/* Footer */}

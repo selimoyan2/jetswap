@@ -548,5 +548,29 @@ export const en: TranslationSchema = {
     counterSentSuccess: 'Your counter-offer has been sent to the other party!',
     noteLabel: 'Negotiation Note',
     notePlaceholder: 'e.g., I added my headphones to balance the deal, what do you think?'
+  },
+  blog: {
+    title: 'JetSwap Blog & Barter Knowledge Hub',
+    subtitle: 'Proven tips on cashless trading, circular economy insights, and verified safe barter protocols.',
+    searchPlaceholder: 'Search barter guides or articles...',
+    allCategories: 'All Topics',
+    readTime: 'Read Time',
+    author: 'Author',
+    shareArticle: 'Share Article',
+    relatedArticles: 'Related Barter Guides',
+    backToBlog: '← Back to All Guides',
+    backToHome: '← Back to Home',
+    noPostsFound: 'No guides found matching your search criteria.',
+    startSwapping: 'Start Swapping Now',
+    ctaTitle: 'Mobilize the Items in Your Home!',
+    ctaSubtitle: 'Add your unused items to your portfolio right now and swap for what you desire with zero cash.',
+    badge: 'KNOWLEDGE BASE & GUIDES'
+  },
+  faq: {
+    sectionBadge: 'FREQUENTLY ASKED QUESTIONS',
+    title: 'Everything You Need to Know About Barter',
+    subtitle: 'Answers to key questions regarding the JetSwap zero-cash model, fair barter scale, and trust mechanisms.',
+    stillHaveQuestions: 'Still have questions?',
+    askSupport: 'Contact Community Support'
   }
 }

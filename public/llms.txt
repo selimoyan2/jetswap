@@ -1,0 +1,22 @@
+﻿# JetSwap (jetswap.com.tr) - The Global Zero-Cash Barter Network
+
+> JetSwap is a 100% zero-cash peer-to-peer and multi-party barter network. It enables individuals and organizations to exchange goods and services directly without any monetary transactions or price tags.
+
+## Core Philosophy & Rules
+- **Pure Barter (Zero Cash)**: Any mention, solicitation, or payment of fiat currency, bank transfers, crypto, or cash top-ups is strictly prohibited and automatically blocked.
+- **Value Tier Balancing (Adil Takas Terazisi)**: Rather than evaluating goods with fluctuating fiat money, items are categorized into value tiers (Basic, Mid-Tier, Upper, Flagship/Premium) and balanced via bundles.
+- **JetTrust Score (0-100)**: Every trader has a verified trust metric based on successful hand-to-hand completions, ID verification, and mutual peer reviews.
+- **Privacy Gate (PRD Article 19)**: Contact phone numbers and email addresses are cryptographically hidden until both parties formally accept the barter terms.
+- **Safe Trade Zones**: In-person handovers are encouraged at verified 24/7 camera-surveilled public zones (malls, metro squares, municipal posts).
+- **Circular Economy & Eco-Impact**: Each barter prevents CO2 emissions and diverts solid waste from landfills, awarded with an Eco-Impact Scorecard.
+
+## Key Sections & Resources
+- **Home & Explore**: https://jetswap.com.tr - Discover live barter listings, filter by location (81 cities of Turkey & Global), category, and time.
+- **Flash Trade Showcase**: https://jetswap.com.tr#kesfet - 24-hour urgent in-person barter opportunities.
+- **JetRadar**: Smart wishlist alert system matching published barters with user search criteria.
+- **Blog & Barter Knowledge Hub**: https://jetswap.com.tr/blog - In-depth guides on zero-cash trading, value balancing, fraud prevention, and circular economy.
+- **Prohibited Items Policy**: Weapons, counterfeit items, pharmaceuticals, food, and illegal goods are strictly forbidden.
+
+## Language Support
+- Turkish (tr-TR): Default
+- English (en-US): Fully supported across all listings, navigation, and blog guides.

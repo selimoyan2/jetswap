@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ArrowLeftRight, Search, PlusCircle, Shield, Globe, Menu, X, 
-  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio
+  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio, BookOpen
 } from 'lucide-react'
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
@@ -103,6 +103,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Link href="#eslesmeler" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             {t.nav.jetMatch}
+          </Link>
+          <Link href="/blog" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{language === 'tr' ? 'Rehber & Blog' : 'Guides & Blog'}</span>
           </Link>
 
           {/* JetRadar Button */}
@@ -362,6 +366,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </Link>
             <Link href="#eslesmeler" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
               {t.nav.jetMatch}
+            </Link>
+            <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-emerald-600" />
+              <span>{language === 'tr' ? 'Rehber & Blog' : 'Guides & Blog'}</span>
             </Link>
             <button
               onClick={() => {

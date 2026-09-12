@@ -548,5 +548,29 @@ export const tr: TranslationSchema = {
     counterSentSuccess: 'Karşı teklifiniz karşı tarafa iletildi!',
     noteLabel: 'Pazarlık Notunuz',
     notePlaceholder: 'Örn: Teklifi dengelemek için masaya bir de kulaklığımı ekledim, ne dersin?'
+  },
+  blog: {
+    title: 'JetSwap Blog & Takas Rehberi',
+    subtitle: 'Nakit harcamadan eşya takası yapmanın püf noktaları, döngüsel ekonomi trendleri ve güvenli takas kılavuzları.',
+    searchPlaceholder: 'Takas rehberi veya makale ara...',
+    allCategories: 'Tüm Konular',
+    readTime: 'Okuma Süresi',
+    author: 'Yazar',
+    shareArticle: 'Yazıyı Paylaş',
+    relatedArticles: 'İlginizi Çekebilecek Diğer Rehberler',
+    backToBlog: '← Tüm Rehberlere Dön',
+    backToHome: '← Ana Sayfaya Dön',
+    noPostsFound: 'Aradığınız kriterlere uygun rehber yazısı bulunamadı.',
+    startSwapping: 'Hemen Eşyalarını Takasla',
+    ctaTitle: 'Evinizdeki Eşyaları Harekete Geçirin!',
+    ctaSubtitle: 'Kullanmadığınız ürünleri hemen portföyünüze ekleyin, ihtiyacınız olanlarla sıfır nakit kuralıyla takaslayın.',
+    badge: 'BİLGİ MERKEZİ & REHBER'
+  },
+  faq: {
+    sectionBadge: 'SIKÇA SORULAN SORULAR',
+    title: 'Takas Hakkında Merak Edilenler',
+    subtitle: 'JetSwap sıfır nakit platformu, adil terazi ve güvenlik mekanizmalarıyla ilgili tüm soruların yanıtları.',
+    stillHaveQuestions: 'Başka bir sorunuz mu var?',
+    askSupport: 'Destek Ekibine Danışın'
   }
 }

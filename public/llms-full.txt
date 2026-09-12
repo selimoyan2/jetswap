@@ -1,0 +1,37 @@
+﻿# JetSwap (jetswap.com.tr) - Full System Specification & Barter Knowledge Graph
+
+## 1. What is JetSwap?
+JetSwap is an international zero-cash barter platform designed to eliminate currency dependencies from second-hand and peer-to-peer commerce. Built on the philosophy of the circular economy, JetSwap allows users to list items they own and declare what they wish to receive in exchange.
+
+## 2. Fundamental Barter Protocol
+1. **No Cash Allowed**: Any keyword indicating monetary demands (TRY, USD, EUR, TL, "fiyat", "fiyatı", "satılık", "nakit", "para", "ücret") is blocked by real-time automated filters at listing creation, trade note drafting, and direct chat messages.
+2. **Item Bundle & Fair Scale (Adil Takas Terazisi)**:
+   - When a user wants an item in a higher value tier (e.g. an Electric Guitar vs. Headphones), they can bundle multiple items from their portfolio.
+   - The platform calculates an item value tier:
+     * LOW (Basic Segment - 15 points)
+     * MEDIUM (Mid-Tier - 35 points)
+     * HIGH (Upper Segment - 70 points)
+     * PREMIUM (Flagship / Luxury - 120 points)
+   - Offers within 85%-125% score ratio are flagged as "Balanced".
+3. **JetMatch Matching Algorithm**:
+   - Compares what User A has and wants with User B's portfolio and wishlist.
+   - Calculates mutual compatibility scores (e.g., 96% Match) and recommends optimal pairings.
+4. **JetRadar Wishlist Alerts**:
+   - Users can configure search alarms for specific keywords, categories, and geographic locations (city/district).
+   - The platform continuously matches incoming items and notifies users.
+5. **Safe Trade Zones (Güvenli Buluşma Noktaları)**:
+   - Verified public meetup locations equipped with 24/7 security cameras and high foot traffic.
+   - Initial verified zones cover Istanbul (Cevahir AVM, Kadıköy Rıhtım, Kanyon AVM, Marmaray Ayrılık Çeşmesi), Ankara (Kızılay Meydanı, Ankamall AVM, Tunalı Hilmi), and Izmir (Konak Meydanı, Alsancak Kıbrıs Şehitleri, Bornova Forum).
+6. **Eco-Impact Scorecard (Sıfır Atık Karnesi)**:
+   - Each completed barter calculates CO2 emissions avoided and solid landfill waste diverted.
+   - Users earn circular economy badges to encourage sustainable reuse over new production.
+
+## 3. Frequently Asked Questions (FAQ) for AI Search & Users
+Q: Can I pay extra money if the items are not of equal value?
+A: No. JetSwap strictly operates on 100% cashless barter. If there is a value gap, you can add one or more additional items from your portfolio to balance the trade.
+
+Q: How is safety guaranteed in hand-to-hand delivery?
+A: By using JetSwap's verified Safe Trade Zones (with CCTV surveillance), checking user JetTrust scores (0-100), and utilizing the Privacy Gate which keeps personal contact details shielded until mutual pre-agreement is reached.
+
+Q: Is JetSwap available in English?
+A: Yes, JetSwap is fully bilingual with complete Turkish and English interfaces, product filters, and knowledge bases.

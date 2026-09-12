@@ -561,5 +561,29 @@ export interface TranslationSchema {
     noteLabel: string
     notePlaceholder: string
   }
+  blog: {
+    title: string
+    subtitle: string
+    searchPlaceholder: string
+    allCategories: string
+    readTime: string
+    author: string
+    shareArticle: string
+    relatedArticles: string
+    backToBlog: string
+    backToHome: string
+    noPostsFound: string
+    startSwapping: string
+    ctaTitle: string
+    ctaSubtitle: string
+    badge: string
+  }
+  faq: {
+    sectionBadge: string
+    title: string
+    subtitle: string
+    stillHaveQuestions: string
+    askSupport: string
+  }
 }
 
