@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { 
   X, ArrowLeftRight, CheckCircle2, Clock, MessageSquare, Send, 
   ShieldCheck, Star, ThumbsUp, AlertCircle, Phone, Mail, MapPin, 
-  ChevronRight, Sparkles, User, RefreshCw, Handshake, Ban, Leaf, Plus, Trash2, Scale
+  ChevronRight, Sparkles, User, RefreshCw, Handshake, Ban, Leaf, Plus, Trash2, Scale, Flag
 } from 'lucide-react'
 import { mockCurrentUser, mockMyPortfolio, mockItems } from '@/data/mockData'
 import { TradeOfferStatus, TradeItem } from '@/types'
@@ -13,6 +13,7 @@ import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
 import FairBarterScale from '@/components/fair-barter-scale'
 import EcoImpactModal from '@/components/eco-impact-modal'
+import { ReportModal } from '@/components/report-modal'
 
 interface MySwapsModalProps {
   isOpen: boolean
@@ -48,6 +49,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
   const [isCounterDeskOpen, setIsCounterDeskOpen] = useState(false)
   const [counterItemIds, setCounterItemIds] = useState<string[]>([mockMyPortfolio[0]?.id || 'item-p1'])
   const [counterNote, setCounterNote] = useState('')
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   // State for active offers
   const [offer, setOffer] = useState<MockOfferState>({
@@ -260,10 +262,18 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                     <span className="text-[10px] text-zinc-500">{offer.partnerCity}</span>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-2">
                   <span className="text-[11px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
                     {offer.partnerTrust} JetTrust
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(true)}
+                    title="Kullanıcıyı Şikayet Et"
+                    className="p-1 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -604,6 +614,17 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
       <EcoImpactModal
         isOpen={showEcoModal}
         onClose={() => setShowEcoModal(false)}
+      />
+
+      {/* Report Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        user={{
+          id: 'usr-caner-partner',
+          name: offer.partnerName,
+          jetTrust: offer.partnerTrust
+        }}
       />
     </div>
   )

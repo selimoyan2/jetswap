@@ -21,13 +21,71 @@ export type TradeOfferStatus =
   | 'REJECTED'          // Reddedildi
   | 'CANCELLED'         // İptal Edildi
 
-export type ReportReason = 
-  | 'CASH_DEMAND'       // Para / Satış Talebi
-  | 'FAKE_PRODUCT'      // Sahte / Taklit Ürün
-  | 'FORBIDDEN_ITEM'    // Yasaklı / Ahlaka Aykırı Ürün
-  | 'WRONG_CATEGORY'    // Yanlış Kategori
-  | 'SPAM'              // Spam / Yanıltıcı
-  | 'OTHER'             // Diğer
+export type ReportCategory = 
+  | 'CASH_DEMAND'           // Nakit / Para Talebi (Sıfır Nakit İhlali)
+  | 'FAKE_PRODUCT'          // Sahte / Taklit Ürün
+  | 'NO_SHOW_SAFE_ZONE'     // Güvenli Noktaya / Randevuya Gelmeme
+  | 'ABUSIVE_BEHAVIOR'      // Kaba, Tehditkar veya Tacizkar İletişim
+  | 'DEFECTIVE_ITEM'        // Kusurlu veya Gizlenmiş Hasarlı Ürün
+  | 'EXTERNAL_COMMUNICATION'// Platform Dışına Çekme / Güvenlik İhlali
+  | 'FRAUD_ATTEMPT'         // Dolandırıcılık Girişimi
+  | 'FORBIDDEN_ITEM'        // Yasaklı Madde / Yasadışı İlan
+  | 'OTHER'                 // Diğer
+
+export type ReportReason = ReportCategory
+
+export type ReportStatus = 
+  | 'PENDING'          // Yeni / İnceleme Bekliyor
+  | 'INQUIRY_SENT'      // Savunma Talebi Gönderildi (Soru Soruldu)
+  | 'DEFENSE_RECEIVED'  // Kullanıcı Savunmasını İletti
+  | 'SANCTIONED'        // Yaptırım / Ceza Uygulandı
+  | 'DISMISSED'         // Şikayet Reddedildi / Kapatıldı
+
+export type SanctionType = 
+  | 'WARNING'        // Resmi İkaz (-15 JetTrust)
+  | 'SUSPEND_24H'    // 24 Saatlik Takas Dondurma
+  | 'SUSPEND_7D'     // 7 Günlük Takas Askıya Alma (-30 JetTrust)
+  | 'FREEZE_30D'     // 30 Günlük Hesap Dondurma
+  | 'PERMANENT_BAN'  // Kalıcı Kırmızı Kart (Hesap Kapatma)
+
+export interface AdminInquiry {
+  question: string
+  sentAt: string
+  deadlineHours: number
+  deadlineDate: string
+  response?: string
+  respondedAt?: string
+}
+
+export interface UserSanction {
+  id: string
+  type: SanctionType
+  reason: string
+  appliedAt: string
+  expiresAt?: string
+  appliedBy: string
+  jetTrustPenalty?: number
+  reportId?: string
+}
+
+export interface UserReport {
+  id: string
+  reporterId: string
+  reporterName: string
+  reporterTrust?: number
+  reportedUserId: string
+  reportedUserName: string
+  reportedUserTrust?: number
+  itemId?: string
+  itemTitle?: string
+  category: ReportCategory
+  details: string
+  status: ReportStatus
+  createdAt: string
+  adminInquiry?: AdminInquiry
+  sanction?: UserSanction
+  adminNotes?: string
+}
 
 export type TimeFilterScope = 'all' | 'today' | 'yesterday' | '7days' | '30days'
 export type LocationFilterScope = 'all' | 'nearby' | 'city' | 'country'

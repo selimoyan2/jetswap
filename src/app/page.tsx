@@ -21,6 +21,7 @@ import { AuthModal } from '@/components/auth-modal'
 import { EditProfileModal } from '@/components/edit-profile-modal'
 import { TrustVerificationModal } from '@/components/trust-verification-modal'
 import { MobileBottomNav } from '@/components/mobile-bottom-nav'
+import { UserSanctionBanner } from '@/components/user-sanction-banner'
 import { AdBanner } from '@/components/ads/ad-banner'
 import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
 import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
@@ -305,6 +306,9 @@ export default function HomePage() {
       />
 
       <main className="flex-1">
+        {/* Active Sanctions & Admin Defense Inquiries Banner */}
+        <UserSanctionBanner />
+
         {/* User Greeting Dashboard Bar - YALNIZCA GİRİŞ YAPMIŞ ÜYELERE GÖRÜNÜR */}
         {currentUser && (
           <UserDashboardBar

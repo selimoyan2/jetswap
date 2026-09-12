@@ -338,20 +338,70 @@ export interface TranslationSchema {
   }
   reportModal: {
     title: string
+    reportUserTitle: string
     subtitle: string
-    reasonLabel: string
+    step1Title: string
+    step2Title: string
+    selectCategory: string
     reasons: {
       CASH_DEMAND: string
+      CASH_DEMAND_DESC: string
       FAKE_PRODUCT: string
+      FAKE_PRODUCT_DESC: string
+      NO_SHOW_SAFE_ZONE: string
+      NO_SHOW_SAFE_ZONE_DESC: string
+      ABUSIVE_BEHAVIOR: string
+      ABUSIVE_BEHAVIOR_DESC: string
+      DEFECTIVE_ITEM: string
+      DEFECTIVE_ITEM_DESC: string
+      EXTERNAL_COMMUNICATION: string
+      EXTERNAL_COMMUNICATION_DESC: string
+      FRAUD_ATTEMPT: string
+      FRAUD_ATTEMPT_DESC: string
       FORBIDDEN_ITEM: string
+      FORBIDDEN_ITEM_DESC: string
       WRONG_CATEGORY: string
       SPAM: string
       OTHER: string
+      OTHER_DESC: string
     }
     detailsLabel: string
     detailsPlaceholder: string
+    detailsMinLengthWarning: string
+    nextStep: string
+    prevStep: string
     submit: string
     success: string
+    reportedUserLabel: string
+    reportedItemLabel: string
+  }
+  moderation: {
+    inquiryAlertTitle: string
+    inquiryAlertDesc: string
+    inquiryDeadlineRemaining: string
+    inquiryAdminQuestion: string
+    inquiryYourResponse: string
+    inquiryPlaceholder: string
+    inquirySubmit: string
+    inquirySuccess: string
+    inquiryClosed: string
+    sanctionAlertTitle: string
+    sanctionExpiresIn: string
+    sanctionReason: string
+    sanctionTypes: {
+      WARNING: string
+      SUSPEND_24H: string
+      SUSPEND_7D: string
+      FREEZE_30D: string
+      PERMANENT_BAN: string
+    }
+    statusLabels: {
+      PENDING: string
+      INQUIRY_SENT: string
+      DEFENSE_RECEIVED: string
+      SANCTIONED: string
+      DISMISSED: string
+    }
   }
   dashboardBar: {
     greeting: string
