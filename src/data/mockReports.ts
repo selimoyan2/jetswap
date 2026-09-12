@@ -284,3 +284,49 @@ export function dismissReport(reportId: string, adminNotes?: string): UserReport
   saveStoredReports(reports)
   return updatedReport
 }
+
+export function isUserTradeRestricted(userId?: string): { restricted: boolean; sanction?: UserSanction; reason?: string } {
+  if (typeof window === 'undefined') return { restricted: false }
+  try {
+    const sanctions = getStoredSanctions()
+    const now = new Date()
+
+    const restrictingTypes: SanctionType[] = ['SUSPEND_24H', 'SUSPEND_7D', 'FREEZE_30D', 'PERMANENT_BAN']
+
+    // Find active sanction
+    const active = sanctions.find(s => {
+      if (!restrictingTypes.includes(s.type)) return false
+      if (!s.expiresAt) return true
+      return new Date(s.expiresAt) > now
+    })
+
+    if (active) {
+      return {
+        restricted: true,
+        sanction: active,
+        reason: active.reason
+      }
+    }
+
+    // Also check stored reports for user
+    const reports = getStoredReports()
+    const sanctionedRep = reports.find(r => {
+      if (r.status !== 'SANCTIONED' || !r.sanction) return false
+      if (!restrictingTypes.includes(r.sanction.type)) return false
+      if (r.sanction.expiresAt && new Date(r.sanction.expiresAt) <= now) return false
+      return true
+    })
+
+    if (sanctionedRep?.sanction) {
+      return {
+        restricted: true,
+        sanction: sanctionedRep.sanction,
+        reason: sanctionedRep.sanction.reason
+      }
+    }
+
+    return { restricted: false }
+  } catch {
+    return { restricted: false }
+  }
+}

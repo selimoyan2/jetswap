@@ -22,6 +22,8 @@ import { EditProfileModal } from '@/components/edit-profile-modal'
 import { TrustVerificationModal } from '@/components/trust-verification-modal'
 import { MobileBottomNav } from '@/components/mobile-bottom-nav'
 import { UserSanctionBanner } from '@/components/user-sanction-banner'
+import { SanctionRestrictionModal } from '@/components/sanction-restriction-modal'
+import { isUserTradeRestricted } from '@/data/mockReports'
 import { AdBanner } from '@/components/ads/ad-banner'
 import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
 import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
@@ -62,6 +64,14 @@ export default function HomePage() {
   const [isFirstListingWelcome, setIsFirstListingWelcome] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('register')
   const [authPromptReason, setAuthPromptReason] = useState('')
+  const [restrictionModalState, setRestrictionModalState] = useState<{
+    isOpen: boolean
+    sanction?: any
+    actionType: 'TRADE_OFFER' | 'CREATE_LISTING'
+  }>({
+    isOpen: false,
+    actionType: 'TRADE_OFFER'
+  })
 
   // Check saved session on mount
   useEffect(() => {
@@ -185,7 +195,7 @@ export default function HomePage() {
     })
   }, [items, selectedCategory, selectedSubCategory, selectedCity, selectedDistrict, timeScope, locationScope, searchQuery, currentUser, isFlashOnly])
 
-  // Handle open trade offer (Requires login)
+  // Handle open trade offer (Requires login & no active sanctions)
   const handleOpenTradeOffer = (targetItem: TradeItem, myItem?: TradeItem) => {
     if (!currentUser) {
       setAuthMode('register')
@@ -193,11 +203,22 @@ export default function HomePage() {
       setIsAuthOpen(true)
       return
     }
+
+    const restriction = isUserTradeRestricted(currentUser.id)
+    if (restriction.restricted) {
+      setRestrictionModalState({
+        isOpen: true,
+        sanction: restriction.sanction,
+        actionType: 'TRADE_OFFER'
+      })
+      return
+    }
+
     setTargetItemForTrade(targetItem)
     setMyPreselectedItem(myItem || null)
   }
 
-  // Handle open create listing (Requires login)
+  // Handle open create listing (Requires login & no active sanctions)
   const handleOpenCreateListing = () => {
     if (!currentUser) {
       setAuthMode('register')
@@ -205,6 +226,17 @@ export default function HomePage() {
       setIsAuthOpen(true)
       return
     }
+
+    const restriction = isUserTradeRestricted(currentUser.id)
+    if (restriction.restricted) {
+      setRestrictionModalState({
+        isOpen: true,
+        sanction: restriction.sanction,
+        actionType: 'CREATE_LISTING'
+      })
+      return
+    }
+
     setIsCreateListingOpen(true)
   }
 
@@ -562,6 +594,14 @@ export default function HomePage() {
         allItems={items}
         onSelectMatchingItem={(item) => handleOpenTradeOffer(item)}
         onApplyFilter={(kw) => setSearchQuery(kw)}
+      />
+
+      {/* Sanction Restriction Modal */}
+      <SanctionRestrictionModal
+        isOpen={restrictionModalState.isOpen}
+        onClose={() => setRestrictionModalState(prev => ({ ...prev, isOpen: false }))}
+        sanction={restrictionModalState.sanction}
+        actionType={restrictionModalState.actionType}
       />
     </div>
   )

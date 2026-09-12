@@ -2,9 +2,10 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package, Settings, MapPin } from 'lucide-react'
-import { User } from '@/types'
+import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package, Settings, MapPin, Ban, Lock } from 'lucide-react'
+import { User, UserSanction } from '@/types'
 import { useLanguage } from '@/i18n'
+import { isUserTradeRestricted } from '@/data/mockReports'
 
 interface UserDashboardBarProps {
   currentUser: User
@@ -24,6 +25,19 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
   onOpenEditProfile,
 }) => {
   const { t } = useLanguage()
+  const [restriction, setRestriction] = React.useState(() => isUserTradeRestricted(currentUser.id))
+
+  React.useEffect(() => {
+    const handleUpdate = () => {
+      setRestriction(isUserTradeRestricted(currentUser.id))
+    }
+    window.addEventListener('jetswap_sanctions_updated', handleUpdate)
+    window.addEventListener('jetswap_reports_updated', handleUpdate)
+    return () => {
+      window.removeEventListener('jetswap_sanctions_updated', handleUpdate)
+      window.removeEventListener('jetswap_reports_updated', handleUpdate)
+    }
+  }, [currentUser.id])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
@@ -72,7 +86,16 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
               <span>•</span>
               <span>{currentUser.completedSwaps} {t.mySwaps.tabCompleted}</span>
               <span>•</span>
-              <span className="text-emerald-700 font-bold">{t.dashboardBar.activeStatus}</span>
+              {restriction.restricted ? (
+                <span className="text-red-700 bg-red-100 font-bold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1 text-[11px]">
+                  <Ban className="w-3 h-3 text-red-600" />
+                  <span>
+                    {restriction.sanction ? (t.moderation.sanctionTypes[restriction.sanction.type] || restriction.sanction.type) : 'Hesap Kısıtlı'}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-emerald-700 font-bold">{t.dashboardBar.activeStatus}</span>
+              )}
             </p>
           </div>
         </div>
@@ -111,9 +134,13 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
           {/* New Item button */}
           <button
             onClick={onOpenCreateItem}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all shadow-xs cursor-pointer"
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-black transition-all shadow-xs cursor-pointer ${
+              restriction.restricted
+                ? 'bg-zinc-700 hover:bg-zinc-800 opacity-90'
+                : 'bg-emerald-600 hover:bg-emerald-700'
+            }`}
           >
-            <Plus className="w-4 h-4" />
+            {restriction.restricted ? <Lock className="w-3.5 h-3.5 text-amber-400" /> : <Plus className="w-4 h-4" />}
             <span>{t.dashboardBar.newListing}</span>
           </button>
         </div>

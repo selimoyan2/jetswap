@@ -2,13 +2,14 @@
 
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
-import { X, ArrowLeftRight, ShieldCheck, CheckCircle2, AlertCircle, Plus, Send, AlertTriangle, Shield, Check } from 'lucide-react'
+import { X, ArrowLeftRight, ShieldCheck, CheckCircle2, AlertCircle, Plus, Send, AlertTriangle, Shield, Check, Ban } from 'lucide-react'
 import { TradeItem, SafeTradeZone } from '@/types'
 import { mockMyPortfolio } from '@/data/mockData'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
 import FairBarterScale from '@/components/fair-barter-scale'
 import SafeZonesPicker from '@/components/safe-zones-picker'
+import { isUserTradeRestricted } from '@/data/mockReports'
 
 interface TradeOfferModalProps {
   targetItem: TradeItem | null
@@ -40,6 +41,9 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
   // PRD Madde 38: Teklif Notunda Nakit Para Engelleme Filtresi
   const cashCheck = useMemo(() => detectCashKeywords(note), [note])
 
+  // Disiplin yaptırımı / Hesap kısıtlama kontrolü
+  const tradeRestriction = useMemo(() => isUserTradeRestricted(), [])
+
   if (!targetItem) return null
 
   const toggleSelectItem = (id: string) => {
@@ -50,6 +54,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (tradeRestriction.restricted) return
     if (selectedMyItemIds.length === 0) return
     if (cashCheck.hasCashViolation) return
 
@@ -258,6 +263,21 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
               />
             </div>
 
+            {/* Sanction Restriction Alert Banner */}
+            {tradeRestriction.restricted && (
+              <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-800 flex items-start gap-3">
+                <Ban className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <strong className="block font-black text-red-900">
+                    ⛔ Hesabınızda Aktif Yaptırım Bulunmaktadır ({tradeRestriction.sanction ? (t.moderation.sanctionTypes[tradeRestriction.sanction.type] || tradeRestriction.sanction.type) : 'Askıda'})
+                  </strong>
+                  <p className="text-[11px] text-red-700">
+                    {tradeRestriction.reason || 'Disiplin yaptırımı nedeniyle yeni takas teklifi gönderimi kilitlenmiştir.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Privacy Gate Info Card */}
             <div className="p-4 rounded-2xl bg-zinc-900 text-zinc-200 text-xs flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -278,11 +298,15 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={selectedMyItemIds.length === 0 || cashCheck.hasCashViolation}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                disabled={selectedMyItemIds.length === 0 || cashCheck.hasCashViolation || tradeRestriction.restricted}
+                className={`flex items-center gap-2 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer ${
+                  tradeRestriction.restricted
+                    ? 'bg-zinc-700 opacity-60 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-emerald-600/20'
+                }`}
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>{t.tradeOffer.submitOffer}</span>
+                {tradeRestriction.restricted ? <Ban className="w-3.5 h-3.5 text-red-400" /> : <Send className="w-3.5 h-3.5" />}
+                <span>{tradeRestriction.restricted ? 'Hesap Kısıtlı - Teklif Verilemez' : t.tradeOffer.submitOffer}</span>
               </button>
             </div>
           </form>
