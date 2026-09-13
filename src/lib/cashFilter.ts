@@ -4,10 +4,10 @@
  */
 
 const CASH_KEYWORDS = [
-  'tl', 'try', 'usd', 'eur', 'dolar', 'dollar', 'euro',
+  'tl', 'try', 'usd', 'eur', 'dolar', 'dollar', 'euro', 'lira',
   'satılık', 'satilik', 'fiyat', 'fiyatı', 'fiyati', 'satıyorum', 'satiyorum',
   '+ para', '+para', 'nakit', 'ücret', 'ucret', 'havale', 'eft', 'iban',
-  'kredi kartı', 'kredi karti', 'taksit', 'elden para', 'para ver'
+  'kredi kartı', 'kredi karti', 'taksit', 'elden para', 'para ver', 'para farkı', 'para farki'
 ]
 
 const CASH_SYMBOLS = ['₺', '$', '€', '£', '¥']
@@ -48,8 +48,8 @@ export function detectCashKeywords(text: string): CashDetectionResult {
     }
   }
 
-  // Specific check for number followed by tl/usd/euro, e.g. "15000 tl", "500$"
-  const priceRegex = /\d+\s*(tl|try|usd|eur|dolar|euro|bin tl|k tl)/i
+  // Specific check for number followed by currency, e.g. "15000 tl", "500$", "1000 lira"
+  const priceRegex = /\d+\s*(tl|try|usd|eur|dolar|euro|lira|bin tl|k tl)/i
   if (priceRegex.test(lower)) {
     const match = lower.match(priceRegex)
     if (match && !matchedWords.includes(match[0])) {

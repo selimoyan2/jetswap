@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   AlertTriangle, ShieldAlert, Clock, Send, CheckCircle2, 
-  X, HelpCircle, AlertCircle, Ban, ShieldCheck 
+  X, HelpCircle, AlertCircle, Ban 
 } from 'lucide-react'
 import { UserReport, UserSanction } from '@/types'
 import { useLanguage } from '@/i18n'
@@ -12,9 +12,13 @@ import {
   getStoredSanctions, 
   submitUserDefense 
 } from '@/data/mockReports'
-import { mockCurrentUser } from '@/data/mockData'
+import { User } from '@/types'
 
-export const UserSanctionBanner: React.FC = () => {
+interface UserSanctionBannerProps {
+  currentUser?: User | null
+}
+
+export const UserSanctionBanner: React.FC<UserSanctionBannerProps> = ({ currentUser }) => {
   const { t } = useLanguage()
   const [inquiryReport, setInquiryReport] = useState<UserReport | null>(null)
   const [activeSanction, setActiveSanction] = useState<UserSanction | null>(null)
@@ -23,14 +27,20 @@ export const UserSanctionBanner: React.FC = () => {
   const [defenseSubmitted, setDefenseSubmitted] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  const checkStatus = () => {
+  const checkStatus = useCallback(() => {
+    // If user is not logged in, never show any sanction or inquiry banner
+    if (!currentUser) {
+      setInquiryReport(null)
+      setActiveSanction(null)
+      return
+    }
+
     const reports = getStoredReports()
     const sanctions = getStoredSanctions()
 
-    // Check for pending inquiries directed at currentUser
-    // To allow testing, check both mockCurrentUser.id or 'usr-bad-1' (or if we simulated inquiry for currentUser)
+    // Check for pending inquiries specifically directed at currentUser
     const pendingInquiry = reports.find(
-      r => (r.reportedUserId === mockCurrentUser.id || r.reportedUserId === 'usr_me') &&
+      r => r.reportedUserId === currentUser.id &&
            r.status === 'INQUIRY_SENT' &&
            r.adminInquiry &&
            !r.adminInquiry.response
@@ -38,28 +48,36 @@ export const UserSanctionBanner: React.FC = () => {
 
     setInquiryReport(pendingInquiry || null)
 
-    // Check for active sanctions
-    const mySanction = sanctions.find(
-      s => s.expiresAt ? new Date(s.expiresAt) > new Date() : true
-    )
-    // Also check if any report with currentUser has SANCTIONED status
+    // Check if any report with currentUser has SANCTIONED status
     const sanctionedReport = reports.find(
-      r => (r.reportedUserId === mockCurrentUser.id || r.reportedUserId === 'usr_me') &&
+      r => r.reportedUserId === currentUser.id &&
            r.status === 'SANCTIONED' &&
-           r.sanction
+           r.sanction &&
+           (r.sanction.expiresAt ? new Date(r.sanction.expiresAt) > new Date() : true)
     )
 
-    if (mySanction) {
-      setActiveSanction(mySanction)
-    } else if (sanctionedReport?.sanction) {
+    // Check for active sanctions linked to this user's report
+    const mySanction = sanctions.find(s => {
+      const isLinkedReport = reports.some(
+        r => r.id === s.reportId && r.reportedUserId === currentUser.id
+      )
+      const isActive = s.expiresAt ? new Date(s.expiresAt) > new Date() : true
+      return isLinkedReport && isActive
+    })
+
+    if (sanctionedReport?.sanction) {
       setActiveSanction(sanctionedReport.sanction)
+    } else if (mySanction) {
+      setActiveSanction(mySanction)
     } else {
       setActiveSanction(null)
     }
-  }
+  }, [currentUser])
 
   useEffect(() => {
-    checkStatus()
+    const timer = setTimeout(() => {
+      checkStatus()
+    }, 0)
 
     const handleReportsUpdate = () => checkStatus()
     const handleSanctionsUpdate = () => checkStatus()
@@ -68,10 +86,11 @@ export const UserSanctionBanner: React.FC = () => {
     window.addEventListener('jetswap_sanctions_updated', handleSanctionsUpdate)
 
     return () => {
+      clearTimeout(timer)
       window.removeEventListener('jetswap_reports_updated', handleReportsUpdate)
       window.removeEventListener('jetswap_sanctions_updated', handleSanctionsUpdate)
     }
-  }, [])
+  }, [checkStatus])
 
   const handleSubmitDefense = (e: React.FormEvent) => {
     e.preventDefault()

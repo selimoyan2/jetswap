@@ -18,6 +18,7 @@ import {
 import { SerializedTradeOffer } from '@/lib/offers/types'
 import { OfferStatusBadge } from '@/components/offers/offer-status-badge'
 import { OfferExchangeView } from '@/components/offers/offer-exchange-view'
+import { OfferChat } from '@/components/messages'
 
 interface OfferDetailClientProps {
   offerId: string
@@ -288,6 +289,11 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
             )}
           </div>
         )}
+
+        {/* Offer Negotiation & Messages Area (Sprint 7) */}
+        <div className="pt-2">
+          <OfferChat offerId={offer.id} offerStatus={offer.status} />
+        </div>
       </div>
     </div>
   )

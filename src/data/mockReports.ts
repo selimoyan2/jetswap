@@ -287,15 +287,19 @@ export function dismissReport(reportId: string, adminNotes?: string): UserReport
 
 export function isUserTradeRestricted(userId?: string): { restricted: boolean; sanction?: UserSanction; reason?: string } {
   if (typeof window === 'undefined') return { restricted: false }
+  if (!userId) return { restricted: false }
   try {
     const sanctions = getStoredSanctions()
+    const reports = getStoredReports()
     const now = new Date()
 
     const restrictingTypes: SanctionType[] = ['SUSPEND_24H', 'SUSPEND_7D', 'FREEZE_30D', 'PERMANENT_BAN']
 
-    // Find active sanction
+    // Find active sanction linked to this user's report
     const active = sanctions.find(s => {
       if (!restrictingTypes.includes(s.type)) return false
+      const isLinkedReport = reports.some(r => r.id === s.reportId && r.reportedUserId === userId)
+      if (!isLinkedReport) return false
       if (!s.expiresAt) return true
       return new Date(s.expiresAt) > now
     })
@@ -309,8 +313,8 @@ export function isUserTradeRestricted(userId?: string): { restricted: boolean; s
     }
 
     // Also check stored reports for user
-    const reports = getStoredReports()
     const sanctionedRep = reports.find(r => {
+      if (r.reportedUserId !== userId) return false
       if (r.status !== 'SANCTIONED' || !r.sanction) return false
       if (!restrictingTypes.includes(r.sanction.type)) return false
       if (r.sanction.expiresAt && new Date(r.sanction.expiresAt) <= now) return false

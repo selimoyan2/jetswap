@@ -392,8 +392,8 @@ export default function HomePage() {
       />
 
       <main className="flex-1">
-        {/* Active Sanctions & Admin Defense Inquiries Banner */}
-        <UserSanctionBanner />
+        {/* Active Sanctions & Admin Defense Inquiries Banner - Sadece giriş yapmış ve yaptırımlı kullanıcıya görünür */}
+        {currentUser && <UserSanctionBanner currentUser={currentUser} />}
 
         {/* User Greeting Dashboard Bar - YALNIZCA GİRİŞ YAPMIŞ ÜYELERE GÖRÜNÜR */}
         {currentUser && (
@@ -573,6 +573,7 @@ export default function HomePage() {
       <TradeOfferModal
         targetItem={targetItemForTrade}
         initialMyItem={myPreselectedItem}
+        currentUser={currentUser}
         onClose={() => {
           setTargetItemForTrade(null)
           setMyPreselectedItem(null)

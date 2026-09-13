@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { X, ArrowLeftRight, ShieldCheck, CheckCircle2, AlertCircle, Plus, Send, AlertTriangle, Shield, Check, Ban } from 'lucide-react'
-import { TradeItem, SafeTradeZone } from '@/types'
+import { TradeItem, SafeTradeZone, User } from '@/types'
 import { mockMyPortfolio } from '@/data/mockData'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
@@ -14,6 +14,7 @@ import { isUserTradeRestricted } from '@/data/mockReports'
 interface TradeOfferModalProps {
   targetItem: TradeItem | null
   initialMyItem?: TradeItem | null
+  currentUser?: User | null
   onClose: () => void
   onSubmitOffer: (targetItem: TradeItem, selectedItems: TradeItem[], note: string, selectedSafeZone?: SafeTradeZone | null) => void
 }
@@ -21,6 +22,7 @@ interface TradeOfferModalProps {
 export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
   targetItem,
   initialMyItem,
+  currentUser,
   onClose,
   onSubmitOffer,
 }) => {
@@ -42,7 +44,7 @@ export const TradeOfferModal: React.FC<TradeOfferModalProps> = ({
   const cashCheck = useMemo(() => detectCashKeywords(note), [note])
 
   // Disiplin yaptırımı / Hesap kısıtlama kontrolü
-  const tradeRestriction = useMemo(() => isUserTradeRestricted(), [])
+  const tradeRestriction = useMemo(() => isUserTradeRestricted(currentUser?.id), [currentUser?.id])
 
   if (!targetItem) return null
 
