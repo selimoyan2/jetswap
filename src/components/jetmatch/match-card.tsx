@@ -12,6 +12,7 @@ import { JetMatchResult } from '@/lib/jetmatch'
 interface MatchCardProps {
   match: JetMatchResult
   sourceItemTitle?: string
+  onInitiateOffer?: (candidateItem: JetMatchResult['candidateItem']) => void
 }
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -30,6 +31,7 @@ const TRADE_METHOD_LABELS: Record<string, string> = {
 export const MatchCard: React.FC<MatchCardProps> = ({
   match,
   sourceItemTitle,
+  onInitiateOffer,
 }) => {
   const [expandedReasons, setExpandedReasons] = useState(false)
   const { candidateItem, matchType, score, label, reasons } = match
@@ -233,17 +235,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
 
-          {/* Secondary Disabled Action: Takas Teklifi Gönder (Yakında) */}
+          {/* Action: Takas Teklifi Gönder */}
           <button
             type="button"
-            disabled
-            className="flex-1 bg-zinc-100 text-zinc-400 border border-zinc-200 font-bold text-xs py-2.5 px-3 rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
-            title="Takas teklifleri bir sonraki sprintte aktif olacaktır."
+            onClick={() => onInitiateOffer?.(candidateItem)}
+            className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
+            <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-600" />
             <span>Teklif Gönder</span>
-            <span className="text-[9px] bg-zinc-200 text-zinc-600 px-1.5 py-0.2 rounded-md font-extrabold uppercase">
-              Yakında
-            </span>
           </button>
         </div>
       </div>

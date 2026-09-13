@@ -13,6 +13,7 @@ import { MatchSummary, MatchFilterType } from './match-summary'
 import { MatchCard } from './match-card'
 import { JetMatchEmptyState } from './jetmatch-empty-state'
 import { JetMatchLoading } from './jetmatch-loading'
+import { CreateOfferModal, TargetItemSummary } from '@/components/offers/create-offer-modal'
 
 interface CachedMatchData {
   matches: JetMatchResult[]
@@ -44,6 +45,7 @@ export function JetMatchDashboard() {
   const [activeFilter, setActiveFilter] = useState<MatchFilterType>('ALL')
   const [invalidUrlNotice, setInvalidUrlNotice] = useState<string | null>(null)
   const [showHowItWorks, setShowHowItWorks] = useState(false)
+  const [offerModalTarget, setOfferModalTarget] = useState<TargetItemSummary | null>(null)
 
   // 1. Fetch user's AVAILABLE items from /api/items/mine
   const loadUserItems = useCallback(async () => {
@@ -430,6 +432,15 @@ export function JetMatchDashboard() {
                             key={match.candidateItem.id}
                             match={match}
                             sourceItemTitle={activeSourceItem?.title}
+                            onInitiateOffer={(item) => {
+                              setOfferModalTarget({
+                                id: item.id,
+                                title: item.title,
+                                images: item.images,
+                                city: item.city,
+                                condition: item.condition,
+                              })
+                            }}
                           />
                         ))}
                       </div>
@@ -441,6 +452,17 @@ export function JetMatchDashboard() {
           </div>
         )}
       </main>
+
+      {/* Real Trade Offer Modal */}
+      <CreateOfferModal
+        isOpen={!!offerModalTarget}
+        targetItem={offerModalTarget}
+        initialOfferedItemId={selectedItemId}
+        onClose={() => setOfferModalTarget(null)}
+        onSuccess={(offerId) => {
+          router.push(`/offers/${offerId}`)
+        }}
+      />
     </div>
   )
 }

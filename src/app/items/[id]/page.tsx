@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { getAuthUser } from '@/lib/require-user'
 import { Metadata } from 'next'
+import { ItemDetailOfferButton } from '@/components/offers/item-detail-offer-button'
 
 interface ItemDetailPageProps {
   params: Promise<{ id: string }>
@@ -324,13 +325,17 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
 
                 {currentUser?.id !== item.userId && item.status === 'AVAILABLE' && (
                   <>
-                    <Link
-                      href={`/?tradeWith=${item.id}`}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeftRight className="w-4 h-4" />
-                      <span>Takas Teklifi Gönder</span>
-                    </Link>
+                    <ItemDetailOfferButton
+                      item={{
+                        id: item.id,
+                        title: item.title,
+                        images: item.images,
+                        city: item.city,
+                        condition: item.condition,
+                        userId: item.userId,
+                      }}
+                      isLoggedIn={!!currentUser}
+                    />
                     <p className="text-[11px] text-zinc-500 text-center mt-2">
                       Para teklifi kabul edilmez. Kendi portföyünüzden eşya seçerek teklif yapabilirsiniz.
                     </p>
