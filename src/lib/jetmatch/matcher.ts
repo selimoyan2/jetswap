@@ -227,6 +227,16 @@ export async function findMatchesForUser(
       city: true,
       country: true,
       status: true,
+      images: true,
+      category: {
+        select: {
+          id: true,
+          slug: true,
+          nameTr: true,
+          nameEn: true,
+          icon: true,
+        },
+      },
       wants: {
         select: {
           id: true,
@@ -266,6 +276,9 @@ export async function findMatchesForUser(
         id: item.id,
         title: item.title,
         categoryId: item.categoryId,
+        category: item.category,
+        images: item.images,
+        status: item.status,
         city: item.city,
         country: item.country,
       },

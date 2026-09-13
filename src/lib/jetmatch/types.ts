@@ -95,6 +95,15 @@ export interface JetMatchItemResult {
     id: string
     title: string
     categoryId: string
+    category?: {
+      id: string
+      slug?: string
+      nameTr: string
+      nameEn: string
+      icon?: string | null
+    } | null
+    images?: string[]
+    status?: ItemStatus
     city: string
     country: string
   }

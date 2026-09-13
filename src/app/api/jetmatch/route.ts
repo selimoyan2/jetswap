@@ -61,6 +61,17 @@ export async function GET(request: Request) {
         id: item.id,
         title: item.title,
         categoryId: item.categoryId,
+        category: item.category
+          ? {
+              id: item.category.id,
+              slug: item.category.slug,
+              nameTr: item.category.nameTr,
+              nameEn: item.category.nameEn,
+              icon: item.category.icon,
+            }
+          : null,
+        images: item.images,
+        status: item.status,
         city: item.city,
         country: item.country,
       }

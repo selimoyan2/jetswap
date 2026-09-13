@@ -5,8 +5,9 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { 
   ArrowLeftRight, ArrowLeft, Shield, Star, MapPin, Eye, 
-  Calendar, Tag, ShieldCheck, AlertCircle 
+  Calendar, Tag, ShieldCheck, AlertCircle, Sparkles 
 } from 'lucide-react'
+import { getAuthUser } from '@/lib/require-user'
 import { Metadata } from 'next'
 
 interface ItemDetailPageProps {
@@ -53,6 +54,7 @@ const TRADE_METHOD_LABELS: Record<string, string> = {
 
 export default async function ItemDetailPage(props: ItemDetailPageProps) {
   const { id } = await props.params
+  const currentUser = await getAuthUser()
 
   const item = await prisma.item.findUnique({
     where: { id },
@@ -308,18 +310,38 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
                 </div>
               </div>
 
-              {/* Action Button */}
-              <div className="pt-4 border-t border-zinc-100">
-                <Link
-                  href={`/?tradeWith=${item.id}`}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
-                >
-                  <ArrowLeftRight className="w-4 h-4" />
-                  <span>Takas Teklifi Gönder</span>
-                </Link>
-                <p className="text-[11px] text-zinc-500 text-center mt-2">
-                  Para teklifi kabul edilmez. Kendi portföyünüzden eşya seçerek teklif yapabilirsiniz.
-                </p>
+              {/* Action Button & JetMatch Integration */}
+              <div className="pt-4 border-t border-zinc-100 space-y-3">
+                {currentUser?.id === item.userId && item.status === 'AVAILABLE' && (
+                  <Link
+                    href={`/jetmatch?itemId=${item.id}`}
+                    className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span>JetMatch Eşleşmelerini Gör</span>
+                  </Link>
+                )}
+
+                {currentUser?.id !== item.userId && item.status === 'AVAILABLE' && (
+                  <>
+                    <Link
+                      href={`/?tradeWith=${item.id}`}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-extrabold text-xs py-3.5 rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeftRight className="w-4 h-4" />
+                      <span>Takas Teklifi Gönder</span>
+                    </Link>
+                    <p className="text-[11px] text-zinc-500 text-center mt-2">
+                      Para teklifi kabul edilmez. Kendi portföyünüzden eşya seçerek teklif yapabilirsiniz.
+                    </p>
+                  </>
+                )}
+
+                {currentUser?.id === item.userId && (
+                  <p className="text-[11px] text-emerald-800 font-semibold text-center bg-emerald-50 rounded-xl py-2 px-3 border border-emerald-100">
+                    Bu ilan size aittir. JetMatch ile bu ilanınıza gelen akıllı takas eşleşmelerini görüntüleyebilirsiniz.
+                  </p>
+                )}
               </div>
             </div>
 

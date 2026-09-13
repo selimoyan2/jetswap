@@ -20,6 +20,17 @@ interface PortfolioModalProps {
   currentUser?: User | null
 }
 
+interface PortfolioModalItem {
+  id: string
+  title: string
+  description?: string
+  status: string
+  condition: string
+  brand?: string
+  images?: string[]
+  targetDescription?: string
+}
+
 type PortfolioTab = 'AVAILABLE' | 'PENDING_TRADE' | 'TRADED' | 'ARCHIVED'
 
 export const PortfolioModal: React.FC<PortfolioModalProps> = ({
@@ -32,7 +43,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
   const { t, language } = useLanguage()
   const activeUser = currentUser || mockCurrentUser
   const [activeTab, setActiveTab] = useState<PortfolioTab>('AVAILABLE')
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<PortfolioModalItem[]>([])
   const [loading, setLoading] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
@@ -41,7 +52,9 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
     if (!isOpen) return
 
     let isMounted = true
-    setLoading(true)
+    Promise.resolve().then(() => {
+      if (isMounted) setLoading(true)
+    })
 
     fetch('/api/items/mine')
       .then(res => res.json())
@@ -51,11 +64,11 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
           setItems(data.data)
         } else {
           // Fallback to mock portfolio if not authenticated or empty
-          setItems(mockMyPortfolio)
+          setItems(mockMyPortfolio as unknown as PortfolioModalItem[])
         }
       })
       .catch(() => {
-        if (isMounted) setItems(mockMyPortfolio)
+        if (isMounted) setItems(mockMyPortfolio as unknown as PortfolioModalItem[])
       })
       .finally(() => {
         if (isMounted) setLoading(false)
@@ -294,7 +307,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredItems.map((item: any) => (
+                {filteredItems.map((item: PortfolioModalItem) => (
                   <div
                     key={item.id}
                     className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-400 transition-colors"
@@ -328,8 +341,20 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Actions: View Detail, Archive, Reactivate */}
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+                    {/* Actions: JetMatch, View Detail, Archive, Reactivate */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 flex-wrap">
+                      {(item.status === 'AVAILABLE' || item.status === 'ACTIVE') && (
+                        <Link
+                          href={`/jetmatch?itemId=${item.id}`}
+                          onClick={onClose}
+                          className="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5 transition-colors"
+                          title="Bu ilan için JetMatch takas eşleşmelerini gör"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                          <span>JetMatch&apos;i Gör</span>
+                        </Link>
+                      )}
+
                       <Link
                         href={`/items/${item.id}`}
                         target="_blank"

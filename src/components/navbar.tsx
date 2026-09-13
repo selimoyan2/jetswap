@@ -100,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <Link href="#nasil-calisir" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors">
             {t.nav.howItWorks}
           </Link>
-          <Link href="#eslesmeler" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
+          <Link href="/jetmatch" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             {t.nav.jetMatch}
           </Link>
@@ -174,6 +174,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <p className="text-[10px] text-zinc-400 truncate">{currentUser.email}</p>
                     <p className="text-[10px] text-emerald-600 font-bold mt-0.5">{currentUser.district ? `${currentUser.district}, ` : ''}{currentUser.city}</p>
                   </div>
+
+                  <Link
+                    href="/jetmatch"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-amber-500" />
+                    <span>JetMatch</span>
+                  </Link>
 
                   <button
                     onClick={() => {
@@ -364,8 +373,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Link href="#nasil-calisir" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
               {t.nav.howItWorks}
             </Link>
-            <Link href="#eslesmeler" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600">
-              {t.nav.jetMatch}
+            <Link href="/jetmatch" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>{t.nav.jetMatch}</span>
             </Link>
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-emerald-600" />

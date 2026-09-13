@@ -27,7 +27,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       </Link>
 
       {/* JetMatch */}
-      <Link href="#eslesmeler" className="flex flex-col items-center gap-1 text-zinc-600 hover:text-emerald-600">
+      <Link href="/jetmatch" className="flex flex-col items-center gap-1 text-zinc-600 hover:text-emerald-600">
         <Sparkles className="w-5 h-5 text-amber-500" />
         <span className="text-[10px] font-bold">{t.bottomNav.jetMatch}</span>
       </Link>

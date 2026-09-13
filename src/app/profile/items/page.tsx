@@ -5,10 +5,25 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ArrowLeftRight, ArrowLeft, Plus, Package, ExternalLink, 
-  Archive, RefreshCw, Loader2, ShieldCheck, Tag 
+  Archive, RefreshCw, Loader2, Tag, Sparkles 
 } from 'lucide-react'
 
 type PortfolioTab = 'AVAILABLE' | 'PENDING_TRADE' | 'TRADED' | 'ARCHIVED'
+
+interface ProfileItem {
+  id: string
+  title: string
+  description?: string
+  status: string
+  condition: string
+  images?: string[]
+  targetDescription?: string
+  category?: {
+    id: string
+    nameTr: string
+    nameEn?: string
+  } | null
+}
 
 const CONDITION_LABELS: Record<string, string> = {
   BRAND_NEW: 'Sıfır / Kutusunda',
@@ -19,34 +34,37 @@ const CONDITION_LABELS: Record<string, string> = {
 
 export default function ProfileItemsPage() {
   const [activeTab, setActiveTab] = useState<PortfolioTab>('AVAILABLE')
-  const [items, setItems] = useState<any[]>([])
+  const [items, setItems] = useState<ProfileItem[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
 
-  const fetchItems = () => {
-    setLoading(true)
+  useEffect(() => {
+    let active = true
     fetch('/api/items/mine')
       .then(res => {
         if (res.status === 401) {
-          setError('Bu sayfayı görüntülemek için lütfen giriş yapınız.')
+          if (active) setError('Bu sayfayı görüntülemek için lütfen giriş yapınız.')
           return null
         }
         return res.json()
       })
       .then(data => {
-        if (data && data.success && Array.isArray(data.data)) {
+        if (active && data && data.success && Array.isArray(data.data)) {
           setItems(data.data)
         }
+        if (active) setLoading(false)
       })
       .catch(() => {
-        setError('İlanlar yüklenirken bir hata oluştu.')
+        if (active) {
+          setError('İlanlar yüklenirken bir hata oluştu.')
+          setLoading(false)
+        }
       })
-      .finally(() => setLoading(false))
-  }
 
-  useEffect(() => {
-    fetchItems()
+    return () => {
+      active = false
+    }
   }, [])
 
   const handleArchive = async (itemId: string) => {
@@ -238,7 +256,7 @@ export default function ProfileItemsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredItems.map((item: any) => (
+                {filteredItems.map((item: ProfileItem) => (
                   <div
                     key={item.id}
                     className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-300 transition-all"
@@ -273,7 +291,18 @@ export default function ProfileItemsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 flex-wrap">
+                      {(item.status === 'AVAILABLE' || item.status === 'ACTIVE') && (
+                        <Link
+                          href={`/jetmatch?itemId=${item.id}`}
+                          className="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold px-3 py-2 rounded-xl shadow-2xs flex items-center gap-1.5 transition-colors"
+                          title="Bu ilan için JetMatch takas eşleşmelerini gör"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                          <span>JetMatch&apos;i Gör</span>
+                        </Link>
+                      )}
+
                       <Link
                         href={`/items/${item.id}`}
                         target="_blank"
