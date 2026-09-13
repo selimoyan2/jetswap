@@ -34,11 +34,15 @@ Bir eşyanın (`HAVE`), diğer kullanıcıların eşyaları arasından eşleşme
 - **Değer:** JetSwap ekosisteminin en değerli eşleşmesidir. İki tarafın da takas isteği doğrudan karşılanır.
 
 ### 3.2. ONE_WAY (Tek Yönlü Uyumlu Eşleşme)
-- **Tanım:** Kullanıcı A, B'nin eşyasını istemektedir. Kullanıcı B henüz spesifik olarak A'nın ürününü belirtmemiş olsa da, isteklerinde esnek takas kabul edeceğini beyan etmiştir (`isFlexible: true`).
+- **Tanım:** Kullanıcı A, B'nin eşyasını istemektedir. Kullanıcı B ise takas isteklerinde A'nın sahip olduğu kategoriyi (`categoryId`) belirtmiş ve o istek için esnek olduğunu (`isFlexible: true`) beyan etmiştir. Kaynak ürün, adayın bu esnek isteğindeki `minimumCondition` şartını da karşılamalıdır.
+- **Kural:**
+  - Adayın hiçbir WANT kaydı yoksa sistem onu tekliflere açık varsaymaz; **ONE_WAY oluşmaz**.
+  - Adayın esnek WANT kaydı kaynak ürünün kategorisiyle uyuşmuyorsa (örn: kaynak telefon iken aday esnek bisiklet arıyorsa) **ONE_WAY oluşmaz**.
+  - Adayın esnek WANT kaydındaki kondisyon beklentisi kaynak ürün tarafından karşılanamıyorsa **ONE_WAY oluşmaz**.
 - **Örnek:**
   - Kullanıcı A: Telefon sahibi, Fotoğraf Makinesi arıyor.
-  - Kullanıcı B: Fotoğraf Makinesi sahibi, "Benzer veya dengi tekliflere açığım" (esnek) işaretlemiş.
-- **Sınır:** ONE_WAY eşleşmeler hiçbir zaman karşılıklılık taban puanını (+40) alamaz ve toplam skoru 74'ü geçemez.
+  - Kullanıcı B: Fotoğraf Makinesi sahibi, Telefon kategorisinde "Benzer veya dengi modellere de açığım" (esnek) işaretlemiş.
+- **Sınır:** ONE_WAY eşleşmeler hiçbir zaman karşılıklılık taban puanını (+40) alamaz; V1'de maksimum ~47 puan alabilir ve normal şartlarda **Keşfet** etiketiyle sunulur.
 
 ---
 
@@ -74,7 +78,7 @@ $$\text{normalizedScore} = \min\left(100, \operatorname{round}\left(\frac{\text{
 
 ### 5.1. Karşılıklılık Tavanı (Reciprocity Ceiling)
 - `MUTUAL` eşleşmeler: 75 ile 100 arasında yüksek skorlar alabilir.
-- `ONE_WAY` eşleşmeler: En iyi ihtimalle $15 + 5 + 10 + 5 = 35$ puan kazanır ($35 / 75 \times 100 \approx 47$ puan). En üst sınırı **74 puan** ile kilitlenmiştir.
+- `ONE_WAY` eşleşmeler: V1'de en iyi ihtimalle $15 + 5 + 10 + 5 = 35$ puan kazanır ($35 / 75 \times 100 \approx 47$ puan). En üst sınırı **74 puan** ile kilitlenmiştir.
 
 ---
 
@@ -86,8 +90,8 @@ Kullanıcı arayüzünde gösterilecek insan dostu etiketler skora ve eşleşme 
 | :---: | :---: | :--- | :--- |
 | **90 – 100** | MUTUAL | **Mükemmel Takas** | İki taraf da birbirinin eşyasını istiyor, aynı şehirde ve kondisyon uyumlu. |
 | **75 – 89** | MUTUAL | **Güçlü Eşleşme** | Karşılıklı takas isteği mevcut, kargo ile veya farklı şehirde takas yapılabilir. |
-| **60 – 74** | MUTUAL / ONE_WAY | **Uygun Takas** | Kategori ve durum uyumlu, tek yönlü veya esnek tercih. |
-| **< 60** | ONE_WAY | **Keşfet** | Alternatif veya potansiyel takas adayı. |
+| **60 – 74** | MUTUAL | **Uygun Takas** | Kategori ve durum uyumlu karşılıklı takas. |
+| **< 60** | ONE_WAY / MUTUAL | **Keşfet** | Tek yönlü esnek eşleşmeler (V1'de maks ~47 puan) veya düşük uyumlu takas adayları. |
 
 ---
 

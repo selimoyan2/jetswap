@@ -113,7 +113,7 @@ const sourceItem = {
   country: 'TR',
 }
 
-// Candidate A wants a Phone and condition <= LIKE_NEW (MUTUAL)
+// 1. Exact reciprocal category (MUTUAL remains unchanged)
 const candidateA_WantsPhone = {
   wants: [
     {
@@ -124,41 +124,63 @@ const candidateA_WantsPhone = {
     }
   ]
 }
-
 const mutualAnalysis = analyzeReciprocity(sourceItem, candidateA_WantsPhone)
-assert(mutualAnalysis.isMutual === true, 'Reciprocity detected as MUTUAL when candidate wants source category')
+assert(mutualAnalysis.isMutual === true, 'Exact reciprocal category => MUTUAL remains unchanged')
+assert(mutualAnalysis.isOneWayCompatible === true, 'MUTUAL is also compatible')
 assert(mutualAnalysis.reciprocalWantId === 'want-reciprocal-1', 'Reciprocal want ID tracked')
 
-// Candidate B wants something else, but is flexible (ONE_WAY)
-const candidateB_Flexible = {
+// 2. Candidate has related flexible want => ONE_WAY
+const candidateB_RelatedFlexible = {
   wants: [
     {
-      id: 'want-flex-1',
-      categoryId: 'cat-laptop',
+      id: 'want-flex-phone',
+      categoryId: 'cat-phone',
       minimumCondition: 'GOOD' as const,
       isFlexible: true,
     }
   ]
 }
+const oneWayAnalysis = analyzeReciprocity(sourceItem, candidateB_RelatedFlexible)
+assert(oneWayAnalysis.isMutual === false, 'Related flexible want is NOT MUTUAL')
+assert(oneWayAnalysis.isOneWayCompatible === true, 'Candidate has related flexible want => ONE_WAY')
 
-const oneWayAnalysis = analyzeReciprocity(sourceItem, candidateB_Flexible)
-assert(oneWayAnalysis.isMutual === false, 'Non-matching flexible candidate is NOT MUTUAL')
-assert(oneWayAnalysis.isOneWayCompatible === true, 'Flexible candidate is marked as ONE_WAY compatible')
+// 3. Candidate has no wants => no ONE_WAY
+const candidateC_NoWants = {
+  wants: []
+}
+const noWantsAnalysis = analyzeReciprocity(sourceItem, candidateC_NoWants)
+assert(noWantsAnalysis.isMutual === false, 'Candidate with no wants is not MUTUAL')
+assert(noWantsAnalysis.isOneWayCompatible === false, 'Candidate has no wants => no ONE_WAY')
 
-// Candidate C wants something else and is NOT flexible (NO MATCH)
-const candidateC_Incompatible = {
+// 4. Candidate has unrelated flexible want => no ONE_WAY
+const candidateD_UnrelatedFlexible = {
   wants: [
     {
-      id: 'want-rigid-1',
-      categoryId: 'cat-furniture',
+      id: 'want-flex-bicycle',
+      categoryId: 'cat-bicycle',
       minimumCondition: 'GOOD' as const,
-      isFlexible: false,
+      isFlexible: true,
     }
   ]
 }
+const unrelatedFlexAnalysis = analyzeReciprocity(sourceItem, candidateD_UnrelatedFlexible)
+assert(unrelatedFlexAnalysis.isMutual === false, 'Unrelated flexible want is not MUTUAL')
+assert(unrelatedFlexAnalysis.isOneWayCompatible === false, 'Candidate has unrelated flexible want => no ONE_WAY')
 
-const incompatibleAnalysis = analyzeReciprocity(sourceItem, candidateC_Incompatible)
-assert(incompatibleAnalysis.isMutual === false && incompatibleAnalysis.isOneWayCompatible === false, 'Incompatible candidate is neither MUTUAL nor ONE_WAY')
+// 5. Related flexible want but minimum condition fails => no ONE_WAY
+const candidateE_ConditionFails = {
+  wants: [
+    {
+      id: 'want-flex-new-phone',
+      categoryId: 'cat-phone',
+      minimumCondition: 'BRAND_NEW' as const, // source is LIKE_NEW
+      isFlexible: true,
+    }
+  ]
+}
+const conditionFailsAnalysis = analyzeReciprocity(sourceItem, candidateE_ConditionFails)
+assert(conditionFailsAnalysis.isMutual === false, 'Failing condition is not MUTUAL')
+assert(conditionFailsAnalysis.isOneWayCompatible === false, 'Related flexible want but minimum condition fails => no ONE_WAY')
 
 // -------------------------------------------------------------
 // 4. SCORING MODEL & RECIPROCITY FLOOR TESTS

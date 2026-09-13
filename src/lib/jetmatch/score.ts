@@ -86,7 +86,7 @@ export function getMatchLabel(score: number, matchType: JetMatchType): MatchLabe
   if (matchType === 'MUTUAL' && score >= 75) {
     return 'Güçlü Eşleşme'
   }
-  if (score >= 60) {
+  if (matchType === 'MUTUAL' && score >= 60) {
     return 'Uygun Takas'
   }
   return 'Keşfet'

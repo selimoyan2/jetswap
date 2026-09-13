@@ -28,8 +28,8 @@ Bu rapor, **Sprint 4 (JetMatch V1 Matching Engine)** kapsamında tamamlanan dete
      - `?minScore=0`: Asgari skor filtresi.
 
 4. **Kapsamlı Test Paketi (`tests/jetmatch.test.ts`):**
-   - 39 adet bağımsız birim ve entegrasyon testi yazıldı ve çalıştırıldı (Tümü başarıyla geçti).
-   - `MUTUAL`, `ONE_WAY`, `NO_MATCH`, `SAME_OWNER`, `ARCHIVED`, `TRADED`, `CONDITION`, `LOCATION`, `DUPLICATE_PREVENTION`, `DETERMINISTIC_ORDERING` senaryoları doğrulandı.
+   - 45 adet bağımsız birim ve entegrasyon testi yazıldı ve çalıştırıldı (Tümü başarıyla geçti).
+   - `MUTUAL`, `ONE_WAY`, `NO_MATCH`, `SAME_OWNER`, `ARCHIVED`, `TRADED`, `CONDITION`, `LOCATION`, `DUPLICATE_PREVENTION`, `DETERMINISTIC_ORDERING`, `ONE_WAY_REFINEMENT` (boş wants engeli, ilgisiz flexible wants engeli, kondisyon kontrolü) senaryoları doğrulandı.
 
 5. **Dokümantasyon:**
    - [docs/JETMATCH_V1_SCORING.md](file:///d:/Projeler/Antigravity/jetswap.com.tr/docs/JETMATCH_V1_SCORING.md): JetMatch V1 eşleştirme ve puanlama spesifikasyonu.
@@ -110,17 +110,19 @@ API / JSON Response
 - **MUTUAL:** $+40$ (Karşılıklı istek tabanı) $+ 15$ (Kategori) $+ 5$ (Durum) $+ 10$ (Şehir) $+ 5$ (Öncelik) $= 75$ puan. $\rightarrow \text{Normalizasyon: } 100\%$.
 - **ONE_WAY:** $0$ (Karşılıklılık tabanı yok) $+ 15$ (Kategori) $+ 5$ (Durum) $+ 10$ (Şehir) $+ 5$ (Öncelik) $= 35$ puan. $\rightarrow \text{Normalizasyon: } \sim 47\%$.
 - **Etiketler:**
-  - $90 - 100$: Mükemmel Takas
-  - $75 - 89$: Güçlü Eşleşme
-  - $60 - 74$: Uygun Takas
-  - $< 60$: Keşfet
+  - $90 - 100$: Mükemmel Takas (MUTUAL)
+  - $75 - 89$: Güçlü Eşleşme (MUTUAL)
+  - $60 - 74$: Uygun Takas (Yalnızca MUTUAL)
+  - $< 60$: Keşfet (Tüm ONE_WAY eşleşmeleri ve düşük skorlu MUTUAL eşleşmeleri)
 
 ---
 
 ## Match Types
 
-1. **MUTUAL:** Kaynak eşya ile aday eşya birbirlerinin kategorilerini ve durum kriterlerini karşılıklı olarak karşılamaktadır.
-2. **ONE_WAY:** Kaynak eşya adayın eşyasını istemekte, aday ise takas tercihlerinde genel/esnek takasa açık olduğunu (`isFlexible: true`) belirtmektedir.
+1. **MUTUAL:** Kaynak eşya ile aday eşya birbirlerinin kategorilerini ve durum kriterlerini karşılıklı ve doğrudan karşılamaktadır.
+2. **ONE_WAY:** Kaynak eşya adayın eşyasını istemektedir. Aday ise kaynağın kategorisiyle eşleşen ve kondisyon kriterini karşılayan esnek bir istek kaydına (`isFlexible: true`) sahiptir.
+   - *Kural 1:* Adayın hiç `wants` kaydı yoksa (boş liste) ONE_WAY **oluşmaz**.
+   - *Kural 2:* Adayın esnek isteği kaynağın kategorisiyle eşleşmiyorsa veya kaynağın kondisyonu adayın asgari kondisyonunu karşılamıyorsa ONE_WAY **oluşmaz**.
 
 ---
 
@@ -136,7 +138,7 @@ API / JSON Response
 
 1. **JetMatch Test Paketi:**
    - Komut: `npx tsx tests/jetmatch.test.ts`
-   - Sonuç: `39/39` test başarıyla geçti (`Exit code: 0`).
+   - Sonuç: `45/45` test başarıyla geçti (`Exit code: 0`).
 2. **TypeScript Typecheck:**
    - Komut: `npx tsc --noEmit`
    - Sonuç: `Exit code: 0` (0 hata).

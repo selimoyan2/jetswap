@@ -99,40 +99,48 @@ export function analyzeReciprocity(
   }
 ): ReciprocityAnalysis {
   if (!candidateItem.wants || candidateItem.wants.length === 0) {
-    // If candidate has no wants defined, they might be open, but we cannot confirm reciprocity
+    // If candidate has no wants defined, do not assume openness
     return {
       isMutual: false,
-      isOneWayCompatible: true,
+      isOneWayCompatible: false,
     }
   }
 
-  // 1. Check for exact category match in candidate's wants
+  // 1. First check for exact non-flexible reciprocal match in candidate's wants
   for (const cWant of candidateItem.wants) {
-    if (cWant.categoryId && checkCategoryMatch(cWant.categoryId, sourceItem.categoryId)) {
-      // Check condition
-      if (isConditionSatisfied(cWant.minimumCondition, sourceItem.condition)) {
-        return {
-          isMutual: true,
-          isOneWayCompatible: true,
-          reciprocalWantId: cWant.id,
-          reciprocalNote: cWant.note || undefined,
-        }
+    if (
+      !cWant.isFlexible &&
+      cWant.categoryId &&
+      checkCategoryMatch(cWant.categoryId, sourceItem.categoryId) &&
+      isConditionSatisfied(cWant.minimumCondition, sourceItem.condition)
+    ) {
+      return {
+        isMutual: true,
+        isOneWayCompatible: true,
+        reciprocalWantId: cWant.id,
+        reciprocalNote: cWant.note || undefined,
       }
     }
   }
 
-  // 2. Check for flexible wants in candidate's preferences
-  const flexibleWant = candidateItem.wants.find(w => w.isFlexible)
-  if (flexibleWant) {
-    return {
-      isMutual: false,
-      isOneWayCompatible: true,
-      reciprocalWantId: flexibleWant.id,
-      reciprocalNote: flexibleWant.note || undefined,
+  // 2. Check for flexible wants that specifically match source category and condition
+  for (const cWant of candidateItem.wants) {
+    if (
+      cWant.isFlexible &&
+      cWant.categoryId &&
+      checkCategoryMatch(cWant.categoryId, sourceItem.categoryId) &&
+      isConditionSatisfied(cWant.minimumCondition, sourceItem.condition)
+    ) {
+      return {
+        isMutual: false,
+        isOneWayCompatible: true,
+        reciprocalWantId: cWant.id,
+        reciprocalNote: cWant.note || undefined,
+      }
     }
   }
 
-  // No mutual or flexible match from candidate side
+  // No mutual or related flexible match from candidate side
   return {
     isMutual: false,
     isOneWayCompatible: false,
