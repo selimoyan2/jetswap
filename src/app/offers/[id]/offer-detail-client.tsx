@@ -14,10 +14,15 @@ import {
   AlertCircle,
   Loader2,
   Ban,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { SerializedTradeOffer } from '@/lib/offers/types'
-import { OfferStatusBadge } from '@/components/offers/offer-status-badge'
-import { OfferExchangeView } from '@/components/offers/offer-exchange-view'
+import {
+  OfferStatusBadge,
+  OfferExchangeView,
+  OfferHistoryTimeline,
+  CounterOfferModal,
+} from '@/components/offers'
 import { OfferChat } from '@/components/messages'
 
 interface OfferDetailClientProps {
@@ -33,6 +38,7 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
     type: 'success' | 'error'
     message: string
   } | null>(null)
+  const [isCounterModalOpen, setIsCounterModalOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -258,6 +264,17 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
               </button>
             )}
 
+            {offer.canCounter && (
+              <button
+                onClick={() => setIsCounterModalOpen(true)}
+                disabled={actionLoading}
+                className="px-5 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                Karşı Teklif Yap
+              </button>
+            )}
+
             {offer.canReject && (
               <button
                 onClick={() => handleAction('reject')}
@@ -290,11 +307,31 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
           </div>
         )}
 
+        {/* Offer History Timeline (Sprint 8) */}
+        {offer.history && offer.history.length > 0 && (
+          <OfferHistoryTimeline
+            history={offer.history}
+            currentOfferId={offer.id}
+            currentStatus={offer.status}
+          />
+        )}
+
         {/* Offer Negotiation & Messages Area (Sprint 7) */}
         <div className="pt-2">
           <OfferChat offerId={offer.id} offerStatus={offer.status} />
         </div>
       </div>
+
+      {/* Counter Offer Modal (Sprint 8) */}
+      <CounterOfferModal
+        isOpen={isCounterModalOpen}
+        parentOfferId={offer.id}
+        counterpartyId={otherParty.id}
+        counterpartyName={otherParty.name}
+        initialOfferedItemIds={offer.requestedItems.map((i) => i.id)}
+        initialRequestedItemIds={offer.offeredItems.map((i) => i.id)}
+        onClose={() => setIsCounterModalOpen(false)}
+      />
     </div>
   )
 }

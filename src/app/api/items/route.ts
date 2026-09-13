@@ -17,6 +17,7 @@ export async function GET(request: Request) {
   const categoryParam = searchParams.get('category')
   const city = searchParams.get('city')
   const search = searchParams.get('search')
+  const userId = searchParams.get('userId')
   
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10) || 20))
@@ -25,6 +26,10 @@ export async function GET(request: Request) {
   try {
     const whereClause: Prisma.ItemWhereInput = {
       status: 'AVAILABLE'
+    }
+
+    if (userId) {
+      whereClause.userId = userId
     }
 
     if (categoryParam && categoryParam !== 'all') {

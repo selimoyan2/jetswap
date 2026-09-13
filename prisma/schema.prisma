@@ -146,6 +146,12 @@ model TradeOffer {
   status            TradeOfferStatus  @default(PENDING)
   note              String?           // Teklif sahibinin notu
   
+  // Revizyon Zinciri (Sprint 8 - Structured Counter Offers)
+  parentOfferId     String?
+  parentOffer       TradeOffer?       @relation("OfferRevisions", fields: [parentOfferId], references: [id], onDelete: SetNull)
+  counterOffers     TradeOffer[]      @relation("OfferRevisions")
+  revision          Int               @default(1)
+
   // Güvenli İletişim Bariyeri (Contact Reveal Gate)
   contactRevealed   Boolean           @default(false)
   contactRevealedAt DateTime?
@@ -157,6 +163,8 @@ model TradeOffer {
   items             TradeOfferItem[]
   messages          TradeMessage[]
   review            Review?
+
+  @@index([parentOfferId])
 }
 
 model TradeOfferItem {

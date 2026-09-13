@@ -1,8 +1,14 @@
 import { prisma } from '@/lib/prisma'
 import { ItemStatus, Prisma } from '@prisma/client'
-import { validateCreateOffer } from './validation'
+import { validateCreateOffer, validateCounterOffer } from './validation'
 import { serializeTradeOffer, TradeOfferWithRelations } from './serialization'
-import { CreateOfferInput, SerializedTradeOffer, ListOffersFilter } from './types'
+import {
+  CreateOfferInput,
+  CreateCounterOfferInput,
+  SerializedTradeOffer,
+  ListOffersFilter,
+  OfferRevisionSummary,
+} from './types'
 
 const offerInclude = {
   sender: {
@@ -110,6 +116,208 @@ export async function createTradeOffer(
       error: {
         code: 'INTERNAL_ERROR',
         message: 'Teklif oluşturulurken bir hata oluştu.',
+        status: 500,
+      },
+    }
+  }
+}
+
+/**
+ * Traverses a TradeOffer's linear revision chain from root to leaf
+ * and returns the chronological history.
+ */
+export async function getOfferRevisionChain(offerId: string): Promise<OfferRevisionSummary[]> {
+  try {
+    // 1. Walk up to root
+    let currentId = offerId
+    const visited = new Set<string>()
+    while (true) {
+      visited.add(currentId)
+      const parent = await prisma.tradeOffer.findUnique({
+        where: { id: currentId },
+        select: { id: true, parentOfferId: true },
+      })
+      if (!parent || !parent.parentOfferId || visited.has(parent.parentOfferId)) {
+        break
+      }
+      currentId = parent.parentOfferId
+    }
+    const rootId = currentId
+
+    // 2. Walk down from root
+    const chain: OfferRevisionSummary[] = []
+    let nextId: string | null = rootId
+    const downVisited = new Set<string>()
+
+    while (nextId && !downVisited.has(nextId)) {
+      downVisited.add(nextId)
+      const currentTargetId: string = nextId
+      const node = await prisma.tradeOffer.findUnique({
+        where: { id: currentTargetId },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              city: true,
+              country: true,
+              rating: true,
+              reviewCount: true,
+            },
+          },
+          counterOffers: {
+            select: { id: true },
+            take: 1,
+          },
+        },
+      })
+      if (!node) break
+
+      chain.push({
+        id: node.id,
+        revision: node.revision,
+        status: node.status,
+        createdAt: node.createdAt.toISOString(),
+        sender: {
+          id: node.sender.id,
+          name: node.sender.name,
+          avatar: node.sender.avatar,
+          city: node.sender.city,
+          country: node.sender.country,
+          rating: node.sender.rating,
+          reviewCount: node.sender.reviewCount,
+        },
+      })
+
+      const childId: string | null = node.counterOffers[0]?.id ?? null
+      nextId = childId
+    }
+
+    return chain
+  } catch (err) {
+    console.error('Error fetching offer revision chain:', err)
+    return []
+  }
+}
+
+/**
+ * Creates a structured counter-offer (revision) in a transaction.
+ * - Parent offer transitions to COUNTER_OFFERED.
+ * - New child offer created with status PENDING, revision = parent.revision + 1.
+ * - Items remain AVAILABLE until accepted.
+ * - Concurrency protection: guarantees only 1 child per parent.
+ */
+export async function createCounterOffer(
+  input: CreateCounterOfferInput
+): Promise<ServiceResult<SerializedTradeOffer>> {
+  const validation = await validateCounterOffer(input)
+  if (!validation.isValid || !validation.data) {
+    return {
+      success: false,
+      error: validation.error,
+    }
+  }
+
+  const { parentOffer, newSenderId, newReceiverId, offeredItemIds, requestedItemIds, note } = validation.data
+
+  try {
+    const createdChild = await prisma.$transaction(async (tx) => {
+      // 1. Re-verify parent offer inside transaction
+      const freshParent = await tx.tradeOffer.findUnique({
+        where: { id: parentOffer.id },
+        include: { counterOffers: { select: { id: true } } },
+      })
+
+      if (!freshParent) {
+        throw { code: 'OFFER_NOT_FOUND', message: 'Orijinal teklif bulunamadı.', status: 404 }
+      }
+
+      if (freshParent.status === 'COUNTER_OFFERED' || freshParent.counterOffers.length > 0) {
+        throw { code: 'OFFER_ALREADY_REVISED', message: 'Bu teklife zaten bir karşı teklif oluşturulmuş.', status: 409 }
+      }
+
+      if (freshParent.status !== 'PENDING') {
+        throw { code: 'OFFER_NOT_PENDING', message: 'Yalnızca bekleyen tekliflere karşı teklif yapılabilir.', status: 400 }
+      }
+
+      // 2. Re-verify all participating items are still AVAILABLE
+      const allItemIds = [...offeredItemIds, ...requestedItemIds]
+      const items = await tx.item.findMany({
+        where: { id: { in: allItemIds } },
+        select: { id: true, status: true, title: true },
+      })
+
+      const unavailable = items.find((i) => i.status !== 'AVAILABLE')
+      if (unavailable) {
+        throw {
+          code: 'ITEM_NOT_AVAILABLE',
+          message: `"${unavailable.title}" şu anda takasa uygun durumda değildir.`,
+          status: 400,
+        }
+      }
+
+      // 3. Mark parent as COUNTER_OFFERED
+      await tx.tradeOffer.update({
+        where: { id: parentOffer.id },
+        data: {
+          status: 'COUNTER_OFFERED',
+        },
+      })
+
+      // 4. Create child revision
+      const newOffer = await tx.tradeOffer.create({
+        data: {
+          senderId: newSenderId,
+          receiverId: newReceiverId,
+          parentOfferId: parentOffer.id,
+          revision: (freshParent.revision || 1) + 1,
+          note,
+          status: 'PENDING',
+          contactRevealed: false,
+          items: {
+            create: [
+              ...offeredItemIds.map((itemId) => ({
+                itemId,
+                role: 'OFFERED' as const,
+              })),
+              ...requestedItemIds.map((itemId) => ({
+                itemId,
+                role: 'REQUESTED' as const,
+              })),
+            ],
+          },
+        },
+        include: offerInclude,
+      })
+
+      return newOffer
+    })
+
+    const history = await getOfferRevisionChain(createdChild.id)
+
+    return {
+      success: true,
+      data: serializeTradeOffer(createdChild as TradeOfferWithRelations, newSenderId, history),
+    }
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string; status?: number }
+    if (err && err.code && err.status) {
+      return {
+        success: false,
+        error: {
+          code: err.code,
+          message: err.message || 'Hata oluştu.',
+          status: err.status,
+        },
+      }
+    }
+    console.error('Error in createCounterOffer:', error)
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Karşı teklif oluşturulurken bir hata oluştu.',
         status: 500,
       },
     }
@@ -432,21 +640,26 @@ export async function getTradeOfferDetail(
     }
   }
 
+  const history = await getOfferRevisionChain(offerId)
+
   return {
     success: true,
-    data: serializeTradeOffer(offer as TradeOfferWithRelations, userId),
+    data: serializeTradeOffer(offer as TradeOfferWithRelations, userId, history),
   }
 }
 
 /**
  * Lists user's offers (sent, received, or all) with optional status filter.
+ * Only returns the latest revision of any offer chain (counterOffers: { none: {} }).
  */
 export async function listUserOffers(
   filter: ListOffersFilter
 ): Promise<ServiceResult<SerializedTradeOffer[]>> {
   const { userId, type = 'all', status } = filter
 
-  const where: Prisma.TradeOfferWhereInput = {}
+  const where: Prisma.TradeOfferWhereInput = {
+    counterOffers: { none: {} },
+  }
 
   if (status) {
     where.status = status

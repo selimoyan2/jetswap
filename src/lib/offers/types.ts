@@ -7,6 +7,22 @@ export interface CreateOfferInput {
   note?: string | null
 }
 
+export interface CreateCounterOfferInput {
+  parentOfferId: string
+  userId: string
+  offeredItemIds: string[]
+  requestedItemIds: string[]
+  note?: string | null
+}
+
+export interface OfferRevisionSummary {
+  id: string
+  revision: number
+  status: TradeOfferStatus
+  createdAt: string
+  sender: OfferPublicUser
+}
+
 export interface OfferPublicUser {
   id: string
   name: string
@@ -37,6 +53,9 @@ export interface SerializedTradeOffer {
   id: string
   status: TradeOfferStatus
   note: string | null
+  parentOfferId?: string | null
+  revision: number
+  history?: OfferRevisionSummary[]
   sender: OfferPublicUser
   receiver: OfferPublicUser
   offeredItems: OfferItemSummary[]
@@ -48,6 +67,7 @@ export interface SerializedTradeOffer {
   canAccept: boolean
   canReject: boolean
   canCancel: boolean
+  canCounter: boolean
 }
 
 export type OfferListType = 'received' | 'sent' | 'all'

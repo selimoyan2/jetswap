@@ -1,5 +1,5 @@
 import { TradeOffer, TradeOfferItem, Item, User, Category } from '@prisma/client'
-import { SerializedTradeOffer, OfferPublicUser, OfferItemSummary } from './types'
+import { SerializedTradeOffer, OfferPublicUser, OfferItemSummary, OfferRevisionSummary } from './types'
 
 export type TradeOfferWithRelations = TradeOffer & {
   sender: Pick<User, 'id' | 'name' | 'avatar' | 'city' | 'country' | 'rating' | 'reviewCount'>
@@ -9,17 +9,20 @@ export type TradeOfferWithRelations = TradeOffer & {
       category?: Pick<Category, 'id' | 'nameTr' | 'nameEn'> | null
     }
   })[]
+  parentOfferId?: string | null
+  revision?: number
 }
 
 /**
  * Serializes a Prisma TradeOffer with relations into a safe, strictly typed
  * SerializedTradeOffer.
  * CRITICAL PRIVACY RULE: Never reveals phone, email, or other personal contact data.
- * Sets contactRevealed = false always for Sprint 6.
+ * Sets contactRevealed = false always for Sprint 6 & 8.
  */
 export function serializeTradeOffer(
   offer: TradeOfferWithRelations,
-  currentUserId?: string
+  currentUserId?: string,
+  history?: OfferRevisionSummary[]
 ): SerializedTradeOffer {
   const isSender = currentUserId === offer.senderId
   const isReceiver = currentUserId === offer.receiverId
@@ -33,6 +36,7 @@ export function serializeTradeOffer(
   const canAccept = isReceiver && offer.status === 'PENDING'
   const canReject = isReceiver && offer.status === 'PENDING'
   const canCancel = isSender && offer.status === 'PENDING'
+  const canCounter = (isSender || isReceiver) && offer.status === 'PENDING'
 
   const sender: OfferPublicUser = {
     id: offer.sender.id,
@@ -88,16 +92,20 @@ export function serializeTradeOffer(
     id: offer.id,
     status: offer.status,
     note: offer.note,
+    parentOfferId: offer.parentOfferId || null,
+    revision: offer.revision || 1,
+    history,
     sender,
     receiver,
     offeredItems,
     requestedItems,
-    contactRevealed: false, // Sprint 6 Zero Contact Reveal strict rule
+    contactRevealed: false, // Strict Zero Contact Reveal rule
     createdAt: offer.createdAt.toISOString(),
     updatedAt: offer.updatedAt.toISOString(),
     viewerRole,
     canAccept,
     canReject,
     canCancel,
+    canCounter,
   }
 }
