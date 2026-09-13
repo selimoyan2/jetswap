@@ -152,13 +152,15 @@ model TradeOffer {
   counterOffers     TradeOffer[]      @relation("OfferRevisions")
   revision          Int               @default(1)
 
-  // Güvenli İletişim Bariyeri (Contact Reveal Gate)
-  contactRevealed   Boolean           @default(false)
-  contactRevealedAt DateTime?
-  completedAt       DateTime?
+  // Güvenli İletişim Bariyeri (Contact Reveal Gate - Sprint 9)
+  senderContactApprovedAt   DateTime?
+  receiverContactApprovedAt DateTime?
+  contactRevealed           Boolean           @default(false)
+  contactRevealedAt         DateTime?
+  completedAt               DateTime?
   
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
 
   items             TradeOfferItem[]
   messages          TradeMessage[]

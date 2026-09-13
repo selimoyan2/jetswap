@@ -1,4 +1,4 @@
-import { TradeOfferStatus, OfferItemRole, ItemCondition, ItemStatus } from '@prisma/client'
+import { TradeOfferStatus, OfferItemRole, ItemCondition, ItemStatus, TradeMethod } from '@prisma/client'
 
 export interface CreateOfferInput {
   senderId: string
@@ -41,12 +41,33 @@ export interface OfferItemSummary {
   status: ItemStatus
   city: string
   country: string
+  tradeMethod?: TradeMethod
   category?: {
     id: string
     nameTr: string
     nameEn?: string
   } | null
   role: OfferItemRole
+}
+
+export interface RevealedContactInfo {
+  name: string
+  phone: string | null
+  email: string
+}
+
+export interface ContactRevealState {
+  available: boolean // true only if status === ACCEPTED
+  myApproval: boolean
+  otherApproval: boolean
+  revealed: boolean
+  revealedAt: string | null
+}
+
+export interface TradeHandoffSummary {
+  supportedMethods: TradeMethod[]
+  hasHandToHand: boolean
+  hasCargo: boolean
 }
 
 export interface SerializedTradeOffer {
@@ -61,6 +82,10 @@ export interface SerializedTradeOffer {
   offeredItems: OfferItemSummary[]
   requestedItems: OfferItemSummary[]
   contactRevealed: boolean
+  contactRevealedAt?: string | null
+  contactReveal?: ContactRevealState
+  contact?: RevealedContactInfo | null
+  tradeHandoff?: TradeHandoffSummary
   createdAt: string
   updatedAt: string
   viewerRole: 'SENDER' | 'RECEIVER' | 'OBSERVER'

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -22,6 +22,7 @@ import {
   OfferExchangeView,
   OfferHistoryTimeline,
   CounterOfferModal,
+  TradeHandoffPanel,
 } from '@/components/offers'
 import { OfferChat } from '@/components/messages'
 
@@ -40,13 +41,10 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
   } | null>(null)
   const [isCounterModalOpen, setIsCounterModalOpen] = useState(false)
 
-  useEffect(() => {
-    let active = true
-
+  const fetchOfferDetail = useCallback(() => {
     fetch(`/api/offers/${offerId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (!active) return
         if (!data.success) {
           setError(data.error?.message || 'Teklif yüklenemedi.')
           setOffer(null)
@@ -56,16 +54,15 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
         setLoading(false)
       })
       .catch((err: unknown) => {
-        if (!active) return
         console.error('Fetch offer detail error:', err)
         setError('Teklif detayı yüklenirken bir ağ hatası oluştu.')
         setLoading(false)
       })
-
-    return () => {
-      active = false
-    }
   }, [offerId])
+
+  useEffect(() => {
+    fetchOfferDetail()
+  }, [fetchOfferDetail])
 
   const handleAction = async (action: 'accept' | 'reject' | 'cancel') => {
     if (!offer) return
@@ -236,15 +233,27 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
           </div>
         )}
 
-        {/* Privacy Notice: Zero Contact Reveal */}
-        <div className="p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/60 flex items-start gap-3">
-          <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-zinc-400 leading-relaxed">
-            <strong className="text-zinc-200">JetSwap Güvenli Takas İlkesi:</strong> Bu aşamada kişisel
-            iletişim bilgileri (telefon, e-posta) gizli tutulmaktadır. Takas teklifleri yalnızca
-            sistem üzerinden onaylanır ve yönetilir.
+        {/* Privacy Notice: Zero Contact Reveal (Shown while contact is not revealed) */}
+        {!offer.contactRevealed && (
+          <div className="p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/60 flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-zinc-400 leading-relaxed">
+              <strong className="text-zinc-200">JetSwap Güvenli Takas İlkesi:</strong> Bu aşamada kişisel
+              iletişim bilgileri (telefon, e-posta) gizli tutulmaktadır. Takas teklifleri karşılıklı olarak onaylanıp iki taraf da iletişim paylaşımını onaylayana kadar sistem üzerinden yönetilir.
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Trade Handoff & Contact Reveal Panel (Sprint 9) */}
+        {offer.status === 'ACCEPTED' && offer.contactReveal && (
+          <TradeHandoffPanel
+            offerId={offer.id}
+            contactReveal={offer.contactReveal}
+            contact={offer.contact}
+            tradeHandoff={offer.tradeHandoff}
+            onApprovalSuccess={fetchOfferDetail}
+          />
+        )}
 
         {/* Action Buttons */}
         {offer.status === 'PENDING' && (

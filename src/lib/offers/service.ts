@@ -15,6 +15,8 @@ const offerInclude = {
     select: {
       id: true,
       name: true,
+      email: true,
+      phone: true,
       avatar: true,
       city: true,
       country: true,
@@ -26,6 +28,8 @@ const offerInclude = {
     select: {
       id: true,
       name: true,
+      email: true,
+      phone: true,
       avatar: true,
       city: true,
       country: true,
@@ -713,3 +717,168 @@ export async function listUserOffers(
     }
   }
 }
+
+/**
+ * Approves contact sharing for an ACCEPTED TradeOffer.
+ * Core Rules (Sprint 9):
+ * 1. Only ACCEPTED offers are eligible.
+ * 2. Only sender or receiver can approve.
+ * 3. Idempotent: repeated approval from same user is safe and doesn't change timestamps.
+ * 4. Mutual approval unlocks contact:
+ *    - Both senderContactApprovedAt and receiverContactApprovedAt must exist.
+ *    - Sets contactRevealed = true, contactRevealedAt = now() (only set once).
+ * 5. Historical COUNTER_OFFERED revisions cannot approve/reveal contact.
+ */
+export async function approveContactReveal(
+  offerId: string,
+  userId: string
+): Promise<ServiceResult<SerializedTradeOffer>> {
+  if (!userId) {
+    return {
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Bu işlemi gerçekleştirmek için giriş yapmalısınız.',
+        status: 401,
+      },
+    }
+  }
+
+  // 1. Initial check
+  const offer = await prisma.tradeOffer.findUnique({
+    where: { id: offerId },
+    select: {
+      id: true,
+      senderId: true,
+      receiverId: true,
+      status: true,
+    },
+  })
+
+  if (!offer) {
+    return {
+      success: false,
+      error: {
+        code: 'OFFER_NOT_FOUND',
+        message: 'Teklif bulunamadı.',
+        status: 404,
+      },
+    }
+  }
+
+  // Participant check
+  if (offer.senderId !== userId && offer.receiverId !== userId) {
+    return {
+      success: false,
+      error: {
+        code: 'FORBIDDEN',
+        message: 'Bu teklif üzerinde iletişim paylaşımı onaylama yetkiniz bulunmamaktadır.',
+        status: 403,
+      },
+    }
+  }
+
+  // Offer status must be ACCEPTED
+  if (offer.status !== 'ACCEPTED') {
+    return {
+      success: false,
+      error: {
+        code: 'OFFER_NOT_ACCEPTED',
+        message: 'İletişim paylaşımı yalnızca kabul edilmiş (ACCEPTED) takas tekliflerinde onaylanabilir.',
+        status: 400,
+      },
+    }
+  }
+
+  try {
+    const updatedOffer = await prisma.$transaction(async (tx) => {
+      // Re-fetch inside transaction for strict race condition safety
+      const freshOffer = await tx.tradeOffer.findUnique({
+        where: { id: offerId },
+        select: {
+          id: true,
+          senderId: true,
+          receiverId: true,
+          status: true,
+          senderContactApprovedAt: true,
+          receiverContactApprovedAt: true,
+          contactRevealed: true,
+          contactRevealedAt: true,
+        },
+      })
+
+      if (!freshOffer) {
+        throw { code: 'OFFER_NOT_FOUND', message: 'Teklif bulunamadı.', status: 404 }
+      }
+
+      if (freshOffer.status !== 'ACCEPTED') {
+        throw {
+          code: 'OFFER_NOT_ACCEPTED',
+          message: 'İletişim paylaşımı yalnızca kabul edilmiş takas tekliflerinde onaylanabilir.',
+          status: 400,
+        }
+      }
+
+      const isSender = userId === freshOffer.senderId
+      const now = new Date()
+
+      // Calculate new approval timestamps (preserve existing for idempotency)
+      const senderApprovedAt = isSender
+        ? freshOffer.senderContactApprovedAt || now
+        : freshOffer.senderContactApprovedAt
+
+      const receiverApprovedAt = !isSender
+        ? freshOffer.receiverContactApprovedAt || now
+        : freshOffer.receiverContactApprovedAt
+
+      const isMutual = Boolean(senderApprovedAt && receiverApprovedAt)
+
+      // Set contactRevealedAt only once
+      const contactRevealedAt = isMutual
+        ? freshOffer.contactRevealedAt || now
+        : freshOffer.contactRevealedAt
+
+      const updated = await tx.tradeOffer.update({
+        where: { id: offerId },
+        data: {
+          senderContactApprovedAt: senderApprovedAt,
+          receiverContactApprovedAt: receiverApprovedAt,
+          contactRevealed: isMutual,
+          contactRevealedAt,
+        },
+        include: offerInclude,
+      })
+
+      return updated
+    })
+
+    const history = await getOfferRevisionChain(offerId)
+
+    return {
+      success: true,
+      data: serializeTradeOffer(updatedOffer as TradeOfferWithRelations, userId, history),
+    }
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string; status?: number }
+    if (err && err.code && err.status) {
+      return {
+        success: false,
+        error: {
+          code: err.code,
+          message: err.message || 'Hata oluştu.',
+          status: err.status,
+        },
+      }
+    }
+    console.error('Error in approveContactReveal:', error)
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'İletişim paylaşımı onaylanırken bir hata oluştu.',
+        status: 500,
+      },
+    }
+  }
+}
+

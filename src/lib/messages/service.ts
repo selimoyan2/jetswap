@@ -131,6 +131,7 @@ export async function createOfferMessage(
       senderId: true,
       receiverId: true,
       status: true,
+      contactRevealed: true,
     },
   })
 
@@ -169,9 +170,11 @@ export async function createOfferMessage(
   }
 
   // 3. Validate content (length, zero-cash, contact-privacy, spam)
+  // Sprint 9: If contactRevealed === true, contact sharing is allowed!
   const validation = validateMessageContent(input.content, {
     offerId: input.offerId,
     senderId: input.senderId,
+    allowContact: offer.contactRevealed === true,
   })
 
   if (!validation.isValid || !validation.error === false) {

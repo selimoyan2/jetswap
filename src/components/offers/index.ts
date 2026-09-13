@@ -5,4 +5,5 @@ export * from './create-offer-modal'
 export * from './item-detail-offer-button'
 export * from './counter-offer-modal'
 export * from './offer-history-timeline'
+export * from './trade-handoff-panel'
 

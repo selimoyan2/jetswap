@@ -48,7 +48,7 @@ export function checkRecentSpam(
 
 export function validateMessageContent(
   content: string,
-  options?: { offerId?: string; senderId?: string }
+  options?: { offerId?: string; senderId?: string; allowContact?: boolean }
 ): { isValid: boolean; error: MessageValidationError | null; cleanContent: string } {
   const trimmed = (content || '').trim()
 
@@ -76,7 +76,7 @@ export function validateMessageContent(
     }
   }
 
-  // 3. Zero Cash Rule validation
+  // 3. Zero Cash Rule validation (ALWAYS ON regardless of contact reveal)
   const cashResult = detectCashKeywords(trimmed)
   if (cashResult.hasCashViolation) {
     return {
@@ -89,18 +89,20 @@ export function validateMessageContent(
     }
   }
 
-  // 4. Contact Privacy Barrier validation
-  const contactResult = detectContactInfo(trimmed)
-  if (contactResult.blocked) {
-    return {
-      isValid: false,
-      error: {
-        code: 'CONTACT_INFO_BLOCKED',
-        message:
-          contactResult.warningMessage ||
-          'İletişim bilgilerini bu aşamada paylaşamazsın. Güvenli takas süreci tamamlandığında iletişim bilgileri kontrollü şekilde açılacaktır.',
-      },
-      cleanContent: trimmed,
+  // 4. Contact Privacy Barrier validation (Active only when allowContact !== true)
+  if (!options?.allowContact) {
+    const contactResult = detectContactInfo(trimmed)
+    if (contactResult.blocked) {
+      return {
+        isValid: false,
+        error: {
+          code: 'CONTACT_INFO_BLOCKED',
+          message:
+            contactResult.warningMessage ||
+            'İletişim bilgilerini bu aşamada paylaşamazsın. Güvenli takas süreci tamamlandığında iletişim bilgileri kontrollü şekilde açılacaktır.',
+        },
+        cleanContent: trimmed,
+      }
     }
   }
 
