@@ -23,6 +23,8 @@ import {
   OfferHistoryTimeline,
   CounterOfferModal,
   TradeHandoffPanel,
+  TradeCompletionPanel,
+  TradeReviewPanel,
 } from '@/components/offers'
 import { OfferChat } from '@/components/messages'
 
@@ -245,13 +247,35 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
         )}
 
         {/* Trade Handoff & Contact Reveal Panel (Sprint 9) */}
-        {offer.status === 'ACCEPTED' && offer.contactReveal && (
+        {(offer.status === 'ACCEPTED' || offer.status === 'COMPLETED') && offer.contactReveal && (
           <TradeHandoffPanel
             offerId={offer.id}
             contactReveal={offer.contactReveal}
             contact={offer.contact}
             tradeHandoff={offer.tradeHandoff}
             onApprovalSuccess={fetchOfferDetail}
+          />
+        )}
+
+        {/* Trade Mutual Completion Panel (Sprint 10) */}
+        {((offer.status === 'ACCEPTED' && offer.contactRevealed) || offer.status === 'COMPLETED') && (
+          <TradeCompletionPanel
+            offerId={offer.id}
+            status={offer.status}
+            contactRevealed={offer.contactRevealed}
+            completion={offer.completion}
+            onCompletionSuccess={fetchOfferDetail}
+          />
+        )}
+
+        {/* Mutual Reviews Panel (Sprint 10) */}
+        {offer.status === 'COMPLETED' && (
+          <TradeReviewPanel
+            offerId={offer.id}
+            status={offer.status}
+            reviews={offer.reviews}
+            counterpartName={otherParty.name}
+            onReviewSuccess={fetchOfferDetail}
           />
         )}
 

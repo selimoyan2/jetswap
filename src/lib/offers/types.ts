@@ -70,6 +70,31 @@ export interface TradeHandoffSummary {
   hasCargo: boolean
 }
 
+export interface TradeCompletionState {
+  available: boolean // true only if (status === ACCEPTED && contactRevealed === true) || status === COMPLETED
+  myConfirmation: boolean
+  otherConfirmation: boolean
+  completed: boolean
+  completedAt: string | null
+}
+
+export interface SerializedReview {
+  id: string
+  offerId: string
+  rating: number
+  comment: string | null
+  createdAt: string
+  author: OfferPublicUser
+}
+
+export interface ReviewState {
+  available: boolean // true only if status === COMPLETED
+  canReview: boolean // true if viewer is participant and hasn't reviewed yet
+  myReview: SerializedReview | null
+  otherReview: SerializedReview | null
+  allReviews: SerializedReview[]
+}
+
 export interface SerializedTradeOffer {
   id: string
   status: TradeOfferStatus
@@ -86,6 +111,9 @@ export interface SerializedTradeOffer {
   contactReveal?: ContactRevealState
   contact?: RevealedContactInfo | null
   tradeHandoff?: TradeHandoffSummary
+  completion?: TradeCompletionState
+  reviews?: ReviewState
+  completedAt?: string | null
   createdAt: string
   updatedAt: string
   viewerRole: 'SENDER' | 'RECEIVER' | 'OBSERVER'

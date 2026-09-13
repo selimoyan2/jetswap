@@ -52,6 +52,20 @@ const offerInclude = {
       },
     },
   },
+  reviews: {
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'asc' as const,
+    },
+  },
 }
 
 export interface ServiceResult<T> {
@@ -881,4 +895,231 @@ export async function approveContactReveal(
     }
   }
 }
+
+/**
+ * Confirms trade completion by sender or receiver.
+ * Only when BOTH participants have confirmed completion does the offer
+ * transition to COMPLETED, completedAt set, and final revision items set to TRADED.
+ */
+export async function confirmTradeCompletion(
+  offerId: string,
+  userId: string
+): Promise<ServiceResult<SerializedTradeOffer>> {
+  if (!userId) {
+    return {
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Giriş yapmanız gerekiyor.',
+        status: 401,
+      },
+    }
+  }
+
+  try {
+    const offer = await prisma.tradeOffer.findUnique({
+      where: { id: offerId },
+      include: offerInclude,
+    })
+
+    if (!offer) {
+      return {
+        success: false,
+        error: {
+          code: 'OFFER_NOT_FOUND',
+          message: 'Teklif bulunamadı.',
+          status: 404,
+        },
+      }
+    }
+
+    const isSender = userId === offer.senderId
+    const isReceiver = userId === offer.receiverId
+
+    if (!isSender && !isReceiver) {
+      return {
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Bu teklifi tamamlama yetkiniz yok.',
+          status: 403,
+        },
+      }
+    }
+
+    // Idempotency: If already COMPLETED, return current state safely
+    if (offer.status === 'COMPLETED') {
+      const history = await getOfferRevisionChain(offerId)
+      return {
+        success: true,
+        data: serializeTradeOffer(offer as TradeOfferWithRelations, userId, history),
+      }
+    }
+
+    if (offer.status !== 'ACCEPTED') {
+      return {
+        success: false,
+        error: {
+          code: 'OFFER_NOT_ACCEPTED',
+          message: 'Takas tamamlama onayı yalnızca kabul edilmiş tekliflerde verilebilir.',
+          status: 400,
+        },
+      }
+    }
+
+    if (!offer.contactRevealed) {
+      return {
+        success: false,
+        error: {
+          code: 'CONTACT_NOT_REVEALED',
+          message: 'Takas tamamlanmadan önce iletişim bilgilerinin karşılıklı açılmış olması gerekir.',
+          status: 400,
+        },
+      }
+    }
+
+    const updatedOffer = await prisma.$transaction(async (tx) => {
+      const freshOffer = await tx.tradeOffer.findUnique({
+        where: { id: offerId },
+        select: {
+          id: true,
+          senderId: true,
+          receiverId: true,
+          status: true,
+          contactRevealed: true,
+          senderCompletionConfirmedAt: true,
+          receiverCompletionConfirmedAt: true,
+          completedAt: true,
+          items: {
+            select: {
+              itemId: true,
+              item: {
+                select: {
+                  id: true,
+                  status: true,
+                },
+              },
+            },
+          },
+        },
+      })
+
+      if (!freshOffer) {
+        throw { code: 'OFFER_NOT_FOUND', message: 'Teklif bulunamadı.', status: 404 }
+      }
+
+      if (freshOffer.status === 'COMPLETED') {
+        return tx.tradeOffer.findUnique({
+          where: { id: offerId },
+          include: offerInclude,
+        })
+      }
+
+      if (freshOffer.status !== 'ACCEPTED') {
+        throw {
+          code: 'OFFER_NOT_ACCEPTED',
+          message: 'Takas tamamlama onayı yalnızca kabul edilmiş tekliflerde verilebilir.',
+          status: 400,
+        }
+      }
+
+      if (!freshOffer.contactRevealed) {
+        throw {
+          code: 'CONTACT_NOT_REVEALED',
+          message: 'Takas tamamlanmadan önce iletişim bilgilerinin karşılıklı açılmış olması gerekir.',
+          status: 400,
+        }
+      }
+
+      const isFreshSender = userId === freshOffer.senderId
+      const now = new Date()
+
+      // Preserve existing timestamp for idempotency
+      const senderConfirmedAt = isFreshSender
+        ? freshOffer.senderCompletionConfirmedAt || now
+        : freshOffer.senderCompletionConfirmedAt
+
+      const receiverConfirmedAt = !isFreshSender
+        ? freshOffer.receiverCompletionConfirmedAt || now
+        : freshOffer.receiverCompletionConfirmedAt
+
+      const isMutual = Boolean(senderConfirmedAt && receiverConfirmedAt)
+
+      if (isMutual) {
+        // Verify participating items from this accepted offer revision are still PENDING_TRADE
+        for (const offerItem of freshOffer.items) {
+          if (offerItem.item.status !== ItemStatus.PENDING_TRADE && offerItem.item.status !== ItemStatus.TRADED) {
+            throw {
+              code: 'ITEM_STATE_CONFLICT',
+              message: 'Takastaki ürünlerden biri artık takas aşamasında değil.',
+              status: 409,
+            }
+          }
+        }
+
+        // Set participating items to TRADED
+        const itemIds = freshOffer.items.map((ti) => ti.itemId)
+        await tx.item.updateMany({
+          where: { id: { in: itemIds } },
+          data: { status: ItemStatus.TRADED },
+        })
+
+        // Set offer to COMPLETED and record completedAt only once
+        const updated = await tx.tradeOffer.update({
+          where: { id: offerId },
+          data: {
+            senderCompletionConfirmedAt: senderConfirmedAt,
+            receiverCompletionConfirmedAt: receiverConfirmedAt,
+            status: 'COMPLETED',
+            completedAt: freshOffer.completedAt || now,
+          },
+          include: offerInclude,
+        })
+
+        return updated
+      } else {
+        // One party confirmed: update timestamp only, status remains ACCEPTED, items remain PENDING_TRADE
+        const updated = await tx.tradeOffer.update({
+          where: { id: offerId },
+          data: {
+            senderCompletionConfirmedAt: senderConfirmedAt,
+            receiverCompletionConfirmedAt: receiverConfirmedAt,
+          },
+          include: offerInclude,
+        })
+
+        return updated
+      }
+    })
+
+    const history = await getOfferRevisionChain(offerId)
+
+    return {
+      success: true,
+      data: serializeTradeOffer(updatedOffer as TradeOfferWithRelations, userId, history),
+    }
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string; status?: number }
+    if (err && err.code && err.status) {
+      return {
+        success: false,
+        error: {
+          code: err.code,
+          message: err.message || 'Hata oluştu.',
+          status: err.status,
+        },
+      }
+    }
+    console.error('Error in confirmTradeCompletion:', error)
+    return {
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Takas tamamlanırken bir hata oluştu.',
+        status: 500,
+      },
+    }
+  }
+}
+
 

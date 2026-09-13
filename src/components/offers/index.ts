@@ -6,4 +6,6 @@ export * from './item-detail-offer-button'
 export * from './counter-offer-modal'
 export * from './offer-history-timeline'
 export * from './trade-handoff-panel'
+export * from './trade-completion-panel'
+export * from './trade-review-panel'
 

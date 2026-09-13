@@ -1,5 +1,13 @@
-import { TradeOffer, TradeOfferItem, Item, User, Category } from '@prisma/client'
-import { SerializedTradeOffer, OfferPublicUser, OfferItemSummary, OfferRevisionSummary } from './types'
+import { TradeOffer, TradeOfferItem, Item, User, Category, Review } from '@prisma/client'
+import {
+  SerializedTradeOffer,
+  OfferPublicUser,
+  OfferItemSummary,
+  OfferRevisionSummary,
+  TradeCompletionState,
+  SerializedReview,
+  ReviewState,
+} from './types'
 
 export type TradeOfferWithRelations = TradeOffer & {
   sender: Pick<User, 'id' | 'name' | 'avatar' | 'city' | 'country' | 'rating' | 'reviewCount'> & {
@@ -19,6 +27,12 @@ export type TradeOfferWithRelations = TradeOffer & {
   revision?: number
   senderContactApprovedAt?: Date | null
   receiverContactApprovedAt?: Date | null
+  senderCompletionConfirmedAt?: Date | null
+  receiverCompletionConfirmedAt?: Date | null
+  completedAt?: Date | null
+  reviews?: (Review & {
+    author: Pick<User, 'id' | 'name' | 'avatar'>
+  })[]
 }
 
 /**
@@ -110,7 +124,8 @@ export function serializeTradeOffer(
   const hasCargo = supportedMethods.some((m) => m === 'CARGO_ONLY' || m === 'BOTH')
 
   const isAccepted = offer.status === 'ACCEPTED'
-  const isRevealed = isAccepted && offer.contactRevealed === true
+  const isCompleted = offer.status === 'COMPLETED'
+  const isRevealed = (isAccepted || isCompleted) && offer.contactRevealed === true
 
   // Contact Reveal State
   const myApproval = isSender
@@ -126,7 +141,7 @@ export function serializeTradeOffer(
     : false
 
   const contactReveal = {
-    available: isAccepted,
+    available: isAccepted || isCompleted,
     myApproval,
     otherApproval,
     revealed: isRevealed,
@@ -142,6 +157,65 @@ export function serializeTradeOffer(
       phone: otherUser.phone || null,
       email: otherUser.email || '',
     }
+  }
+
+  // Trade Completion State
+  const myCompletionConfirmed = isSender
+    ? !!offer.senderCompletionConfirmedAt
+    : isReceiver
+    ? !!offer.receiverCompletionConfirmedAt
+    : false
+
+  const otherCompletionConfirmed = isSender
+    ? !!offer.receiverCompletionConfirmedAt
+    : isReceiver
+    ? !!offer.senderCompletionConfirmedAt
+    : false
+
+  const completionAvailable = (isAccepted && offer.contactRevealed === true) || isCompleted
+
+  const completion: TradeCompletionState = {
+    available: completionAvailable,
+    myConfirmation: myCompletionConfirmed,
+    otherConfirmation: otherCompletionConfirmed,
+    completed: isCompleted,
+    completedAt: isCompleted && offer.completedAt ? offer.completedAt.toISOString() : null,
+  }
+
+  // Review State
+  let myReview: SerializedReview | null = null
+  let otherReview: SerializedReview | null = null
+  const allReviews: SerializedReview[] = []
+
+  if (offer.reviews && offer.reviews.length > 0) {
+    for (const r of offer.reviews) {
+      const serReview: SerializedReview = {
+        id: r.id,
+        offerId: r.offerId,
+        rating: r.rating,
+        comment: r.comment,
+        createdAt: r.createdAt.toISOString(),
+        author: {
+          id: r.author.id,
+          name: r.author.name,
+          avatar: r.author.avatar,
+        },
+      }
+      allReviews.push(serReview)
+      if (currentUserId && r.authorId === currentUserId) {
+        myReview = serReview
+      } else if (currentUserId && (isSender || isReceiver) && r.authorId !== currentUserId) {
+        otherReview = serReview
+      }
+    }
+  }
+
+  const reviews: ReviewState = {
+    available: isCompleted,
+    canReview: isCompleted && (isSender || isReceiver) && !myReview,
+    myReview,
+    otherReview,
+    allReviews,
   }
 
   return {
@@ -164,6 +238,9 @@ export function serializeTradeOffer(
       hasHandToHand,
       hasCargo,
     },
+    completion,
+    reviews,
+    completedAt: offer.completedAt ? offer.completedAt.toISOString() : null,
     createdAt: offer.createdAt.toISOString(),
     updatedAt: offer.updatedAt.toISOString(),
     viewerRole,

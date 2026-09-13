@@ -157,14 +157,18 @@ model TradeOffer {
   receiverContactApprovedAt DateTime?
   contactRevealed           Boolean           @default(false)
   contactRevealedAt         DateTime?
-  completedAt               DateTime?
+
+  // Takas Tamamlama (Sprint 10 - Trade Completion)
+  senderCompletionConfirmedAt   DateTime?
+  receiverCompletionConfirmedAt DateTime?
+  completedAt                   DateTime?
   
   createdAt                 DateTime          @default(now())
   updatedAt                 DateTime          @updatedAt
 
   items             TradeOfferItem[]
   messages          TradeMessage[]
-  review            Review?
+  reviews           Review[]
 }
 
 model TradeOfferItem {
@@ -188,7 +192,7 @@ model TradeMessage {
 
 model Review {
   id           String      @id @default(cuid())
-  offerId      String      @unique
+  offerId      String
   offer        TradeOffer  @relation(fields: [offerId], references: [id], onDelete: Cascade)
   authorId     String
   author       User        @relation("GivenReviews", fields: [authorId], references: [id], onDelete: Cascade)
@@ -197,4 +201,8 @@ model Review {
   rating       Int         @default(5)
   comment      String?
   createdAt    DateTime    @default(now())
+
+  @@unique([offerId, authorId])
+  @@index([targetUserId])
+  @@index([authorId])
 }
