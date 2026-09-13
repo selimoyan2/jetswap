@@ -302,6 +302,19 @@ export async function createCounterOffer(
     }
   } catch (error: unknown) {
     const err = error as { code?: string; message?: string; status?: number }
+
+    // Catch Prisma Unique Constraint Violation (P2002 on parentOfferId)
+    if (err && err.code === 'P2002') {
+      return {
+        success: false,
+        error: {
+          code: 'OFFER_ALREADY_REVISED',
+          message: 'Bu teklife zaten bir karşı teklif oluşturulmuş. Yalnızca en güncel bekleyen teklif üzerinden işlem yapabilirsiniz.',
+          status: 409,
+        },
+      }
+    }
+
     if (err && err.code && err.status) {
       return {
         success: false,

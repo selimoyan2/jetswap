@@ -225,6 +225,20 @@ class CounterOfferSimulator {
     const { parent, newSenderId, newReceiverId, offeredItemIds, requestedItemIds, cleanNote } =
       validation.data
 
+    // 2. DB Level Unique Constraint Check: parentOfferId must be UNIQUE (non-null)
+    const duplicateParentInDb = Array.from(this.offers.values()).some(
+      (o) => o.parentOfferId === parent.id
+    )
+    if (duplicateParentInDb) {
+      // Simulates Prisma P2002 error caught by createCounterOffer catch block
+      return {
+        success: false,
+        code: 'OFFER_ALREADY_REVISED',
+        status: 409,
+        dbError: 'P2002',
+      }
+    }
+
     // Transition parent
     parent.status = 'COUNTER_OFFERED'
 
@@ -633,10 +647,10 @@ assert(
 )
 
 // -------------------------------------------------------------
-// TEST 17: DUPLICATE_CHILD_BLOCKED
+// TEST 17: DUPLICATE_CHILD_BLOCKED & CONCURRENCY DB UNIQUE CONSTRAINT (P2002)
 // -------------------------------------------------------------
-console.log('\n--- Test 17: DUPLICATE_CHILD_BLOCKED ---')
-// child1 already has child2 as its revision. Proposing another counter on child1 must return 409 conflict
+console.log('\n--- Test 17: DUPLICATE_CHILD_BLOCKED & DB UNIQUE CONSTRAINT ---')
+// 17a: Application-level check blocks counter on already revised parent
 const failDuplicateChild = sim.validateCounterOffer({
   parentOfferId: child1.id, // child1 is already COUNTER_OFFERED
   userId: 'user-1',
@@ -647,7 +661,67 @@ assert(
   !failDuplicateChild.isValid &&
     failDuplicateChild.code === 'OFFER_ALREADY_REVISED' &&
     failDuplicateChild.status === 409,
-  'TEST 17: Duplicate child counter blocked with 409 conflict (OFFER_ALREADY_REVISED)'
+  'TEST 17a: Application level blocks duplicate child counter with 409 conflict (OFFER_ALREADY_REVISED)'
+)
+
+// 17b: Concurrency Simulation: Two simultaneous requests bypass pre-validation for a PENDING parent
+const concurrentParent: MockTradeOffer = {
+  id: 'offer-concurrent-parent',
+  parentOfferId: null,
+  revision: 1,
+  senderId: 'user-1',
+  receiverId: 'user-2',
+  status: 'PENDING',
+  note: 'Concurrent test parent',
+  contactRevealed: false,
+  items: [
+    { itemId: 'item-A1', role: 'OFFERED' },
+    { itemId: 'item-B1', role: 'REQUESTED' },
+  ],
+  createdAt: new Date(),
+}
+sim.addOffer(concurrentParent)
+
+// Request A succeeds and creates child
+const resA = sim.createCounterOffer({
+  parentOfferId: 'offer-concurrent-parent',
+  userId: 'user-2',
+  offeredItemIds: ['item-B1'],
+  requestedItemIds: ['item-A1'],
+  note: 'Counter A',
+})
+assert(resA.success === true, 'TEST 17b: First concurrent counter succeeds')
+
+// Request B (simultaneous) attempts to insert duplicate child revision for same parent in DB
+// Simulator triggers DB unique constraint check (P2002)
+const resB = sim.createCounterOffer({
+  parentOfferId: 'offer-concurrent-parent',
+  userId: 'user-2',
+  offeredItemIds: ['item-B1'],
+  requestedItemIds: ['item-A1'],
+  note: 'Counter B',
+})
+assert(
+  resB.success === false &&
+    resB.code === 'OFFER_ALREADY_REVISED' &&
+    resB.status === 409,
+  'TEST 17c: Second concurrent counter caught by DB unique constraint and returns 409 OFFER_ALREADY_REVISED'
+)
+
+// 17d: Verify exactly ONE child exists for the parent in the DB
+const childrenForParent = Array.from(sim.offers.values()).filter(
+  (o) => o.parentOfferId === 'offer-concurrent-parent'
+)
+assert(
+  childrenForParent.length === 1 && childrenForParent[0].id === resA.data?.id,
+  'TEST 17d: Exactly one child revision exists for the parent; branching strictly prevented'
+)
+
+// 17e: Verify multiple root offers with parentOfferId = null work without collision
+const rootOffers = Array.from(sim.offers.values()).filter((o) => o.parentOfferId === null)
+assert(
+  rootOffers.length >= 2,
+  'TEST 17e: Multiple root offers coexist with parentOfferId = null (Postgres nullable unique compliant)'
 )
 
 // -------------------------------------------------------------

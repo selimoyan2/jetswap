@@ -147,7 +147,7 @@ model TradeOffer {
   note              String?           // Teklif sahibinin notu
   
   // Revizyon Zinciri (Sprint 8 - Structured Counter Offers)
-  parentOfferId     String?
+  parentOfferId     String?           @unique
   parentOffer       TradeOffer?       @relation("OfferRevisions", fields: [parentOfferId], references: [id], onDelete: SetNull)
   counterOffers     TradeOffer[]      @relation("OfferRevisions")
   revision          Int               @default(1)
@@ -163,8 +163,6 @@ model TradeOffer {
   items             TradeOfferItem[]
   messages          TradeMessage[]
   review            Review?
-
-  @@index([parentOfferId])
 }
 
 model TradeOfferItem {
