@@ -1,10 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { X, Plus, Package, ArrowLeftRight, CheckCircle2, Shield, Star, MapPin, ShieldCheck, Check, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+import { 
+  X, Plus, Package, ArrowLeftRight, CheckCircle2, Star, MapPin, 
+  ShieldCheck, Sparkles, Archive, RefreshCw, ExternalLink, Loader2 
+} from 'lucide-react'
 import { mockCurrentUser, mockMyPortfolio } from '@/data/mockData'
-import { User, TradeItem } from '@/types'
+import { User, ItemCondition } from '@/types'
 import { useLanguage } from '@/i18n'
 import { getConditionLabel } from '@/i18n/helpers'
 
@@ -16,6 +20,8 @@ interface PortfolioModalProps {
   currentUser?: User | null
 }
 
+type PortfolioTab = 'AVAILABLE' | 'PENDING_TRADE' | 'TRADED' | 'ARCHIVED'
+
 export const PortfolioModal: React.FC<PortfolioModalProps> = ({
   isOpen,
   onClose,
@@ -25,7 +31,91 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
 }) => {
   const { t, language } = useLanguage()
   const activeUser = currentUser || mockCurrentUser
+  const [activeTab, setActiveTab] = useState<PortfolioTab>('AVAILABLE')
+  const [items, setItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  // Fetch real user items from /api/items/mine
+  useEffect(() => {
+    if (!isOpen) return
+
+    let isMounted = true
+    setLoading(true)
+
+    fetch('/api/items/mine')
+      .then(res => res.json())
+      .then(data => {
+        if (!isMounted) return
+        if (data.success && Array.isArray(data.data)) {
+          setItems(data.data)
+        } else {
+          // Fallback to mock portfolio if not authenticated or empty
+          setItems(mockMyPortfolio)
+        }
+      })
+      .catch(() => {
+        if (isMounted) setItems(mockMyPortfolio)
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
+
+  // Handle Archive Item
+  const handleArchive = async (itemId: string) => {
+    setActionLoading(itemId)
+    try {
+      const res = await fetch(`/api/items/${itemId}/archive`, {
+        method: 'PATCH'
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: 'ARCHIVED' } : i))
+      }
+    } catch (err) {
+      console.error('Archive error:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Handle Reactivate Item
+  const handleReactivate = async (itemId: string) => {
+    setActionLoading(itemId)
+    try {
+      const res = await fetch(`/api/items/${itemId}/reactivate`, {
+        method: 'PATCH'
+      })
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: 'AVAILABLE' } : i))
+      }
+    } catch (err) {
+      console.error('Reactivate error:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  // Filter items by tab
+  const filteredItems = items.filter(item => {
+    const status = item.status === 'ACTIVE' ? 'AVAILABLE' : item.status
+    return status === activeTab
+  })
+
+  const tabCounts = {
+    AVAILABLE: items.filter(i => (i.status === 'AVAILABLE' || i.status === 'ACTIVE')).length,
+    PENDING_TRADE: items.filter(i => i.status === 'PENDING_TRADE').length,
+    TRADED: items.filter(i => i.status === 'TRADED').length,
+    ARCHIVED: items.filter(i => i.status === 'ARCHIVED').length,
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -90,7 +180,7 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
                 <Sparkles className="w-3 h-3" />
                 {t.portfolioModal.bannerBadge}
               </div>
-              <h4 className="text-lg font-black">{t.portfolioModal.bannerTitle.replace('{count}', String(mockMyPortfolio.length))}</h4>
+              <h4 className="text-lg font-black">{t.portfolioModal.bannerTitle.replace('{count}', String(items.length))}</h4>
               <p className="text-xs text-emerald-100 mt-1 max-w-md">
                 {t.portfolioModal.bannerDesc}
               </p>
@@ -107,66 +197,193 @@ export const PortfolioModal: React.FC<PortfolioModalProps> = ({
             </button>
           </div>
 
-          {/* List of My Items */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-bold text-sm text-zinc-900 flex items-center gap-2">
-                <Package className="w-4 h-4 text-emerald-600" />
-                <span>{t.portfolioModal.myItemsTitle}</span>
-              </h4>
-              <span className="text-xs text-zinc-400">{t.portfolioModal.activeStatus}</span>
-            </div>
+          {/* Status Tabs (Step 17: AVAILABLE, PENDING_TRADE, TRADED, ARCHIVED) */}
+          <div className="flex items-center gap-2 border-b border-zinc-200 pb-2 overflow-x-auto text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setActiveTab('AVAILABLE')}
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                activeTab === 'AVAILABLE'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:bg-zinc-100'
+              }`}
+            >
+              <span>Takasa Açık</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'AVAILABLE' ? 'bg-emerald-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
+                {tabCounts.AVAILABLE}
+              </span>
+            </button>
 
-            <div className="space-y-4">
-              {mockMyPortfolio.map((item: TradeItem) => (
-                <div
-                  key={item.id}
-                  className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-400 transition-colors"
-                >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-zinc-200">
-                      <Image src={item.images[0]} alt={item.title} fill sizes="64px" className="object-cover" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {item.brand && (
-                          <span className="text-[10px] font-bold uppercase bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded-md">
-                            {item.brand}
-                          </span>
-                        )}
-                        <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
-                          {getConditionLabel(item.condition, language)}
-                        </span>
-                        {item.openToOffers && (
-                          <span className="text-[10px] font-bold uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded-md">
-                            {t.portfolioModal.openToOffers}
-                          </span>
-                        )}
-                      </div>
-                      <h5 className="font-bold text-sm text-zinc-900 mt-1 truncate">{item.title}</h5>
-                      <div className="flex items-center gap-1 text-xs text-emerald-800 font-medium mt-1">
-                        <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span className="truncate"><strong>{t.smartMatch.wantYou}:</strong> {item.targetDescription}</span>
-                      </div>
-                    </div>
-                  </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('PENDING_TRADE')}
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                activeTab === 'PENDING_TRADE'
+                  ? 'bg-amber-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:bg-zinc-100'
+              }`}
+            >
+              <span>Takas Sürecinde</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'PENDING_TRADE' ? 'bg-amber-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
+                {tabCounts.PENDING_TRADE}
+              </span>
+            </button>
 
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
-                    <span className="text-xs bg-emerald-600 text-white font-semibold px-3 py-1 rounded-lg shadow-xs">
-                      {t.portfolioModal.activeListingBadge}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <button
+              type="button"
+              onClick={() => setActiveTab('TRADED')}
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                activeTab === 'TRADED'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-zinc-600 hover:bg-zinc-100'
+              }`}
+            >
+              <span>Takaslandı</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'TRADED' ? 'bg-blue-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
+                {tabCounts.TRADED}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('ARCHIVED')}
+              className={`px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                activeTab === 'ARCHIVED'
+                  ? 'bg-zinc-800 text-white shadow-xs'
+                  : 'text-zinc-600 hover:bg-zinc-100'
+              }`}
+            >
+              <span>Arşiv</span>
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${activeTab === 'ARCHIVED' ? 'bg-zinc-700 text-white' : 'bg-zinc-200 text-zinc-700'}`}>
+                {tabCounts.ARCHIVED}
+              </span>
+            </button>
           </div>
 
-          {/* Privacy & Contact Reveal Gate Reminder (PRD Madde 19) */}
+          {/* List of Items */}
+          <div>
+            {loading ? (
+              <div className="py-12 text-center text-zinc-400 flex flex-col items-center justify-center gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+                <span className="text-xs">Portföyünüz yükleniyor...</span>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="py-12 text-center bg-zinc-50 rounded-2xl border border-dashed border-zinc-200 p-6 space-y-3">
+                <Package className="w-10 h-10 text-zinc-300 mx-auto" />
+                <h5 className="font-bold text-sm text-zinc-800">
+                  {activeTab === 'AVAILABLE' ? 'Takasa açık eşyanız bulunmuyor.' :
+                   activeTab === 'ARCHIVED' ? 'Arşivlenmiş ilanınız bulunmuyor.' :
+                   activeTab === 'TRADED' ? 'Henüz tamamlanmış bir takasınız yok.' :
+                   'Şu anda takas sürecinde bir eşyanız yok.'}
+                </h5>
+                <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+                  {activeTab === 'AVAILABLE' && 'Elinizdeki kullanmadığınız eşyaları ekleyerek takas topluluğuna katılın.'}
+                </p>
+                {activeTab === 'AVAILABLE' && (
+                  <button
+                    onClick={() => {
+                      onClose()
+                      onOpenCreateItem()
+                    }}
+                    className="inline-flex items-center gap-1.5 bg-emerald-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs hover:bg-emerald-700 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Hemen İlan Ekle</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredItems.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-emerald-400 transition-colors"
+                  >
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-zinc-200">
+                        <Image
+                          src={item.images?.[0] || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'}
+                          alt={item.title}
+                          fill
+                          sizes="64px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {item.brand && (
+                            <span className="text-[10px] font-bold uppercase bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded-md">
+                              {item.brand}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                            {getConditionLabel(item.condition as ItemCondition, language)}
+                          </span>
+                        </div>
+                        <h5 className="font-bold text-sm text-zinc-900 mt-1 truncate">{item.title}</h5>
+                        <div className="flex items-center gap-1 text-xs text-emerald-800 font-medium mt-1">
+                          <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate"><strong>Aranan:</strong> {item.targetDescription}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions: View Detail, Archive, Reactivate */}
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+                      <Link
+                        href={`/items/${item.id}`}
+                        target="_blank"
+                        className="text-xs bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200 font-semibold px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1"
+                        title="İlanı Görüntüle"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Görüntüle</span>
+                      </Link>
+
+                      {item.status === 'ARCHIVED' ? (
+                        <button
+                          type="button"
+                          disabled={actionLoading === item.id}
+                          onClick={() => handleReactivate(item.id)}
+                          className="text-xs bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-semibold px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1 cursor-pointer"
+                          title="Yeniden Yayına Al"
+                        >
+                          {actionLoading === item.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <RefreshCw className="w-3.5 h-3.5" />
+                          )}
+                          <span>Yayınla</span>
+                        </button>
+                      ) : (item.status === 'AVAILABLE' || item.status === 'ACTIVE') ? (
+                        <button
+                          type="button"
+                          disabled={actionLoading === item.id}
+                          onClick={() => handleArchive(item.id)}
+                          className="text-xs bg-zinc-200 hover:bg-zinc-300 disabled:opacity-50 text-zinc-700 font-semibold px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1 cursor-pointer"
+                          title="İlanı Arşivle"
+                        >
+                          {actionLoading === item.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Archive className="w-3.5 h-3.5" />
+                          )}
+                          <span>Arşivle</span>
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Privacy Notice */}
           <div className="bg-zinc-100 rounded-2xl p-4 border border-zinc-200 flex items-start gap-3 text-xs text-zinc-600">
             <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
             <div>
               <strong className="text-zinc-900 block font-bold mb-0.5">{t.portfolioModal.privacyNoticeTitle}</strong>
-              {t.portfolioModal.privacyNoticeDesc.replace('{phone}', mockCurrentUser.phone || '').replace('{email}', mockCurrentUser.email || '')}
+              {t.portfolioModal.privacyNoticeDesc.replace('{phone}', activeUser.phone || '').replace('{email}', activeUser.email || '')}
             </div>
           </div>
         </div>

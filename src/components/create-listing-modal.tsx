@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { X, Plus, ArrowLeftRight, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, HelpCircle } from 'lucide-react'
+import { X, Plus, ArrowLeftRight, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, HelpCircle, AlertCircle, Loader2 } from 'lucide-react'
 import { categories } from '@/data/mockData'
 import { TURKEY_CITIES, COUNTRIES } from '@/data/locations'
 import { TradeItem, ItemCondition, TradeMethod } from '@/types'
@@ -41,6 +41,8 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
   const [openToOffers, setOpenToOffers] = useState(false)
   const [imageUrl, setImageUrl] = useState('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80')
   const [isSuccess, setIsSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [serverError, setServerError] = useState('')
 
   // PRD Madde 38: Gerçek Zamanlı Para Talebi Filtresi
   const cashCheck = useMemo(() => {
@@ -76,37 +78,60 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setServerError('')
+
     if (!title || !description || (!targetDescription && !openToOffers)) return
     if (cashCheck.hasCashViolation) return
 
-    onItemCreated({
-      title,
-      brand,
-      modelName,
-      description,
-      category,
-      subCategory,
-      condition,
-      tradeMethod,
-      city,
-      country,
-      targetCategories: [targetCategory],
-      targetSubCategories: [targetSubCategory],
-      targetDescription: openToOffers && !targetDescription ? 'Her türlü mantıklı takas teklifine açığım' : targetDescription,
-      openToOffers,
-      images: [imageUrl],
-      status: 'ACTIVE',
-      createdAt: 'Bugün',
-      likesCount: 0
-    })
+    setLoading(true)
 
-    setIsSuccess(true)
+    try {
+      const payload = {
+        title: title.trim(),
+        description: description.trim(),
+        categoryId: category,
+        condition,
+        tradeMethod,
+        images: [imageUrl],
+        city: city.trim(),
+        country: country.trim() || 'TR',
+        targetCategories: [targetCategory],
+        targetDescription: openToOffers && !targetDescription ? 'Her türlü mantıklı takas teklifine açığım' : targetDescription.trim(),
+        valueTier: 'MEDIUM',
+      }
+
+      const res = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        if (res.status === 401) {
+          setServerError('İlan oluşturabilmek için lütfen önce giriş yapınız.')
+        } else {
+          setServerError(data?.error?.message || 'İlan oluşturulurken bir hata oluştu.')
+        }
+        setLoading(false)
+        return
+      }
+
+      onItemCreated(data.data)
+      setIsSuccess(true)
+    } catch {
+      setServerError('Sunucuya bağlanırken bir hata oluştu. Lütfen tekrar deneyin.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleResetAndClose = () => {
     setIsSuccess(false)
+    setServerError('')
     setTitle('')
     setDescription('')
     setTargetDescription('')
@@ -428,6 +453,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               />
             </div>
 
+            {serverError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{serverError}</span>
+              </div>
+            )}
+
             {/* Submit & Cancel */}
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -439,10 +471,17 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={cashCheck.hasCashViolation}
-                className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                disabled={loading || cashCheck.hasCashViolation}
+                className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer flex items-center gap-1.5"
               >
-                {t.createListing.submitButton}
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Kaydediliyor...</span>
+                  </>
+                ) : (
+                  <span>{t.createListing.submitButton}</span>
+                )}
               </button>
             </div>
           </form>

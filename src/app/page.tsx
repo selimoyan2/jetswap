@@ -25,7 +25,7 @@ import { UserSanctionBanner } from '@/components/user-sanction-banner'
 import { SanctionRestrictionModal } from '@/components/sanction-restriction-modal'
 import { isUserTradeRestricted } from '@/data/mockReports'
 import { AdBanner } from '@/components/ads/ad-banner'
-import { mockItems, mockMyPortfolio, categories } from '@/data/mockData'
+import { mockItems, mockMyPortfolio, categories, mockCurrentUser } from '@/data/mockData'
 import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
 import FlashTradeShowcase from '@/components/flash-trade-showcase'
@@ -73,7 +73,7 @@ export default function HomePage() {
     actionType: 'TRADE_OFFER'
   })
 
-  // Check saved session on mount
+  // Check saved session on mount & fetch real DB items
   useEffect(() => {
     try {
       const stored = localStorage.getItem('jetswap_active_user')
@@ -91,6 +91,60 @@ export default function HomePage() {
         }
       }
     } catch {}
+
+    // Fetch real listings from PostgreSQL via /api/items
+    let isMounted = true
+    fetch('/api/items?limit=50')
+      .then(res => res.json())
+      .then(data => {
+        if (!isMounted) return
+        if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
+          const mapped: TradeItem[] = data.data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            brand: '',
+            modelName: '',
+            description: item.description,
+            category: item.category?.slug || 'telefon',
+            subCategory: item.targetCategories?.[0] || 'genel',
+            condition: item.condition || 'GOOD',
+            tradeMethod: item.tradeMethod || 'BOTH',
+            images: item.images && item.images.length > 0 ? item.images : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'],
+            city: item.city || 'İstanbul',
+            district: 'Merkez',
+            country: item.country || 'TR',
+            targetCategories: item.targetCategories || [],
+            targetSubCategories: [],
+            targetDescription: item.targetDescription || 'Her türlü mantıklı takas teklifine açığım',
+            openToOffers: true,
+            matchScore: 90,
+            valueTier: item.valueTier || 'MEDIUM',
+            user: item.user ? {
+              id: item.user.id,
+              name: item.user.name,
+              avatar: item.user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+              country: item.user.country || 'TR',
+              city: item.user.city || 'İstanbul',
+              district: 'Merkez',
+              jetTrust: 75,
+              verifiedSwapper: false,
+              completedSwaps: 0,
+              rating: item.user.rating || 5.0,
+              reviewCount: item.user.reviewCount || 0
+            } : mockCurrentUser,
+            createdAt: new Date(item.createdAt).toLocaleDateString('tr-TR'),
+            daysAgo: 0,
+            status: 'ACTIVE',
+            likesCount: item.viewCount || 0
+          }))
+          setItems(mapped)
+        }
+      })
+      .catch(err => {
+        console.warn('Real items fetch error, using initial listings:', err)
+      })
+
+    return () => { isMounted = false }
   }, [])
 
   const handleAuthSuccess = (user: User, isNewRegistration?: boolean) => {
@@ -268,11 +322,11 @@ export default function HomePage() {
   }
 
   // Handle new item listing (HAVE)
-  const handleItemCreated = (newItemData: Partial<TradeItem>) => {
+  const handleItemCreated = (newItemData: any) => {
     const author: User = currentUser || {
-      id: `usr-${Date.now()}`,
-      name: 'Yeni Takasçı',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+      id: newItemData.user?.id || `usr-${Date.now()}`,
+      name: newItemData.user?.name || 'Yeni Takasçı',
+      avatar: newItemData.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
       country: 'TR',
       city: newItemData.city || 'İstanbul',
       district: newItemData.district || 'Merkez',
@@ -284,25 +338,25 @@ export default function HomePage() {
     }
 
     const created: TradeItem = {
-      id: `item-${Date.now()}`,
+      id: newItemData.id || `item-${Date.now()}`,
       title: newItemData.title || '',
       brand: newItemData.brand || '',
       modelName: newItemData.modelName || '',
       description: newItemData.description || '',
-      category: newItemData.category || 'telefon',
-      subCategory: newItemData.subCategory || 'akilli-telefon',
-      condition: newItemData.condition || 'LIKE_NEW',
+      category: newItemData.category?.slug || newItemData.category || 'telefon',
+      subCategory: newItemData.targetCategories?.[0] || 'genel',
+      condition: newItemData.condition || 'GOOD',
       tradeMethod: newItemData.tradeMethod || 'BOTH',
-      images: newItemData.images || ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'],
+      images: newItemData.images && newItemData.images.length > 0 ? newItemData.images : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'],
       city: newItemData.city || author.city,
       district: newItemData.district || author.district || 'Merkez',
       country: newItemData.country || author.country,
       targetCategories: newItemData.targetCategories || ['bilgisayar'],
-      targetSubCategories: newItemData.targetSubCategories || ['dizustu-laptop'],
+      targetSubCategories: newItemData.targetSubCategories || [],
       targetDescription: newItemData.targetDescription || 'Her türlü mantıklı takas teklifine açığım',
-      openToOffers: newItemData.openToOffers ?? true,
+      openToOffers: true,
       matchScore: 95,
-      valueTier: 'HIGH',
+      valueTier: newItemData.valueTier || 'MEDIUM',
       user: author,
       createdAt: 'Bugün',
       daysAgo: 0,
