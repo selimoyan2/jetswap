@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { 
   ArrowLeftRight, ArrowLeft, Shield, Star, MapPin, Eye, 
-  Calendar, CheckCircle2, Sparkles, Tag, ShieldCheck, AlertCircle 
+  Calendar, Tag, ShieldCheck, AlertCircle 
 } from 'lucide-react'
 import { Metadata } from 'next'
 
@@ -58,6 +58,14 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
     where: { id },
     include: {
       category: true,
+      wants: {
+        include: {
+          category: true,
+        },
+        orderBy: {
+          priority: 'asc',
+        },
+      },
       user: {
         select: {
           id: true,
@@ -158,7 +166,7 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
               )}
             </div>
 
-            {/* WHAT OWNER WANTS (Ne Arıyor?) - PRD Madde 10 */}
+            {/* WHAT OWNER WANTS (Ne Arıyor?) - PRD Madde 10 & Sprint 3 Structured Wants */}
             <div className="bg-emerald-50/80 border-2 border-emerald-300/80 rounded-3xl p-6 space-y-4 shadow-sm">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
@@ -174,22 +182,80 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
                 </div>
               </div>
 
-              {item.targetCategories && item.targetCategories.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {item.targetCategories.map((catSlug, idx) => (
-                    <span
-                      key={idx}
-                      className="text-xs font-bold bg-white text-emerald-900 border border-emerald-300 px-3 py-1 rounded-xl shadow-xs"
+              {/* Structured Wants List */}
+              {item.wants && item.wants.length > 0 ? (
+                <div className="space-y-2.5">
+                  {item.wants.map((want, idx) => (
+                    <div
+                      key={want.id}
+                      className="bg-white/95 rounded-2xl p-4 border border-emerald-200 shadow-2xs space-y-2"
                     >
-                      🎯 {catSlug}
-                    </span>
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[10px] font-extrabold">
+                            {idx + 1}
+                          </span>
+                          <span className="text-xs font-black text-emerald-950">
+                            {idx === 0 ? '1. Tercih (Öncelikli): ' : `${idx + 1}. Tercih: `}
+                            <span className="text-emerald-700">{want.category?.nameTr || want.categoryId || 'Genel Kategori'}</span>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {want.minimumCondition && (
+                            <span className="text-[10px] font-bold bg-zinc-100 text-zinc-700 px-2.5 py-0.5 rounded-md">
+                              En az: {CONDITION_LABELS[want.minimumCondition] || want.minimumCondition}
+                            </span>
+                          )}
+                          {want.isFlexible && (
+                            <span className="text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200 px-2.5 py-0.5 rounded-md">
+                              Benzer ürünlere açık
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {(want.brand || want.model) && (
+                        <div className="text-xs font-bold text-zinc-800 flex items-center gap-1.5 pl-7">
+                          <span>🎯</span>
+                          <span>{[want.brand, want.model].filter(Boolean).join(' ')}</span>
+                        </div>
+                      )}
+
+                      {want.note && (
+                        <div className="text-[11px] text-zinc-600 bg-zinc-50 rounded-xl px-3 py-1.5 border border-zinc-100 pl-7 leading-relaxed">
+                          {want.note}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
+              ) : (
+                <>
+                  {item.targetCategories && item.targetCategories.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {item.targetCategories.map((catSlug, idx) => (
+                        <span
+                          key={idx}
+                          className="text-xs font-bold bg-white text-emerald-900 border border-emerald-300 px-3 py-1 rounded-xl shadow-xs"
+                        >
+                          🎯 {catSlug}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="bg-white/90 rounded-2xl p-4 border border-emerald-200 text-xs text-emerald-950 leading-relaxed font-medium">
+                    {item.targetDescription || 'Her türlü mantıklı takas teklifine açığım.'}
+                  </div>
+                </>
               )}
 
-              <div className="bg-white/90 rounded-2xl p-4 border border-emerald-200 text-xs text-emerald-950 leading-relaxed font-medium">
-                {item.targetDescription || 'Her türlü mantıklı takas teklifine açığım.'}
-              </div>
+              {item.wants && item.wants.length > 0 && item.targetDescription && (
+                <div className="text-xs text-emerald-900/80 bg-emerald-100/40 rounded-xl p-2.5 font-medium">
+                  <strong>Genel Not:</strong> {item.targetDescription}
+                </div>
+              )}
             </div>
 
             {/* Description */}

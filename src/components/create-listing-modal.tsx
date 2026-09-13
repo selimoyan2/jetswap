@@ -1,13 +1,23 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
-import { X, Plus, ArrowLeftRight, CheckCircle2, ShieldAlert, Sparkles, AlertTriangle, HelpCircle, AlertCircle, Loader2 } from 'lucide-react'
+import { X, Plus, ArrowLeftRight, CheckCircle2, Sparkles, AlertTriangle, AlertCircle, Loader2, Trash2 } from 'lucide-react'
 import { categories } from '@/data/mockData'
 import { TURKEY_CITIES, COUNTRIES } from '@/data/locations'
 import { TradeItem, ItemCondition, TradeMethod } from '@/types'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { useLanguage } from '@/i18n'
 import { getConditionLabel, getTradeMethodLabel } from '@/i18n/helpers'
+
+interface FormWant {
+  id: string
+  categoryId: string
+  brand: string
+  model: string
+  minimumCondition: ItemCondition | ''
+  isFlexible: boolean
+  note: string
+}
 
 interface CreateListingModalProps {
   isOpen: boolean
@@ -35,8 +45,17 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
   const [tradeMethod, setTradeMethod] = useState<TradeMethod>('BOTH')
   const [city, setCity] = useState('İstanbul')
   const [country, setCountry] = useState('TR')
-  const [targetCategory, setTargetCategory] = useState('bilgisayar')
-  const [targetSubCategory, setTargetSubCategory] = useState('dizustu-laptop')
+  const [wantsList, setWantsList] = useState<FormWant[]>([
+    {
+      id: 'want-1',
+      categoryId: 'bilgisayar',
+      brand: '',
+      model: '',
+      minimumCondition: '',
+      isFlexible: false,
+      note: '',
+    }
+  ])
   const [targetDescription, setTargetDescription] = useState('')
   const [openToOffers, setOpenToOffers] = useState(false)
   const [imageUrl, setImageUrl] = useState('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80')
@@ -46,19 +65,15 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
 
   // PRD Madde 38: Gerçek Zamanlı Para Talebi Filtresi
   const cashCheck = useMemo(() => {
-    const combinedText = `${title} ${description} ${targetDescription}`
+    const wantsText = wantsList.map(w => `${w.brand} ${w.model} ${w.note}`).join(' ')
+    const combinedText = `${title} ${description} ${targetDescription} ${wantsText}`
     return detectCashKeywords(combinedText)
-  }, [title, description, targetDescription])
+  }, [title, description, targetDescription, wantsList])
 
   // Get active subcategories for selected category
   const activeCategoryObj = useMemo(() => {
     return categories.find(c => c.slug === category) || categories[0]
   }, [category])
-
-  // Get active subcategories for target category
-  const activeTargetCategoryObj = useMemo(() => {
-    return categories.find(c => c.slug === targetCategory) || categories[1]
-  }, [targetCategory])
 
   if (!isOpen) return null
 
@@ -70,24 +85,57 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
     }
   }
 
-  const handleTargetCategoryChange = (newCat: string) => {
-    setTargetCategory(newCat)
-    const catObj = categories.find(c => c.slug === newCat)
-    if (catObj && catObj.subCategories.length > 0) {
-      setTargetSubCategory(catObj.subCategories[0].slug)
-    }
+  const handleAddWant = () => {
+    if (wantsList.length >= 10) return
+    setWantsList(prev => [
+      ...prev,
+      {
+        id: `want-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        categoryId: 'bilgisayar',
+        brand: '',
+        model: '',
+        minimumCondition: '',
+        isFlexible: false,
+        note: '',
+      }
+    ])
+  }
+
+  const handleRemoveWant = (index: number) => {
+    if (wantsList.length <= 1) return
+    setWantsList(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleUpdateWant = (index: number, field: keyof FormWant, value: FormWant[keyof FormWant]) => {
+    setWantsList(prev => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setServerError('')
 
-    if (!title || !description || (!targetDescription && !openToOffers)) return
+    if (!title || !description) return
     if (cashCheck.hasCashViolation) return
 
     setLoading(true)
 
     try {
+      const structuredWants = wantsList.map((w, idx) => ({
+        categoryId: w.categoryId,
+        brand: w.brand.trim() || undefined,
+        model: w.model.trim() || undefined,
+        minimumCondition: w.minimumCondition ? (w.minimumCondition as ItemCondition) : undefined,
+        isFlexible: w.isFlexible || openToOffers,
+        note: w.note.trim() || undefined,
+        priority: idx,
+      }))
+
+      const targetDescText = targetDescription.trim() || (openToOffers ? 'Her türlü mantıklı takas teklifine açığım' : wantsList.map(w => w.note || `${w.brand} ${w.model}`.trim()).filter(Boolean).join(', ') || 'Takas tekliflerine açık')
+
       const payload = {
         title: title.trim(),
         description: description.trim(),
@@ -97,9 +145,10 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
         images: [imageUrl],
         city: city.trim(),
         country: country.trim() || 'TR',
-        targetCategories: [targetCategory],
-        targetDescription: openToOffers && !targetDescription ? 'Her türlü mantıklı takas teklifine açığım' : targetDescription.trim(),
+        targetCategories: wantsList.map(w => w.categoryId),
+        targetDescription: targetDescText,
         valueTier: 'MEDIUM',
+        wants: structuredWants,
       }
 
       const res = await fetch('/api/items', {
@@ -135,6 +184,18 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
     setTitle('')
     setDescription('')
     setTargetDescription('')
+    setWantsList([
+      {
+        id: 'want-1',
+        categoryId: 'bilgisayar',
+        brand: '',
+        model: '',
+        minimumCondition: '',
+        isFlexible: false,
+        note: '',
+      }
+    ])
+    setOpenToOffers(false)
     onClose()
   }
 
@@ -368,14 +429,17 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               </div>
             </div>
 
-            {/* "NE İSTİYORSUN?" SİSTEMİ İLE HEDEF ALT KATEGORİ SEÇİMİ */}
-            <div className="p-4 rounded-3xl bg-emerald-50/90 border-2 border-emerald-300/80 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wide text-emerald-950">
+            {/* NE İSTİYORSUN? YAPILANDIRILMIŞ WANTS (SPRINT 3) */}
+            <div className="p-4 sm:p-5 rounded-3xl bg-emerald-50/90 border-2 border-emerald-300/80 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wide text-emerald-950">
                   <ArrowLeftRight className="w-4 h-4 text-emerald-700" />
-                  <span>{t.createListing.wantSectionTitle}</span>
+                  <span>{t.createListing.wantSectionTitle || 'Takas Tercihleri (Ne İstiyorsun?)'}</span>
+                  <span className="text-[10px] bg-emerald-200/80 text-emerald-900 px-2 py-0.5 rounded-full font-bold">
+                    {wantsList.length}/10 İstek
+                  </span>
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-emerald-300">
+                <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-emerald-300 self-start sm:self-auto">
                   <input
                     type="checkbox"
                     checked={openToOffers}
@@ -386,54 +450,148 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 </label>
               </div>
 
-              {/* Target Category & Target SubCategory */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                    {t.createListing.targetCategoryLabel}
-                  </label>
-                  <select
-                    value={targetCategory}
-                    onChange={e => handleTargetCategoryChange(e.target.value)}
-                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
-                  >
-                    {categories.map(c => (
-                      <option key={c.slug} value={c.slug}>{language === 'en' ? c.nameEn : c.nameTr}</option>
-                    ))}
-                  </select>
-                </div>
+              {/* Repeatable Want Cards */}
+              <div className="space-y-3">
+                {wantsList.map((want, index) => (
+                  <div key={want.id} className="bg-white rounded-2xl p-3.5 border border-emerald-200/90 shadow-2xs space-y-3">
+                    <div className="flex items-center justify-between border-b border-zinc-100 pb-2">
+                      <span className="text-xs font-black text-emerald-900 flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-[10px] font-bold">
+                          {index + 1}
+                        </span>
+                        <span>{index === 0 ? '1. Tercih (Öncelikli)' : `${index + 1}. Tercih`}</span>
+                      </span>
 
-                <div>
-                  <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                    {t.createListing.targetSubCategoryLabel}
-                  </label>
-                  <select
-                    value={targetSubCategory}
-                    onChange={e => setTargetSubCategory(e.target.value)}
-                    className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs text-emerald-950 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
-                  >
-                    {activeTargetCategoryObj.subCategories.map(sub => (
-                      <option key={sub.slug} value={sub.slug}>{language === 'en' ? sub.nameEn : sub.nameTr}</option>
-                    ))}
-                  </select>
-                </div>
+                      {wantsList.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveWant(index)}
+                          className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 p-1 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          title="İsteği Sil"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="text-[11px] font-semibold">Sil</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-700 block mb-1">
+                          Kategori *
+                        </label>
+                        <select
+                          value={want.categoryId}
+                          onChange={e => handleUpdateWant(index, 'categoryId', e.target.value)}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                        >
+                          {categories.map(c => (
+                            <option key={c.slug} value={c.slug}>{language === 'en' ? c.nameEn : c.nameTr}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-700 block mb-1">
+                          Minimum Durum
+                        </label>
+                        <select
+                          value={want.minimumCondition}
+                          onChange={e => handleUpdateWant(index, 'minimumCondition', e.target.value)}
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                        >
+                          <option value="">Fark Etmez / Her Durum</option>
+                          <option value="BRAND_NEW">{getConditionLabel('BRAND_NEW', language)}</option>
+                          <option value="LIKE_NEW">{getConditionLabel('LIKE_NEW', language)}</option>
+                          <option value="VERY_GOOD">{getConditionLabel('VERY_GOOD', language)}</option>
+                          <option value="GOOD">{getConditionLabel('GOOD', language)}</option>
+                          <option value="FAIR">{getConditionLabel('FAIR', language)}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Brand & Model */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-700 block mb-1">
+                          İstenen Marka <span className="text-zinc-400 font-normal">(İsteğe bağlı)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={want.brand}
+                          onChange={e => handleUpdateWant(index, 'brand', e.target.value)}
+                          placeholder="örn. Sony, Apple, Dell"
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-bold text-zinc-700 block mb-1">
+                          İstenen Model <span className="text-zinc-400 font-normal">(İsteğe bağlı)</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={want.model}
+                          onChange={e => handleUpdateWant(index, 'model', e.target.value)}
+                          placeholder="örn. A7 III, MacBook Air M1"
+                          className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Flexible Checkbox & Note */}
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 cursor-pointer pt-1">
+                        <input
+                          type="checkbox"
+                          checked={want.isFlexible}
+                          onChange={e => handleUpdateWant(index, 'isFlexible', e.target.checked)}
+                          className="w-3.5 h-3.5 accent-emerald-600 rounded cursor-pointer"
+                        />
+                        <span className="text-xs font-semibold text-zinc-700">
+                          Benzer veya dengi ürün tekliflerine de açığım
+                        </span>
+                      </label>
+
+                      <input
+                        type="text"
+                        value={want.note}
+                        onChange={e => handleUpdateWant(index, 'note', e.target.value)}
+                        placeholder="Özel istek notu (örn: Kutusu veya garantisi olursa sevinirim)"
+                        className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
 
+              {/* Add Want Button */}
+              {wantsList.length < 10 && (
+                <button
+                  type="button"
+                  onClick={handleAddWant}
+                  className="w-full py-2.5 border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-100/50 rounded-2xl text-xs font-bold text-emerald-800 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Başka İstek Ekle (Maksimum 10)</span>
+                </button>
+              )}
+
+              {/* Genel Açıklama / Not */}
               <div>
                 <label className="text-[11px] font-bold text-emerald-900 block mb-1">
-                  {t.createListing.targetDescLabel} *
+                  Genel Takas Tercihi Açıklaması
                 </label>
                 <textarea
-                  required={!openToOffers}
                   rows={2}
                   value={targetDescription}
                   onChange={e => setTargetDescription(e.target.value)}
-                  placeholder={openToOffers ? t.createListing.openToAllOffers : t.createListing.targetDescPlaceholder}
+                  placeholder={openToOffers ? t.createListing.openToAllOffers : 'Takas tercihlerinize dair eklemek istediğiniz genel bir not...'}
                   className="w-full bg-white border border-emerald-300 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                 />
                 <p className="text-[10px] text-emerald-800 mt-1 flex items-center gap-1 font-medium">
                   <Sparkles className="w-3 h-3 text-emerald-600 shrink-0" />
-                  <strong>JetMatch:</strong> {t.createListing.jetMatchSubcatTip}
+                  <strong>JetMatch Hazırlığı:</strong> Eklediğiniz her yapılandırılmış istek ilerde eşleşme oranınızı artıracaktır.
                 </p>
               </div>
             </div>

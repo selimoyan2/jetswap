@@ -3,7 +3,13 @@ import { prisma } from '@/lib/prisma'
 import { requireUser } from '@/lib/require-user'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { resolveCategoryId } from '@/lib/categories'
-import { ItemCondition, TradeMethod } from '@prisma/client'
+import { 
+  validateWants, 
+  normalizeWants, 
+  convertLegacyToWants, 
+  syncLegacyFromWants 
+} from '@/lib/wants'
+import { ItemCondition, TradeMethod, Prisma } from '@prisma/client'
 
 // GET /api/items - Fetch public available swap listings with pagination & filtering
 export async function GET(request: Request) {
@@ -17,14 +23,16 @@ export async function GET(request: Request) {
   const skip = (page - 1) * limit
 
   try {
-    const whereClause: any = {
+    const whereClause: Prisma.ItemWhereInput = {
       status: 'AVAILABLE'
     }
 
     if (categoryParam && categoryParam !== 'all') {
       whereClause.OR = [
         { categoryId: categoryParam },
-        { category: { slug: categoryParam } }
+        { category: { slug: categoryParam } },
+        { wants: { some: { categoryId: categoryParam } } },
+        { wants: { some: { category: { slug: categoryParam } } } }
       ]
     }
 
@@ -34,16 +42,22 @@ export async function GET(request: Request) {
 
     if (search && search.trim() !== '') {
       const q = search.trim()
-      whereClause.AND = [
-        ...(whereClause.AND || []),
-        {
-          OR: [
-            { title: { contains: q, mode: 'insensitive' } },
-            { description: { contains: q, mode: 'insensitive' } },
-            { targetDescription: { contains: q, mode: 'insensitive' } },
-          ]
-        }
-      ]
+      const searchCondition: Prisma.ItemWhereInput = {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+          { targetDescription: { contains: q, mode: 'insensitive' } },
+          { wants: { some: { brand: { contains: q, mode: 'insensitive' } } } },
+          { wants: { some: { model: { contains: q, mode: 'insensitive' } } } },
+          { wants: { some: { keywords: { contains: q, mode: 'insensitive' } } } },
+        ]
+      }
+      const existingAnd = Array.isArray(whereClause.AND)
+        ? whereClause.AND
+        : whereClause.AND
+        ? [whereClause.AND]
+        : []
+      whereClause.AND = [...existingAnd, searchCondition]
     }
 
     const [total, items] = await Promise.all([
@@ -59,6 +73,26 @@ export async function GET(request: Request) {
               nameEn: true,
               icon: true,
             }
+          },
+          wants: {
+            select: {
+              id: true,
+              brand: true,
+              model: true,
+              minimumCondition: true,
+              isFlexible: true,
+              priority: true,
+              category: {
+                select: {
+                  id: true,
+                  slug: true,
+                  nameTr: true,
+                  nameEn: true,
+                }
+              }
+            },
+            take: 3,
+            orderBy: { priority: 'asc' }
           },
           user: {
             select: {
@@ -108,14 +142,27 @@ const VALID_CONDITIONS: ItemCondition[] = ['BRAND_NEW', 'LIKE_NEW', 'GOOD', 'FAI
 const VALID_TRADE_METHODS: TradeMethod[] = ['HAND_TO_HAND', 'CARGO_ONLY', 'BOTH']
 const VALID_VALUE_TIERS = ['LOW', 'MEDIUM', 'HIGH', 'PREMIUM']
 
-// POST /api/items - Create a new item listing (requires authenticated user)
+// POST /api/items - Create a new item listing with structured wants & transactional write
 export async function POST(request: Request) {
   // 1. Authenticate user
   const { user, errorResponse } = await requireUser()
   if (errorResponse) return errorResponse
 
   try {
-    let body: any
+    let body: {
+      title?: string
+      description?: string
+      categoryId?: string
+      condition?: ItemCondition
+      tradeMethod?: TradeMethod
+      images?: string[]
+      country?: string
+      city?: string
+      wants?: import('@/lib/wants').StructuredWantInput[]
+      targetCategories?: string[]
+      targetDescription?: string
+      valueTier?: string
+    }
     try {
       body = await request.json()
     } catch {
@@ -140,6 +187,7 @@ export async function POST(request: Request) {
       images,
       country = 'TR',
       city,
+      wants,
       targetCategories,
       targetDescription,
       valueTier = 'MEDIUM',
@@ -185,8 +233,33 @@ export async function POST(request: Request) {
       )
     }
 
-    // 3. Zero-Cash Prevention (PRD Madde 38)
-    const combinedText = `${title} ${description} ${targetDescription || ''}`
+    // 3. Process wants & legacy fallbacks
+    let rawWants = wants
+    if (!rawWants || (Array.isArray(rawWants) && rawWants.length === 0)) {
+      // Legacy conversion fallback
+      rawWants = convertLegacyToWants(targetCategories, targetDescription)
+    }
+
+    // Validate structured wants
+    const wantValidation = validateWants(rawWants)
+    if (!wantValidation.isValid) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_WANTS',
+            message: wantValidation.errors[0]?.message || 'Geçersiz takas istekleri.'
+          }
+        },
+        { status: 400 }
+      )
+    }
+
+    // 4. Zero-Cash Prevention (PRD Madde 38)
+    const wantsText = Array.isArray(rawWants)
+      ? rawWants.map(w => `${w.brand || ''} ${w.model || ''} ${w.keywords || ''} ${w.note || ''}`).join(' ')
+      : ''
+    const combinedText = `${title} ${description} ${targetDescription || ''} ${wantsText}`
     const cashCheck = detectCashKeywords(combinedText)
     if (cashCheck.hasCashViolation) {
       return NextResponse.json(
@@ -202,8 +275,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // 4. Resolve Category
-    const resolvedCatId = await resolveCategoryId(categoryId)
+    // 5. Resolve Item Category
+    const resolvedCatId = categoryId ? await resolveCategoryId(categoryId) : null
     if (!resolvedCatId) {
       return NextResponse.json(
         {
@@ -217,12 +290,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // 5. Condition and TradeMethod enum checks
-    const mappedCondition: ItemCondition = VALID_CONDITIONS.includes(condition) ? condition : 'GOOD'
-    const mappedTradeMethod: TradeMethod = VALID_TRADE_METHODS.includes(tradeMethod) ? tradeMethod : 'BOTH'
-    const mappedValueTier = VALID_VALUE_TIERS.includes(valueTier) ? valueTier : 'MEDIUM'
+    // 6. Condition and TradeMethod enum checks
+    const mappedCondition: ItemCondition = (condition && VALID_CONDITIONS.includes(condition)) ? condition : 'GOOD'
+    const mappedTradeMethod: TradeMethod = (tradeMethod && VALID_TRADE_METHODS.includes(tradeMethod)) ? tradeMethod : 'BOTH'
+    const mappedValueTier = (valueTier && VALID_VALUE_TIERS.includes(valueTier)) ? valueTier : 'MEDIUM'
 
-    // 6. Image validation
+    // 7. Image validation
     let safeImages: string[] = []
     if (Array.isArray(images)) {
       safeImages = images
@@ -233,47 +306,53 @@ export async function POST(request: Request) {
       safeImages = ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80']
     }
 
-    // 7. Target categories and description
-    const safeTargetCategories = Array.isArray(targetCategories)
-      ? targetCategories.filter(c => typeof c === 'string' && c.trim().length > 0)
-      : []
+    // 8. Normalize wants and derive synchronized legacy fields
+    const normalizedWants = await normalizeWants(rawWants)
+    const { targetCategories: syncedCats, targetDescription: syncedDesc } = syncLegacyFromWants(rawWants, targetDescription)
 
-    const safeTargetDescription = (typeof targetDescription === 'string' && targetDescription.trim().length > 0)
-      ? targetDescription.trim()
-      : 'Her türlü mantıklı takas teklifine açığım'
-
-    // 8. Persist to PostgreSQL via Prisma
-    const createdItem = await prisma.item.create({
-      data: {
-        userId: user!.id,
-        title: title.trim(),
-        description: description.trim(),
-        categoryId: resolvedCatId,
-        condition: mappedCondition,
-        tradeMethod: mappedTradeMethod,
-        images: safeImages,
-        country: typeof country === 'string' ? country.trim() : 'TR',
-        city: city.trim(),
-        targetCategories: safeTargetCategories,
-        targetDescription: safeTargetDescription,
-        valueTier: mappedValueTier,
-        status: 'AVAILABLE',
-      },
-      include: {
-        category: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            city: true,
-            country: true,
-            rating: true,
-            reviewCount: true,
-            createdAt: true,
+    // 9. Transactional create of Item + ItemWant records
+    const createdItem = await prisma.$transaction(async (tx) => {
+      return await tx.item.create({
+        data: {
+          userId: user!.id,
+          title: title.trim(),
+          description: description.trim(),
+          categoryId: resolvedCatId,
+          condition: mappedCondition,
+          tradeMethod: mappedTradeMethod,
+          images: safeImages,
+          country: typeof country === 'string' ? country.trim() : 'TR',
+          city: city.trim(),
+          targetCategories: syncedCats,
+          targetDescription: syncedDesc,
+          valueTier: mappedValueTier,
+          status: 'AVAILABLE',
+          wants: {
+            create: normalizedWants
+          }
+        },
+        include: {
+          category: true,
+          wants: {
+            include: {
+              category: true
+            },
+            orderBy: { priority: 'asc' }
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              city: true,
+              country: true,
+              rating: true,
+              reviewCount: true,
+              createdAt: true,
+            }
           }
         }
-      }
+      })
     })
 
     return NextResponse.json(

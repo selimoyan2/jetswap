@@ -3,13 +3,19 @@ import { prisma } from '@/lib/prisma'
 import { requireUser } from '@/lib/require-user'
 import { detectCashKeywords } from '@/lib/cashFilter'
 import { resolveCategoryId } from '@/lib/categories'
-import { ItemCondition, TradeMethod } from '@prisma/client'
+import { 
+  validateWants, 
+  normalizeWants, 
+  syncLegacyFromWants,
+  NormalizedWant
+} from '@/lib/wants'
+import { ItemCondition, TradeMethod, Prisma } from '@prisma/client'
 
 interface Params {
   params: Promise<{ id: string }>
 }
 
-// GET /api/items/[id] - Fetch public item detail
+// GET /api/items/[id] - Fetch public item detail with full structured wants
 export async function GET(request: Request, segmentData: Params) {
   const { id } = await segmentData.params
 
@@ -28,6 +34,20 @@ export async function GET(request: Request, segmentData: Params) {
       where: { id },
       include: {
         category: true,
+        wants: {
+          include: {
+            category: {
+              select: {
+                id: true,
+                slug: true,
+                nameTr: true,
+                nameEn: true,
+                icon: true,
+              }
+            }
+          },
+          orderBy: { priority: 'asc' }
+        },
         user: {
           select: {
             id: true,
@@ -81,7 +101,7 @@ const VALID_CONDITIONS: ItemCondition[] = ['BRAND_NEW', 'LIKE_NEW', 'GOOD', 'FAI
 const VALID_TRADE_METHODS: TradeMethod[] = ['HAND_TO_HAND', 'CARGO_ONLY', 'BOTH']
 const VALID_VALUE_TIERS = ['LOW', 'MEDIUM', 'HIGH', 'PREMIUM']
 
-// PATCH /api/items/[id] - Update own item
+// PATCH /api/items/[id] - Update own item and its structured wants atomically
 export async function PATCH(request: Request, segmentData: Params) {
   const { user, errorResponse } = await requireUser()
   if (errorResponse) return errorResponse
@@ -99,7 +119,8 @@ export async function PATCH(request: Request, segmentData: Params) {
 
   try {
     const existing = await prisma.item.findUnique({
-      where: { id }
+      where: { id },
+      include: { wants: true }
     })
 
     if (!existing) {
@@ -123,7 +144,20 @@ export async function PATCH(request: Request, segmentData: Params) {
       )
     }
 
-    const body = await request.json()
+    const body = (await request.json()) as {
+      title?: string
+      description?: string
+      categoryId?: string
+      condition?: ItemCondition
+      tradeMethod?: TradeMethod
+      images?: string[]
+      country?: string
+      city?: string
+      wants?: import('@/lib/wants').StructuredWantInput[]
+      targetCategories?: string[]
+      targetDescription?: string
+      valueTier?: string
+    }
     const {
       title,
       description,
@@ -133,12 +167,13 @@ export async function PATCH(request: Request, segmentData: Params) {
       images,
       country,
       city,
+      wants,
       targetCategories,
       targetDescription,
       valueTier,
     } = body || {}
 
-    const updateData: any = {}
+    const updateData: Prisma.ItemUncheckedUpdateInput = {}
 
     if (title !== undefined) {
       if (typeof title !== 'string' || title.trim().length < 3 || title.trim().length > 120) {
@@ -160,12 +195,35 @@ export async function PATCH(request: Request, segmentData: Params) {
       updateData.description = description.trim()
     }
 
-    if (targetDescription !== undefined) {
+    // Process wants if provided
+    let normalizedWants: NormalizedWant[] | null = null
+    if (wants !== undefined) {
+      const wantValidation = validateWants(wants)
+      if (!wantValidation.isValid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'INVALID_WANTS',
+              message: wantValidation.errors[0]?.message || 'Geçersiz takas istekleri.'
+            }
+          },
+          { status: 400 }
+        )
+      }
+      normalizedWants = await normalizeWants(wants)
+      const { targetCategories: syncedCats, targetDescription: syncedDesc } = syncLegacyFromWants(wants, targetDescription || existing.targetDescription)
+      updateData.targetCategories = syncedCats
+      updateData.targetDescription = syncedDesc
+    } else if (targetDescription !== undefined) {
       updateData.targetDescription = typeof targetDescription === 'string' ? targetDescription.trim() : ''
     }
 
     // Cash check on updated texts
-    const combined = `${updateData.title || existing.title} ${updateData.description || existing.description} ${updateData.targetDescription || existing.targetDescription}`
+    const wantsText = normalizedWants
+      ? normalizedWants.map(w => `${w.brand || ''} ${w.model || ''} ${w.keywords || ''} ${w.note || ''}`).join(' ')
+      : ''
+    const combined = `${updateData.title || existing.title} ${updateData.description || existing.description} ${updateData.targetDescription || existing.targetDescription} ${wantsText}`
     const cashCheck = detectCashKeywords(combined)
     if (cashCheck.hasCashViolation) {
       return NextResponse.json(
@@ -209,28 +267,53 @@ export async function PATCH(request: Request, segmentData: Params) {
       updateData.images = images.filter(img => typeof img === 'string' && img.trim().length > 0).slice(0, 10)
     }
 
-    if (Array.isArray(targetCategories)) {
+    if (wants === undefined && Array.isArray(targetCategories)) {
       updateData.targetCategories = targetCategories.filter(c => typeof c === 'string' && c.trim().length > 0)
     }
 
-    const updated = await prisma.item.update({
-      where: { id },
-      data: updateData,
-      include: {
-        category: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            avatar: true,
-            city: true,
-            country: true,
-            rating: true,
-            reviewCount: true,
-            createdAt: true,
-          }
+    // Atomic update of Item and its ItemWant records
+    const updated = await prisma.$transaction(async (tx) => {
+      if (normalizedWants !== null) {
+        // Delete previous wants and recreate to prevent partial or corrupted state
+        await tx.itemWant.deleteMany({
+          where: { itemId: id }
+        })
+
+        if (normalizedWants.length > 0) {
+          await tx.itemWant.createMany({
+            data: normalizedWants.map(w => ({
+              ...w,
+              itemId: id
+            }))
+          })
         }
       }
+
+      return await tx.item.update({
+        where: { id },
+        data: updateData,
+        include: {
+          category: true,
+          wants: {
+            include: {
+              category: true
+            },
+            orderBy: { priority: 'asc' }
+          },
+          user: {
+            select: {
+              id: true,
+              name: true,
+              avatar: true,
+              city: true,
+              country: true,
+              rating: true,
+              reviewCount: true,
+              createdAt: true,
+            }
+          }
+        }
+      })
     })
 
     return NextResponse.json({

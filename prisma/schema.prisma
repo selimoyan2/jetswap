@@ -67,13 +67,14 @@ model User {
 }
 
 model Category {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String     @id @default(cuid())
+  slug        String     @unique
   nameTr      String
   nameEn      String
-  icon        String?  // Lucide icon name (e.g., 'Laptop', 'Car', 'Watch')
+  icon        String?    // Lucide icon name (e.g., 'Laptop', 'Car', 'Watch')
   description String?
   items       Item[]
+  itemWants   ItemWant[]
 }
 
 model Item {
@@ -90,10 +91,13 @@ model Item {
   country           String         @default("TR")
   city              String         @default("İstanbul")
   
-  // Takas Tercihleri (Kullanıcının ne aradığı)
+  // Legacy Takas Tercihleri (Geriye uyumluluk için korunuyor)
   targetCategories  String[]       // İstenen kategoriler (örn: ["elektronik", "muzik-aletleri"])
   targetDescription String         // Açık takas isteği (örn: "Sony kulaklık veya temiz elektro gitar arıyorum")
   valueTier         String?        @default("MEDIUM") // LOW, MEDIUM, HIGH, PREMIUM (Öneri algoritması dengesi için)
+  
+  // İlişkisel Yapılandırılmış İstekler (Sprint 3)
+  wants             ItemWant[]
   
   status            ItemStatus     @default(AVAILABLE)
   viewCount         Int            @default(0)
@@ -101,6 +105,36 @@ model Item {
   updatedAt         DateTime       @updatedAt
 
   offerItems        TradeOfferItem[]
+}
+
+model ItemWant {
+  id               String         @id @default(cuid())
+
+  itemId           String
+  item             Item           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  categoryId       String?
+  category         Category?      @relation(fields: [categoryId], references: [id])
+
+  brand            String?
+  model            String?
+  minimumCondition ItemCondition?
+
+  country          String?        @default("TR")
+  city             String?
+  maxDistanceKm    Int?
+
+  keywords         String?
+  note             String?
+
+  priority         Int            @default(0)
+  isFlexible       Boolean        @default(false)
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([itemId])
+  @@index([categoryId])
 }
 
 model TradeOffer {
