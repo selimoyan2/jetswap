@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react'
 import { 
   X, ArrowLeftRight, ShieldCheck, Mail, Lock, User as UserIcon, 
-  CheckCircle2, Phone, MapPin, AlertCircle, Sparkles, Building, Globe
+  CheckCircle2, Phone, MapPin, AlertCircle, Sparkles, Building, Globe, Loader2
 } from 'lucide-react'
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
+import { signIn, getSession } from 'next-auth/react'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -48,10 +49,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [error, setError] = useState('')
   const [isSuccess, setIsSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   if (!isOpen) return null
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -62,42 +64,53 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         return
       }
 
-      // Check existing local users or create session
-      const stored = localStorage.getItem('jetswap_users_db')
-      let userList: User[] = stored ? JSON.parse(stored) : []
-      
-      const found = userList.find(u => u.email?.toLowerCase() === email.trim().toLowerCase())
-      
-      let loggedUser: User
-      if (found) {
-        loggedUser = found
-      } else {
-        // Fallback for new login
-        loggedUser = {
-          id: `usr-${Date.now()}`,
-          name: email.split('@')[0],
-          email: email.trim(),
+      setLoading(true)
+
+      try {
+        const res = await signIn('credentials', {
+          redirect: false,
+          email: email.trim().toLowerCase(),
+          password,
+        })
+
+        if (!res || res.error) {
+          setError(t.auth.errors.fillEmailPass ? 'E-posta veya şifre hatalı.' : 'E-posta veya şifre hatalı.')
+          setLoading(false)
+          return
+        }
+
+        const session = await getSession()
+        const sessionUser = session?.user
+
+        const loggedUser: User = {
+          id: sessionUser?.id || `usr-${Date.now()}`,
+          name: sessionUser?.name || email.split('@')[0],
+          email: sessionUser?.email || email.trim().toLowerCase(),
           phone: '+90 5XX XXX XX XX',
           country: 'TR',
           city: 'İstanbul',
           district: 'Merkez',
-          avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80`,
-          jetTrust: 65,
+          avatar: sessionUser?.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+          jetTrust: 70,
           verifiedSwapper: false,
           completedSwaps: 0,
           rating: 5.0,
           reviewCount: 0
         }
-      }
 
-      setIsSuccess(true)
-      setTimeout(() => {
-        onSuccess(loggedUser, false)
-        onClose()
-        setIsSuccess(false)
-      }, 1000)
+        setIsSuccess(true)
+        setTimeout(() => {
+          onSuccess(loggedUser, false)
+          onClose()
+          setIsSuccess(false)
+          setLoading(false)
+        }, 800)
+      } catch {
+        setError('Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.')
+        setLoading(false)
+      }
     } else {
-      // Register validation (Zorunlu Güvenlik Kuralları)
+      // Register validation
       if (!name.trim()) {
         setError(t.auth.errors.nameRequired)
         return
@@ -118,8 +131,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setError(t.auth.errors.districtRequired)
         return
       }
-      if (password.length < 6) {
-        setError(t.auth.errors.passwordMin)
+      if (password.length < 8) {
+        setError(t.auth.errors.passwordMin || 'Şifre en az 8 karakter olmalıdır.')
         return
       }
       if (!termsAccepted) {
@@ -127,37 +140,67 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         return
       }
 
-      // Create high-trust new user
-      const newUser: User = {
-        id: `usr-${Date.now()}`,
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone.trim(),
-        country,
-        city: city.trim(),
-        district: district.trim(),
-        avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-        jetTrust: 70, // Kayıt olan kullanıcı temel güven puanı
-        verifiedSwapper: false,
-        completedSwaps: 0,
-        rating: 5.0,
-        reviewCount: 0
-      }
+      setLoading(true)
 
-      // Persist in local user db
       try {
-        const stored = localStorage.getItem('jetswap_users_db')
-        const userList: User[] = stored ? JSON.parse(stored) : []
-        userList.push(newUser)
-        localStorage.setItem('jetswap_users_db', JSON.stringify(userList))
-      } catch {}
+        const regRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            password,
+            country,
+            city: city.trim(),
+            district: district.trim() || undefined,
+          }),
+        })
 
-      setIsSuccess(true)
-      setTimeout(() => {
-        onSuccess(newUser, true)
-        onClose()
-        setIsSuccess(false)
-      }, 1200)
+        const regData = await regRes.json()
+
+        if (!regRes.ok || !regData.success) {
+          setError(regData?.error?.message || 'Kayıt işlemi sırasında bir hata oluştu.')
+          setLoading(false)
+          return
+        }
+
+        // Automatically sign in the registered user
+        const signInRes = await signIn('credentials', {
+          redirect: false,
+          email: email.trim().toLowerCase(),
+          password,
+        })
+
+        const session = await getSession()
+        const sessionUser = session?.user
+
+        const newUser: User = {
+          id: regData.data?.id || sessionUser?.id || `usr-${Date.now()}`,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          country,
+          city: city.trim(),
+          district: district.trim(),
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          jetTrust: 70,
+          verifiedSwapper: false,
+          completedSwaps: 0,
+          rating: 5.0,
+          reviewCount: 0
+        }
+
+        setIsSuccess(true)
+        setTimeout(() => {
+          onSuccess(newUser, true)
+          onClose()
+          setIsSuccess(false)
+          setLoading(false)
+        }, 1000)
+      } catch {
+        setError('Kayıt oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.')
+        setLoading(false)
+      }
     }
   }
 
@@ -414,9 +457,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold text-xs py-3.5 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 disabled:opacity-50 text-white font-extrabold text-xs py-3.5 rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              {isLogin ? (
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Lütfen bekleyin...</span>
+                </>
+              ) : isLogin ? (
                 <>
                   <Lock className="w-4 h-4" />
                   <span>{t.auth.submitLogin}</span>
