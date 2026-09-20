@@ -585,7 +585,7 @@ export const MySwapsModal: React.FC<MySwapsModalProps> = ({ isOpen, onClose }) =
                       value={reviewComment}
                       onChange={e => setReviewComment(e.target.value)}
                       placeholder={t.mySwaps.commentPlaceholder}
-                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-800"
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-800 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all"
                     />
                   </div>
                 </div>

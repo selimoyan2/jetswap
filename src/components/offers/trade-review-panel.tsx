@@ -72,7 +72,7 @@ export function TradeReviewPanel({
   }
 
   return (
-    <div className="bg-white rounded-3xl border border-zinc-100 shadow-sm p-6 mb-6">
+    <div className="bg-white text-zinc-900 rounded-3xl border border-zinc-100 shadow-sm p-6 mb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -144,9 +144,10 @@ export function TradeReviewPanel({
               rows={3}
               value={comment}
               maxLength={1000}
+              disabled={isSubmitting}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Takas süreci nasıldı? Ürün anlatıldığı gibi miydi?"
-              className="w-full text-xs sm:text-sm p-3 rounded-xl border border-zinc-200 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+              className="w-full text-xs sm:text-sm p-3 rounded-xl border border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:bg-zinc-50"
             />
           </div>
 
