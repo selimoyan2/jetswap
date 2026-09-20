@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { createNotification, NotificationType } from '@/lib/notifications'
 import { validateMessageContent } from './validation'
 import { serializeTradeMessage } from './serialization'
 import {
@@ -214,6 +215,18 @@ export async function createOfferMessage(
           avatar: true,
         },
       },
+    },
+  })
+
+  // Send NEW_MESSAGE notification to counterparty
+  const recipientId = offer.senderId === input.senderId ? offer.receiverId : offer.senderId
+  await createNotification({
+    userId: recipientId,
+    type: NotificationType.NEW_MESSAGE,
+    href: `/offers/${input.offerId}`,
+    dedupeKey: `message:${created.id}:new:${recipientId}`,
+    data: {
+      offerId: input.offerId,
     },
   })
 

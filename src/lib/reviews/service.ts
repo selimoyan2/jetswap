@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
+import { createNotification, NotificationType } from '@/lib/notifications'
 import { validateReviewInput } from './validation'
 import { serializeReview } from './serialization'
 import { SerializedReview } from './types'
@@ -168,6 +169,21 @@ export async function createOfferReview(
           reviewCount: count,
         },
       })
+
+      // Send NEW_REVIEW notification to target user
+      await createNotification(
+        {
+          userId: targetUserId,
+          type: NotificationType.NEW_REVIEW,
+          href: `/offers/${offerId}`,
+          dedupeKey: `review:${review.id}:new:${targetUserId}`,
+          data: {
+            offerId,
+            reviewId: review.id,
+          },
+        },
+        tx
+      )
 
       return review
     })

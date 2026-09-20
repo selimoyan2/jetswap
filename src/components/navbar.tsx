@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ArrowLeftRight, Search, PlusCircle, Shield, Globe, Menu, X, 
-  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio, BookOpen, Heart, Bookmark
+  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio, BookOpen, Heart, Bookmark, Bell
 } from 'lucide-react'
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
@@ -39,7 +39,29 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0)
   const { language, toggleLanguage, t, availableLanguages } = useLanguage()
+
+  useEffect(() => {
+    if (!currentUser) {
+      setUnreadNotificationCount(0)
+      return
+    }
+
+    let isMounted = true
+    fetch('/api/notifications/unread-count')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.success) {
+          setUnreadNotificationCount(data.data?.unreadCount ?? data.unreadCount ?? 0)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentUser])
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-emerald-900/10 bg-white/95 backdrop-blur-md shadow-xs">
@@ -166,6 +188,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span>{currentUser.jetTrust} JT</span>
               </button>
 
+              {/* Notification Bell */}
+              <Link
+                href="/notifications"
+                className="relative p-2 text-zinc-700 hover:text-emerald-700 hover:bg-zinc-50 rounded-xl transition-all cursor-pointer border border-zinc-200 bg-white shadow-2xs flex items-center justify-center"
+                title="Bildirimler"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadNotificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-4 text-center leading-none">
+                    {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                  </span>
+                )}
+              </Link>
+
               {/* User Dropdown Menu */}
               {userDropdownOpen && (
                 <div className="absolute right-0 top-12 w-52 bg-white border border-zinc-200 rounded-2xl shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
@@ -182,6 +218,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <Sparkles className="w-4 h-4 text-amber-500" />
                     <span>JetMatch</span>
+                  </Link>
+
+                  <Link
+                    href="/notifications"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Bell className="w-4 h-4 text-emerald-600" />
+                      <span>Bildirimler</span>
+                    </div>
+                    {unreadNotificationCount > 0 && (
+                      <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                        {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                      </span>
+                    )}
                   </Link>
 
                   <Link
@@ -291,6 +343,20 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Menu Actions */}
         <div className="flex items-center gap-2 lg:hidden">
+          {currentUser && (
+            <Link
+              href="/notifications"
+              className="relative p-1.5 text-zinc-700 hover:text-emerald-700 hover:bg-zinc-50 rounded-lg border border-zinc-200 bg-white flex items-center justify-center"
+              title="Bildirimler"
+            >
+              <Bell className="w-4 h-4" />
+              {unreadNotificationCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1 rounded-full min-w-3 text-center leading-tight">
+                  {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                </span>
+              )}
+            </Link>
+          )}
           {/* Mobile Language Toggle */}
           <button
             onClick={toggleLanguage}
@@ -409,6 +475,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
                   <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
                   <span>Tekliflerim</span>
+                </Link>
+                <Link href="/notifications" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-emerald-600" />
+                    <span>Bildirimler</span>
+                  </div>
+                  {unreadNotificationCount > 0 && (
+                    <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+                    </span>
+                  )}
                 </Link>
                 <Link href="/favorites" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
                   <Heart className="w-4 h-4 text-red-500" />

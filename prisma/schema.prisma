@@ -66,6 +66,7 @@ model User {
   receivedReviews Review[]       @relation("ReceivedReviews")
   favorites       Favorite[]
   savedSearches   SavedSearch[]
+  notifications   Notification[]
 }
 
 model Category {
@@ -242,5 +243,34 @@ model SavedSearch {
 
   @@index([userId])
   @@index([categoryId])
+}
+
+// Sprint 13 — Notification Engine V1
+enum NotificationType {
+  NEW_OFFER
+  COUNTER_OFFER
+  OFFER_ACCEPTED
+  OFFER_REJECTED
+  NEW_MESSAGE
+  CONTACT_REVEALED
+  TRADE_COMPLETION_REQUEST
+  TRADE_COMPLETED
+  NEW_REVIEW
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  message   String
+  href      String
+  dedupeKey String?          @unique
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
 }
 

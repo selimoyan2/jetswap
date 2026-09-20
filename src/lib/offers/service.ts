@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { ItemStatus, Prisma } from '@prisma/client'
+import { createNotification, NotificationType } from '@/lib/notifications'
 import { validateCreateOffer, validateCounterOffer } from './validation'
 import { serializeTradeOffer, TradeOfferWithRelations } from './serialization'
 import {
@@ -119,6 +120,22 @@ export async function createTradeOffer(
         },
         include: offerInclude,
       })
+
+      // Send NEW_OFFER notification to receiver
+      await createNotification(
+        {
+          userId: receiverId,
+          type: NotificationType.NEW_OFFER,
+          href: `/offers/${offer.id}`,
+          dedupeKey: `offer:${offer.id}:new:${receiverId}`,
+          data: {
+            offerId: offer.id,
+            offeredCount: offeredItemIds.length,
+            requestedCount: requestedItemIds.length,
+          },
+        },
+        tx
+      )
 
       return offer
     })
@@ -309,6 +326,20 @@ export async function createCounterOffer(
         include: offerInclude,
       })
 
+      // Send COUNTER_OFFER notification to counterparty (newReceiverId)
+      await createNotification(
+        {
+          userId: newReceiverId,
+          type: NotificationType.COUNTER_OFFER,
+          href: `/offers/${newOffer.id}`,
+          dedupeKey: `offer:${newOffer.id}:counter:${newReceiverId}`,
+          data: {
+            offerId: newOffer.id,
+          },
+        },
+        tx
+      )
+
       return newOffer
     })
 
@@ -462,6 +493,20 @@ export async function acceptTradeOffer(
         })
       }
 
+      // Send OFFER_ACCEPTED notification to offer creator
+      await createNotification(
+        {
+          userId: offer.senderId,
+          type: NotificationType.OFFER_ACCEPTED,
+          href: `/offers/${offerId}`,
+          dedupeKey: `offer:${offerId}:accepted:${offer.senderId}`,
+          data: {
+            offerId,
+          },
+        },
+        tx
+      )
+
       return accepted
     })
 
@@ -547,6 +592,17 @@ export async function rejectTradeOffer(
         status: 'REJECTED',
       },
       include: offerInclude,
+    })
+
+    // Send OFFER_REJECTED notification to offer creator
+    await createNotification({
+      userId: offer.senderId,
+      type: NotificationType.OFFER_REJECTED,
+      href: `/offers/${offerId}`,
+      dedupeKey: `offer:${offerId}:rejected:${offer.senderId}`,
+      data: {
+        offerId,
+      },
     })
 
     return {
@@ -863,6 +919,31 @@ export async function approveContactReveal(
         include: offerInclude,
       })
 
+      if (isMutual) {
+        await Promise.all([
+          createNotification(
+            {
+              userId: freshOffer.senderId,
+              type: NotificationType.CONTACT_REVEALED,
+              href: `/offers/${offerId}`,
+              dedupeKey: `offer:${offerId}:contact_revealed:${freshOffer.senderId}`,
+              data: { offerId },
+            },
+            tx
+          ),
+          createNotification(
+            {
+              userId: freshOffer.receiverId,
+              type: NotificationType.CONTACT_REVEALED,
+              href: `/offers/${offerId}`,
+              dedupeKey: `offer:${offerId}:contact_revealed:${freshOffer.receiverId}`,
+              data: { offerId },
+            },
+            tx
+          ),
+        ])
+      }
+
       return updated
     })
 
@@ -1076,6 +1157,30 @@ export async function confirmTradeCompletion(
           include: offerInclude,
         })
 
+        // Notify both parties of completed trade
+        await Promise.all([
+          createNotification(
+            {
+              userId: freshOffer.senderId,
+              type: NotificationType.TRADE_COMPLETED,
+              href: `/offers/${offerId}`,
+              dedupeKey: `offer:${offerId}:completed:${freshOffer.senderId}`,
+              data: { offerId },
+            },
+            tx
+          ),
+          createNotification(
+            {
+              userId: freshOffer.receiverId,
+              type: NotificationType.TRADE_COMPLETED,
+              href: `/offers/${offerId}`,
+              dedupeKey: `offer:${offerId}:completed:${freshOffer.receiverId}`,
+              data: { offerId },
+            },
+            tx
+          ),
+        ])
+
         return updated
       } else {
         // One party confirmed: update timestamp only, status remains ACCEPTED, items remain PENDING_TRADE
@@ -1087,6 +1192,19 @@ export async function confirmTradeCompletion(
           },
           include: offerInclude,
         })
+
+        // Notify counterparty that completion confirmation is requested
+        const counterpartyId = isFreshSender ? freshOffer.receiverId : freshOffer.senderId
+        await createNotification(
+          {
+            userId: counterpartyId,
+            type: NotificationType.TRADE_COMPLETION_REQUEST,
+            href: `/offers/${offerId}`,
+            dedupeKey: `offer:${offerId}:completion_request:${counterpartyId}`,
+            data: { offerId },
+          },
+          tx
+        )
 
         return updated
       }
