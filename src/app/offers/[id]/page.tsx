@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getAuthUser } from '@/lib/require-user'
 import { OfferDetailClient } from './offer-detail-client'
+import { Navbar } from '@/components/navbar'
 
 export const metadata: Metadata = {
   title: 'Takas Teklifi Detayı | JetSwap',
@@ -22,10 +23,11 @@ export default async function OfferDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans">
+      <Navbar />
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
         <OfferDetailClient offerId={id} />
-      </div>
+      </main>
     </div>
   )
 }

@@ -85,30 +85,50 @@ export const TrustVerificationModal: React.FC<TrustVerificationModalProps> = ({ 
                       {t.trustCenter.completedBadge} (+30)
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-0.5">{activeUser.email || mockCurrentUser.email}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{currentUser?.email || (currentUser ? '' : mockCurrentUser.email)}</p>
                 </div>
               </div>
               <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-1" />
             </div>
 
             {/* Level 2: Telefon / SMS */}
-            <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level2Title}</h4>
-                    <span className="text-[9px] font-black bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded">
-                      {t.trustCenter.completedBadge} (+40)
-                    </span>
+            {currentUser?.phone ? (
+              <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <Smartphone className="w-4 h-4" />
                   </div>
-                  <p className="text-xs text-zinc-500 mt-0.5">{activeUser.phone || mockCurrentUser.phone}</p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level2Title}</h4>
+                      <span className="text-[9px] font-black bg-emerald-200 text-emerald-900 px-1.5 py-0.2 rounded">
+                        {t.trustCenter.completedBadge} (+40)
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-0.5">{currentUser.phone}</p>
+                  </div>
                 </div>
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-1" />
               </div>
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-1" />
-            </div>
+            ) : (
+              <div className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50/50 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-zinc-200 text-zinc-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Smartphone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-xs font-black text-zinc-900">{t.trustCenter.level2Title}</h4>
+                      <span className="text-[9px] font-black bg-zinc-200 text-zinc-700 px-1.5 py-0.2 rounded">
+                        Doğrulanmadı
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-500 mt-0.5">Telefon numarası eklenmedi</p>
+                  </div>
+                </div>
+                <Lock className="w-5 h-5 text-zinc-400 shrink-0 mt-1" />
+              </div>
+            )}
 
             {/* Level 3: Kimlik / Adres Teyidi (Opsiyonel Güven Rozeti) */}
             <div className="p-4 rounded-2xl border border-zinc-200 bg-white hover:border-zinc-300 transition-all">

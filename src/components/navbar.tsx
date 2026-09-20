@@ -11,10 +11,10 @@ import { User } from '@/types'
 import { useLanguage } from '@/i18n'
 
 interface NavbarProps {
-  currentUser: User | null
-  onOpenAuth: (mode?: 'login' | 'register') => void
-  onLogout: () => void
-  onOpenEditProfile: () => void
+  currentUser?: User | null
+  onOpenAuth?: (mode?: 'login' | 'register') => void
+  onLogout?: () => void
+  onOpenEditProfile?: () => void
   onOpenPortfolio?: () => void
   onOpenCreateItem?: () => void
   onOpenForbiddenPolicy?: () => void
@@ -25,7 +25,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  currentUser,
+  currentUser: propCurrentUser,
   onOpenAuth,
   onLogout,
   onOpenEditProfile,
@@ -40,7 +40,50 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0)
+  const [internalUser, setInternalUser] = useState<User | null>(null)
   const { language, toggleLanguage, t, availableLanguages } = useLanguage()
+
+  useEffect(() => {
+    if (propCurrentUser !== undefined) {
+      setInternalUser(propCurrentUser)
+    } else {
+      try {
+        const stored = localStorage.getItem('jetswap_active_user')
+        if (stored) {
+          setInternalUser(JSON.parse(stored))
+        }
+      } catch {}
+    }
+  }, [propCurrentUser])
+
+  const currentUser = propCurrentUser !== undefined ? propCurrentUser : internalUser
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout()
+    } else {
+      try {
+        localStorage.removeItem('jetswap_active_user')
+      } catch {}
+      window.location.href = '/'
+    }
+  }
+
+  const handleOpenAuth = (mode?: 'login' | 'register') => {
+    if (onOpenAuth) {
+      onOpenAuth(mode)
+    } else {
+      window.location.href = `/login?mode=${mode || 'login'}`
+    }
+  }
+
+  const handleOpenEditProfile = () => {
+    if (onOpenEditProfile) {
+      onOpenEditProfile()
+    } else {
+      window.location.href = '/'
+    }
+  }
 
   useEffect(() => {
     if (!currentUser) {
@@ -133,7 +176,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* JetRadar Button */}
           <button
-            onClick={onOpenRadar}
+            onClick={() => (onOpenRadar ? onOpenRadar() : (window.location.href = '/#kesfet'))}
             className="text-xs font-bold text-cyan-800 hover:text-cyan-900 transition-colors flex items-center gap-1.5 cursor-pointer relative px-2.5 py-1.5 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-200 shadow-2xs"
           >
             <span className="relative flex h-2 w-2">
@@ -145,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            onClick={onOpenForbiddenPolicy}
+            onClick={() => (onOpenForbiddenPolicy ? onOpenForbiddenPolicy() : (window.location.href = '/#kesfet'))}
             className="text-xs font-bold text-zinc-600 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
           >
             <ShieldAlert className="w-3.5 h-3.5 text-zinc-400" />
@@ -277,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false)
-                      onOpenEditProfile()
+                      handleOpenEditProfile()
                     }}
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
@@ -301,7 +344,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false)
-                      onLogout()
+                      handleLogout()
                     }}
                     className="w-full text-left px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
@@ -314,7 +357,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => onOpenAuth('login')}
+                onClick={() => handleOpenAuth('login')}
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-zinc-700 hover:text-emerald-700 hover:bg-zinc-50 rounded-xl transition-all cursor-pointer"
               >
                 <LogIn className="w-3.5 h-3.5" />
@@ -322,7 +365,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               <button
-                onClick={() => onOpenAuth('register')}
+                onClick={() => handleOpenAuth('register')}
                 className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-xl transition-all cursor-pointer shadow-2xs"
               >
                 <UserPlus className="w-3.5 h-3.5 text-emerald-700" />
@@ -333,7 +376,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Create Listing CTA */}
           <button
-            onClick={onOpenCreateItem}
+            onClick={() => (onOpenCreateItem ? onOpenCreateItem() : (window.location.href = '/#kesfet'))}
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all cursor-pointer ml-1"
           >
             <PlusCircle className="w-4 h-4" />
@@ -365,7 +408,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{language === 'tr' ? '🇹🇷 TR' : '🇬🇧 EN'}</span>
           </button>
           <button
-            onClick={onOpenCreateItem}
+            onClick={() => (onOpenCreateItem ? onOpenCreateItem() : (window.location.href = '/#kesfet'))}
             className="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1"
           >
             <PlusCircle className="w-3.5 h-3.5" />
@@ -433,13 +476,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => { setMobileMenuOpen(false); onOpenEditProfile(); }}
+                    onClick={() => { setMobileMenuOpen(false); handleOpenEditProfile(); }}
                     className="flex-1 py-1.5 bg-white border border-zinc-200 rounded-xl text-[11px] font-bold text-zinc-700 text-center"
                   >
                     {t.nav.editProfile}
                   </button>
                   <button
-                    onClick={() => { setMobileMenuOpen(false); onLogout(); }}
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
                     className="px-3 py-1.5 bg-red-50 border border-red-200 rounded-xl text-[11px] font-bold text-red-700 text-center"
                   >
                     {t.nav.logout}
@@ -449,13 +492,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <div className="flex gap-2 mb-3">
                 <button
-                  onClick={() => { setMobileMenuOpen(false); onOpenAuth('login'); }}
+                  onClick={() => { setMobileMenuOpen(false); handleOpenAuth('login'); }}
                   className="flex-1 py-2.5 bg-zinc-100 rounded-xl text-center text-xs font-bold text-zinc-800"
                 >
                   {t.nav.login}
                 </button>
                 <button
-                  onClick={() => { setMobileMenuOpen(false); onOpenAuth('register'); }}
+                  onClick={() => { setMobileMenuOpen(false); handleOpenAuth('register'); }}
                   className="flex-1 py-2.5 bg-emerald-600 text-white rounded-xl text-center text-xs font-black"
                 >
                   {t.nav.register}

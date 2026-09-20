@@ -2,15 +2,16 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package, Settings, MapPin, Ban, Lock } from 'lucide-react'
-import { User, UserSanction } from '@/types'
+import Link from 'next/link'
+import { ArrowLeftRight, ShieldCheck, Plus, Package, Settings, MapPin, Ban, Lock } from 'lucide-react'
+import { User } from '@/types'
 import { useLanguage } from '@/i18n'
 import { isUserTradeRestricted } from '@/data/mockReports'
 import { JetTrustDetailModal } from '@/components/jettrust'
 
 interface UserDashboardBarProps {
   currentUser: User
-  onOpenSwaps: () => void
+  onOpenSwaps?: () => void
   onOpenPortfolio: () => void
   onOpenCreateItem: () => void
   onOpenTrustVerification?: () => void
@@ -19,7 +20,6 @@ interface UserDashboardBarProps {
 
 export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
   currentUser,
-  onOpenSwaps,
   onOpenPortfolio,
   onOpenCreateItem,
   onOpenTrustVerification,
@@ -28,6 +28,23 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
   const { t } = useLanguage()
   const [restriction, setRestriction] = React.useState(() => isUserTradeRestricted(currentUser.id))
   const [trustModalOpen, setTrustModalOpen] = React.useState(false)
+  const [swapsCount, setSwapsCount] = React.useState<number | null>(null)
+
+  React.useEffect(() => {
+    let isMounted = true
+    fetch('/api/offers?type=all')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (isMounted && data?.success && Array.isArray(data.data)) {
+          setSwapsCount(data.data.length)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentUser.id])
 
   const handleTrustClick = () => {
     if (onOpenTrustVerification) {
@@ -122,15 +139,19 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
             <span>JetTrust</span>
           </button>
 
-          {/* Swaps button */}
-          <button
-            onClick={onOpenSwaps}
+          {/* Swaps button - Navigates directly to canonical /offers */}
+          <Link
+            href="/offers"
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-bold transition-all cursor-pointer"
           >
             <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
             <span>{t.dashboardBar.mySwaps}</span>
-            <span className="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">1</span>
-          </button>
+            {swapsCount !== null && swapsCount > 0 && (
+              <span className="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                {swapsCount}
+              </span>
+            )}
+          </Link>
 
           {/* Portfolio button */}
           <button

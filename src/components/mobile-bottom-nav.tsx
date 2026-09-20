@@ -7,7 +7,7 @@ import { useLanguage } from '@/i18n'
 
 interface MobileBottomNavProps {
   onOpenCreateItem: () => void
-  onOpenSwaps: () => void
+  onOpenSwaps?: () => void
   onOpenPortfolio: () => void
 }
 
@@ -41,15 +41,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <Plus className="w-6 h-6 stroke-[2.5]" />
       </button>
 
-      {/* Takaslarım */}
-      <button
-        onClick={onOpenSwaps}
+      {/* Takaslarım - Canonical /offers */}
+      <Link
+        href="/offers"
         className="flex flex-col items-center gap-1 text-zinc-600 hover:text-emerald-600 cursor-pointer relative"
       >
         <ArrowLeftRight className="w-5 h-5 text-emerald-600" />
         <span className="text-[10px] font-bold">{t.bottomNav.swaps}</span>
-        <span className="w-2 h-2 rounded-full bg-emerald-600 absolute top-0 right-2 ring-2 ring-white" />
-      </button>
+      </Link>
 
       {/* Profil / Portföy */}
       <button

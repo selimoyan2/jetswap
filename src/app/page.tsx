@@ -16,7 +16,6 @@ import { PortfolioModal } from '@/components/portfolio-modal'
 import { CreateListingModal } from '@/components/create-listing-modal'
 import { ReportModal } from '@/components/report-modal'
 import { ForbiddenItemsModal } from '@/components/forbidden-items-modal'
-import { MySwapsModal } from '@/components/my-swaps-modal'
 import { AuthModal } from '@/components/auth-modal'
 import { EditProfileModal } from '@/components/edit-profile-modal'
 import { TrustVerificationModal } from '@/components/trust-verification-modal'
@@ -60,7 +59,6 @@ export default function HomePage() {
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false)
   const [isCreateListingOpen, setIsCreateListingOpen] = useState(false)
   const [isForbiddenModalOpen, setIsForbiddenModalOpen] = useState(false)
-  const [isSwapsOpen, setIsSwapsOpen] = useState(false)
   const [isAuthOpen, setIsAuthOpen] = useState(false)
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false)
   const [isTrustVerificationOpen, setIsTrustVerificationOpen] = useState(false)
@@ -329,17 +327,6 @@ export default function HomePage() {
     setIsPortfolioOpen(true)
   }
 
-  // Handle open swaps (Requires login)
-  const handleOpenSwaps = () => {
-    if (!currentUser) {
-      setAuthMode('login')
-      setAuthPromptReason('Gelen ve giden takas tekliflerinizi görüntülemek için lütfen giriş yapın.')
-      setIsAuthOpen(true)
-      return
-    }
-    setIsSwapsOpen(true)
-  }
-
   // Handle submit offer
   const handleSubmitOffer = (targetItem: TradeItem, offeredItems: TradeItem[], note: string) => {
     console.log('Trade offer submitted:', { targetItem, offeredItems, note })
@@ -423,7 +410,6 @@ export default function HomePage() {
         {currentUser && (
           <UserDashboardBar
             currentUser={currentUser}
-            onOpenSwaps={handleOpenSwaps}
             onOpenPortfolio={handleOpenPortfolio}
             onOpenCreateItem={handleOpenCreateListing}
             onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
@@ -622,7 +608,6 @@ export default function HomePage() {
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav
         onOpenCreateItem={() => setIsCreateListingOpen(true)}
-        onOpenSwaps={() => setIsSwapsOpen(true)}
         onOpenPortfolio={() => setIsPortfolioOpen(true)}
       />
 
@@ -658,11 +643,6 @@ export default function HomePage() {
         onItemCreated={handleItemCreated}
         onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)}
         isFirstTimeUser={isFirstListingWelcome}
-      />
-
-      <MySwapsModal
-        isOpen={isSwapsOpen}
-        onClose={() => setIsSwapsOpen(false)}
       />
 
       <ReportModal

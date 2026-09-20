@@ -96,24 +96,29 @@ export function OfferHistoryTimeline({
       <div className="space-y-3 relative before:absolute before:left-3 before:top-3 before:bottom-3 before:w-0.5 before:bg-zinc-800">
         {history.map((rev) => {
           const isCurrent = rev.id === currentOfferId
+          const effectiveStatus = isCurrent ? (currentStatus || rev.status) : rev.status
 
           let statusLabel = 'Bekliyor'
           let statusColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20'
           let StatusIcon = Clock
 
-          if (rev.status === 'COUNTER_OFFERED') {
+          if (effectiveStatus === 'COUNTER_OFFERED') {
             statusLabel = 'Karşı Teklif Yapıldı'
             statusColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20'
             StatusIcon = GitCommit
-          } else if (rev.status === 'ACCEPTED') {
+          } else if (effectiveStatus === 'ACCEPTED') {
             statusLabel = 'Kabul Edildi'
             statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
             StatusIcon = CheckCircle2
-          } else if (rev.status === 'REJECTED') {
+          } else if (effectiveStatus === 'COMPLETED') {
+            statusLabel = 'Tamamlandı'
+            statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+            StatusIcon = CheckCircle2
+          } else if (effectiveStatus === 'REJECTED') {
             statusLabel = 'Reddedildi'
             statusColor = 'text-red-400 bg-red-500/10 border-red-500/20'
             StatusIcon = XCircle
-          } else if (rev.status === 'CANCELLED') {
+          } else if (effectiveStatus === 'CANCELLED') {
             statusLabel = 'İptal Edildi'
             statusColor = 'text-zinc-400 bg-zinc-800 border-zinc-700'
             StatusIcon = Ban
