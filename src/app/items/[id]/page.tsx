@@ -10,6 +10,8 @@ import {
 import { getAuthUser } from '@/lib/require-user'
 import { Metadata } from 'next'
 import { ItemDetailOfferButton } from '@/components/offers/item-detail-offer-button'
+import { ItemDetailFavoriteButton } from '@/components/item-detail-favorite-button'
+import { isItemFavorited } from '@/lib/favorites'
 
 interface ItemDetailPageProps {
   params: Promise<{ id: string }>
@@ -56,6 +58,7 @@ const TRADE_METHOD_LABELS: Record<string, string> = {
 export default async function ItemDetailPage(props: ItemDetailPageProps) {
   const { id } = await props.params
   const currentUser = await getAuthUser()
+  const isFav = currentUser ? await isItemFavorited(currentUser.id, id) : false
 
   const item = await prisma.item.findUnique({
     where: { id },
@@ -323,24 +326,28 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
                   </Link>
                 )}
 
-                {currentUser?.id !== item.userId && item.status === 'AVAILABLE' && (
-                  <>
-                    <ItemDetailOfferButton
-                      item={{
-                        id: item.id,
-                        title: item.title,
-                        images: item.images,
-                        city: item.city,
-                        condition: item.condition,
-                        userId: item.userId,
-                      }}
-                      isLoggedIn={!!currentUser}
-                    />
-                    <p className="text-[11px] text-zinc-500 text-center mt-2">
-                      Para teklifi kabul edilmez. Kendi portföyünüzden eşya seçerek teklif yapabilirsiniz.
-                    </p>
-                  </>
-                )}
+                <div className="pt-2 flex flex-col gap-3">
+                  <ItemDetailFavoriteButton itemId={item.id} initialIsFavorite={isFav} />
+
+                  {currentUser?.id !== item.userId && item.status === 'AVAILABLE' && (
+                    <>
+                      <ItemDetailOfferButton
+                        item={{
+                          id: item.id,
+                          title: item.title,
+                          images: item.images,
+                          city: item.city,
+                          condition: item.condition,
+                          userId: item.userId,
+                        }}
+                        isLoggedIn={!!currentUser}
+                      />
+                      <p className="text-[11px] text-zinc-500 text-center">
+                        Para teklifi kabul edilmez. Kendi portföyünüzden eşya seçerek teklif yapabilirsiniz.
+                      </p>
+                    </>
+                  )}
+                </div>
 
                 {currentUser?.id === item.userId && (
                   <p className="text-[11px] text-emerald-800 font-semibold text-center bg-emerald-50 rounded-xl py-2 px-3 border border-emerald-100">

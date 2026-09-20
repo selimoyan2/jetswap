@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { 
   ArrowLeftRight, Search, PlusCircle, Shield, Globe, Menu, X, 
-  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio, BookOpen
+  Sparkles, ShieldAlert, ShieldCheck, LogIn, UserPlus, LogOut, Settings, User as UserIcon, Radio, BookOpen, Heart, Bookmark
 } from 'lucide-react'
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
@@ -191,6 +191,24 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
                     <span>Tekliflerim</span>
+                  </Link>
+
+                  <Link
+                    href="/favorites"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
+                  >
+                    <Heart className="w-4 h-4 text-red-500" />
+                    <span>Favorilerim</span>
+                  </Link>
+
+                  <Link
+                    href="/saved-searches"
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
+                  >
+                    <Bookmark className="w-4 h-4 text-emerald-600" />
+                    <span>Kayıtlı Aramalarım</span>
                   </Link>
 
                   <button
@@ -387,10 +405,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.nav.jetMatch}</span>
             </Link>
             {currentUser && (
-              <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
-                <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
-                <span>Tekliflerim</span>
-              </Link>
+              <>
+                <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
+                  <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
+                  <span>Tekliflerim</span>
+                </Link>
+                <Link href="/favorites" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-red-500" />
+                  <span>Favorilerim</span>
+                </Link>
+                <Link href="/saved-searches" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
+                  <Bookmark className="w-4 h-4 text-emerald-600" />
+                  <span>Kayıtlı Aramalarım</span>
+                </Link>
+              </>
             )}
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-emerald-600" />

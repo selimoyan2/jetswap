@@ -10,17 +10,68 @@ interface ItemCardProps {
   item: TradeItem
   onMakeOffer: (item: TradeItem) => void
   onReport: (item: TradeItem) => void
+  initialIsFavorite?: boolean
+  onToggleFavorite?: (itemId: string, isFav: boolean) => void
+  onRequireAuth?: () => void
 }
 
-export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport }) => {
+export const ItemCard: React.FC<ItemCardProps> = ({
+  item,
+  onMakeOffer,
+  onReport,
+  initialIsFavorite = false,
+  onToggleFavorite,
+  onRequireAuth,
+}) => {
   const { language, t } = useLanguage()
-  const [isFav, setIsFav] = useState(false)
+  const [isFav, setIsFav] = useState(initialIsFavorite)
+  const [isLoading, setIsLoading] = useState(false)
   const [likes, setLikes] = useState(item.likesCount || 0)
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
-    setIsFav(!isFav)
-    setLikes(prev => (isFav ? prev - 1 : prev + 1))
+
+    if (isLoading) return
+    const nextFavState = !isFav
+    setIsFav(nextFavState)
+    setLikes(prev => (nextFavState ? prev + 1 : Math.max(0, prev - 1)))
+    setIsLoading(true)
+
+    try {
+      if (onToggleFavorite) {
+        onToggleFavorite(item.id, nextFavState)
+        setIsLoading(false)
+        return
+      }
+
+      const method = nextFavState ? 'POST' : 'DELETE'
+      const res = await fetch(`/api/favorites/${item.id}`, { method })
+
+      if (res.status === 401) {
+        // Rollback
+        setIsFav(!nextFavState)
+        setLikes(prev => (!nextFavState ? prev + 1 : Math.max(0, prev - 1)))
+        if (onRequireAuth) {
+          onRequireAuth()
+        } else {
+          window.location.href = `/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`
+        }
+        return
+      }
+
+      if (!res.ok) {
+        // Rollback on server error
+        setIsFav(!nextFavState)
+        setLikes(prev => (!nextFavState ? prev + 1 : Math.max(0, prev - 1)))
+      }
+    } catch {
+      // Rollback on network error
+      setIsFav(!nextFavState)
+      setLikes(prev => (!nextFavState ? prev + 1 : Math.max(0, prev - 1)))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const conditionColors: Record<string, string> = {
@@ -69,11 +120,15 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onMakeOffer, onReport 
         {/* Top Right Action Buttons (Favorite & Report) */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
           <button
+            type="button"
             onClick={toggleFavorite}
-            className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${
+            disabled={isLoading}
+            aria-label={isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+            aria-pressed={isFav}
+            className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer ${
               isFav ? 'bg-red-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
-            }`}
-            title={isFav ? t.itemCard.liked : t.itemCard.like}
+            } ${isLoading ? 'opacity-70 cursor-wait' : ''}`}
+            title={isFav ? (t.itemCard?.liked || 'Favorilerden Çıkar') : (t.itemCard?.like || 'Favorilere Ekle')}
           >
             <Heart className={`w-4 h-4 ${isFav ? 'fill-white' : ''}`} />
           </button>

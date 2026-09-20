@@ -64,6 +64,8 @@ model User {
   messages        TradeMessage[]
   givenReviews    Review[]       @relation("GivenReviews")
   receivedReviews Review[]       @relation("ReceivedReviews")
+  favorites       Favorite[]
+  savedSearches   SavedSearch[]
 }
 
 model Category {
@@ -73,8 +75,9 @@ model Category {
   nameEn      String
   icon        String?    // Lucide icon name (e.g., 'Laptop', 'Car', 'Watch')
   description String?
-  items       Item[]
-  itemWants   ItemWant[]
+  items         Item[]
+  itemWants     ItemWant[]
+  savedSearches SavedSearch[]
 }
 
 model Item {
@@ -105,6 +108,7 @@ model Item {
   updatedAt         DateTime       @updatedAt
 
   offerItems        TradeOfferItem[]
+  favorites         Favorite[]
 }
 
 model ItemWant {
@@ -206,3 +210,37 @@ model Review {
   @@index([targetUserId])
   @@index([authorId])
 }
+
+// Sprint 12 — Item Favorites & Saved Searches
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
+}
+
+model SavedSearch {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  query       String?
+  categoryId  String?
+  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  condition   ItemCondition?
+  tradeMethod TradeMethod?
+  country     String?        @default("TR")
+  city        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
+}
+

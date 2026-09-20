@@ -18,6 +18,8 @@ export async function GET(request: Request) {
   const city = searchParams.get('city')
   const search = searchParams.get('search')
   const userId = searchParams.get('userId')
+  const conditionParam = searchParams.get('condition') as ItemCondition | null
+  const tradeMethodParam = searchParams.get('tradeMethod') as TradeMethod | null
   
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20', 10) || 20))
@@ -43,6 +45,14 @@ export async function GET(request: Request) {
 
     if (city && city !== 'all') {
       whereClause.city = { contains: city, mode: 'insensitive' }
+    }
+
+    if (conditionParam && ['BRAND_NEW', 'LIKE_NEW', 'GOOD', 'FAIR'].includes(conditionParam)) {
+      whereClause.condition = conditionParam
+    }
+
+    if (tradeMethodParam && ['HAND_TO_HAND', 'CARGO_ONLY', 'BOTH'].includes(tradeMethodParam)) {
+      whereClause.tradeMethod = tradeMethodParam
     }
 
     if (search && search.trim() !== '') {

@@ -31,7 +31,8 @@ import { QuickTimeFilter } from '@/components/quick-time-filter'
 import FlashTradeShowcase from '@/components/flash-trade-showcase'
 import JetRadarModal from '@/components/jet-radar-modal'
 import FaqSection from '@/components/faq-section'
-import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield } from 'lucide-react'
+import { ArrowLeftRight, PackageOpen, Sparkles, Filter, ShieldAlert, Shield, Bookmark } from 'lucide-react'
+import { SaveSearchModal } from '@/components/save-search-modal'
 import { useLanguage } from '@/i18n'
 
 export default function HomePage() {
@@ -49,6 +50,8 @@ export default function HomePage() {
   const [locationScope, setLocationScope] = useState<LocationFilterScope>('all')
   const [isFlashOnly, setIsFlashOnly] = useState(false)
   const [isRadarOpen, setIsRadarOpen] = useState(false)
+  const [isSaveSearchOpen, setIsSaveSearchOpen] = useState(false)
+  const [favoriteItemIds, setFavoriteItemIds] = useState<Set<string>>(new Set())
 
   // Modals state
   const [targetItemForTrade, setTargetItemForTrade] = useState<TradeItem | null>(null)
@@ -91,6 +94,27 @@ export default function HomePage() {
         }
       }
     } catch {}
+
+    // Parse URL search parameters for saved search reconstruction
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search)
+      const q = sp.get('search')
+      const cat = sp.get('category')
+      const ct = sp.get('city')
+      if (q) setSearchQuery(q)
+      if (cat) setSelectedCategory(cat)
+      if (ct) setSelectedCity(ct)
+    }
+
+    // Fetch user favorites if logged in
+    fetch('/api/favorites')
+      .then(res => res.json())
+      .then(res => {
+        if (res.success && Array.isArray(res.data)) {
+          setFavoriteItemIds(new Set(res.data.map((f: any) => f.itemId)))
+        }
+      })
+      .catch(() => {})
 
     // Fetch real listings from PostgreSQL via /api/items
     let isMounted = true
@@ -476,23 +500,44 @@ export default function HomePage() {
               </h2>
             </div>
 
-            {/* Reset Filters if active */}
-            {(selectedCategory !== 'all' || selectedSubCategory !== 'all' || selectedCity !== 'all' || selectedDistrict !== 'all' || timeScope !== 'all' || locationScope !== 'all' || searchQuery !== '') && (
+            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+              {/* Save Search Button */}
               <button
+                type="button"
                 onClick={() => {
-                  setSelectedCategory('all')
-                  setSelectedSubCategory('all')
-                  setSelectedCity('all')
-                  setSelectedDistrict('all')
-                  setTimeScope('all')
-                  setLocationScope('all')
-                  setSearchQuery('')
+                  if (!currentUser) {
+                    setAuthMode('login')
+                    setAuthPromptReason('Aramalarınızı kaydetmek ve daha sonra tek tıkla ulaşmak için giriş yapın.')
+                    setIsAuthOpen(true)
+                    return
+                  }
+                  setIsSaveSearchOpen(true)
                 }}
-                className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline self-start sm:self-auto cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3 py-1.5 rounded-xl transition-all shadow-2xs cursor-pointer"
+                title="Mevcut arama ve filtre kriterlerini kaydet"
               >
-                {t.feed.resetButton}
+                <Bookmark className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
+                <span>Aramayı Kaydet</span>
               </button>
-            )}
+
+              {/* Reset Filters if active */}
+              {(selectedCategory !== 'all' || selectedSubCategory !== 'all' || selectedCity !== 'all' || selectedDistrict !== 'all' || timeScope !== 'all' || locationScope !== 'all' || searchQuery !== '') && (
+                <button
+                  onClick={() => {
+                    setSelectedCategory('all')
+                    setSelectedSubCategory('all')
+                    setSelectedCity('all')
+                    setSelectedDistrict('all')
+                    setTimeScope('all')
+                    setLocationScope('all')
+                    setSearchQuery('')
+                  }}
+                  className="text-xs font-bold text-zinc-500 hover:text-zinc-800 underline cursor-pointer"
+                >
+                  {t.feed.resetButton}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Category Bar with Cascading Subcategories */}
@@ -513,6 +558,12 @@ export default function HomePage() {
                 <ItemCard
                   key={item.id}
                   item={item}
+                  initialIsFavorite={favoriteItemIds.has(item.id)}
+                  onRequireAuth={() => {
+                    setAuthMode('login')
+                    setAuthPromptReason('İlanları favorilerinize eklemek için lütfen giriş yapın.')
+                    setIsAuthOpen(true)
+                  }}
                   onMakeOffer={item => handleOpenTradeOffer(item)}
                   onReport={item => setReportingItem(item)}
                 />
@@ -525,6 +576,12 @@ export default function HomePage() {
                 <ItemCard
                   key={item.id}
                   item={item}
+                  initialIsFavorite={favoriteItemIds.has(item.id)}
+                  onRequireAuth={() => {
+                    setAuthMode('login')
+                    setAuthPromptReason('İlanları favorilerinize eklemek için lütfen giriş yapın.')
+                    setIsAuthOpen(true)
+                  }}
                   onMakeOffer={item => handleOpenTradeOffer(item)}
                   onReport={item => setReportingItem(item)}
                 />
@@ -657,6 +714,21 @@ export default function HomePage() {
         onClose={() => setRestrictionModalState(prev => ({ ...prev, isOpen: false }))}
         sanction={restrictionModalState.sanction}
         actionType={restrictionModalState.actionType}
+      />
+
+      {/* Save Search Modal */}
+      <SaveSearchModal
+        isOpen={isSaveSearchOpen}
+        onClose={() => setIsSaveSearchOpen(false)}
+        query={searchQuery}
+        category={selectedCategory}
+        city={selectedCity}
+        isLoggedIn={!!currentUser}
+        onRequireAuth={() => {
+          setAuthMode('login')
+          setAuthPromptReason('Aramalarınızı kaydetmek ve daha sonra tek tıkla ulaşmak için giriş yapın.')
+          setIsAuthOpen(true)
+        }}
       />
     </div>
   )
