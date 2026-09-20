@@ -37,10 +37,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
           <div>
             <h4 className="font-bold text-sm text-white mb-4">{t.footer.colPlatform}</h4>
             <ul className="space-y-2.5">
-              <li><Link href="#nasil-calisir" className="hover:text-emerald-400 transition-colors">{t.footer.howItWorksLink}</Link></li>
-              <li><Link href="#eslesmeler" className="hover:text-emerald-400 transition-colors">{t.footer.jetMatchLink}</Link></li>
-              <li><Link href="/blog" className="text-emerald-400 font-bold hover:underline">Rehber & Blog Merkezi</Link></li>
-              <li><Link href="/blog/esyadan-esyaya-takas-nasil-yapilir" className="hover:text-emerald-400 transition-colors">Eşya Takası Nasıl Yapılır?</Link></li>
+              <li><Link href="/#nasil-calisir" className="hover:text-emerald-400 transition-colors">{t.footer.howItWorksLink}</Link></li>
+              <li><Link href="/jetmatch" className="hover:text-emerald-400 transition-colors">{t.footer.jetMatchLink}</Link></li>
+              <li><Link href="/blog" className="text-emerald-400 font-bold hover:underline">{t.footer.guidesAndBlogLink}</Link></li>
+              <li><Link href="/blog/esyadan-esyaya-takas-nasil-yapilir" className="hover:text-emerald-400 transition-colors">{t.footer.howToSwapLink}</Link></li>
             </ul>
           </div>
 
@@ -50,16 +50,16 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
             <ul className="space-y-2.5">
               <li>
                 <button
-                  onClick={onOpenForbiddenPolicy}
+                  onClick={() => (onOpenForbiddenPolicy ? onOpenForbiddenPolicy() : (window.location.href = '/#kesfet'))}
                   className="hover:text-red-400 transition-colors flex items-center gap-1.5 text-left cursor-pointer"
                 >
                   <ShieldAlert className="w-3.5 h-3.5 text-red-500 shrink-0" />
                   <span>{t.footer.forbiddenPolicyLink}</span>
                 </button>
               </li>
-              <li><Link href="/blog/guvenli-elden-takas-icin-5-altin-kural" className="hover:text-emerald-400 transition-colors">Güvenli Elden Takas Kılavuzu</Link></li>
-              <li><Link href="/blog/takasta-deger-dengesi-nasil-saglanir" className="hover:text-emerald-400 transition-colors">Adil Terazi & Değer Dengesi</Link></li>
-              <li><Link href="/blog/dongusel-ekonomi-ve-sifir-atik" className="hover:text-emerald-400 transition-colors">Sıfır Atık & Döngüsel Ekonomi</Link></li>
+              <li><Link href="/blog/guvenli-elden-takas-icin-5-altin-kural" className="hover:text-emerald-400 transition-colors">{t.footer.safeHandoverGuideLink}</Link></li>
+              <li><Link href="/blog/takasta-deger-dengesi-nasil-saglanir" className="hover:text-emerald-400 transition-colors">{t.footer.fairBarterGuideLink}</Link></li>
+              <li><Link href="/blog/dongusel-ekonomi-ve-sifir-atik" className="hover:text-emerald-400 transition-colors">{t.footer.circularEconomyGuideLink}</Link></li>
             </ul>
           </div>
 

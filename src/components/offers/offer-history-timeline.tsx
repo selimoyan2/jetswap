@@ -16,6 +16,8 @@ import {
 } from 'lucide-react'
 import { TradeOfferStatus } from '@prisma/client'
 import { OfferRevisionSummary } from '@/lib/offers/types'
+import { useLanguage } from '@/i18n'
+import { getOfferStatusLabel, formatLocalizedDate } from '@/i18n/helpers'
 
 interface OfferHistoryTimelineProps {
   history?: OfferRevisionSummary[]
@@ -23,36 +25,13 @@ interface OfferHistoryTimelineProps {
   currentStatus: TradeOfferStatus
 }
 
-function formatRevisionDate(isoString: string): string {
-  try {
-    const d = new Date(isoString)
-    const months = [
-      'Oca',
-      'Şub',
-      'Mar',
-      'Nis',
-      'May',
-      'Haz',
-      'Tem',
-      'Ağu',
-      'Eyl',
-      'Eki',
-      'Kas',
-      'Ara',
-    ]
-    const hours = String(d.getHours()).padStart(2, '0')
-    const minutes = String(d.getMinutes()).padStart(2, '0')
-    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${hours}:${minutes}`
-  } catch {
-    return ''
-  }
-}
-
 export function OfferHistoryTimeline({
   history,
   currentOfferId,
   currentStatus,
 }: OfferHistoryTimelineProps) {
+  const { t, language } = useLanguage()
+
   if (!history || history.length <= 1) {
     return null
   }
@@ -68,14 +47,14 @@ export function OfferHistoryTimeline({
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-400" />
             <span>
-              Bu revizyon geçmişte kaldı. Güncel teklif şartlarını incelemek için en son revizyona gidebilirsiniz.
+              {t.offers.detail.supersededNotice}
             </span>
           </div>
           <Link
             href={`/offers/${latestRevision.id}`}
             className="px-3.5 py-1.5 rounded-lg bg-amber-500 text-black font-semibold text-xs flex items-center gap-1.5 hover:bg-amber-400 transition-colors flex-shrink-0"
           >
-            <span>Güncel Teklife Git</span>
+            <span>{t.offers.detail.goToLatestRevision}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -85,10 +64,10 @@ export function OfferHistoryTimeline({
       <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-sm font-semibold text-white">Teklif Geçmişi</h3>
+          <h3 className="text-sm font-semibold text-white">{t.offers.detail.offerTimelineTitle}</h3>
         </div>
         <span className="text-xs text-zinc-400 font-medium">
-          {history.length} revizyon
+          {history.length} {t.offers.detail.revisionCount}
         </span>
       </div>
 
@@ -97,29 +76,21 @@ export function OfferHistoryTimeline({
         {history.map((rev) => {
           const isCurrent = rev.id === currentOfferId
           const effectiveStatus = isCurrent ? (currentStatus || rev.status) : rev.status
+          const statusLabel = getOfferStatusLabel(effectiveStatus, language)
 
-          let statusLabel = 'Bekliyor'
           let statusColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20'
           let StatusIcon = Clock
 
           if (effectiveStatus === 'COUNTER_OFFERED') {
-            statusLabel = 'Karşı Teklif Yapıldı'
             statusColor = 'text-blue-400 bg-blue-500/10 border-blue-500/20'
             StatusIcon = GitCommit
-          } else if (effectiveStatus === 'ACCEPTED') {
-            statusLabel = 'Kabul Edildi'
-            statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
-            StatusIcon = CheckCircle2
-          } else if (effectiveStatus === 'COMPLETED') {
-            statusLabel = 'Tamamlandı'
+          } else if (effectiveStatus === 'ACCEPTED' || effectiveStatus === 'COMPLETED') {
             statusColor = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
             StatusIcon = CheckCircle2
           } else if (effectiveStatus === 'REJECTED') {
-            statusLabel = 'Reddedildi'
             statusColor = 'text-red-400 bg-red-500/10 border-red-500/20'
             StatusIcon = XCircle
           } else if (effectiveStatus === 'CANCELLED') {
-            statusLabel = 'İptal Edildi'
             statusColor = 'text-zinc-400 bg-zinc-800 border-zinc-700'
             StatusIcon = Ban
           }
@@ -150,12 +121,12 @@ export function OfferHistoryTimeline({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-zinc-200">
-                      Revizyon #{rev.revision}
+                      Rev #{rev.revision}
                     </span>
 
                     {isCurrent && (
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        Şu Anki Görünüm
+                        {t.offers.detail.currentViewTag}
                       </span>
                     )}
 
@@ -172,8 +143,8 @@ export function OfferHistoryTimeline({
                       href={`/offers/${rev.id}`}
                       className="text-xs text-zinc-400 hover:text-emerald-400 flex items-center gap-1 transition-colors font-medium"
                     >
-                      <span>İncele</span>
-                      <ArrowRight className="w-3 h-3" />
+                      <span>{t.offers.detail.inspectRevision}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   )}
                 </div>
@@ -194,12 +165,12 @@ export function OfferHistoryTimeline({
                       )}
                     </div>
                     <span>
-                      Teklif Eden: <strong className="text-zinc-200">{rev.sender.name}</strong>
+                      {language === 'tr' ? 'Teklif Eden:' : 'Offered by:'} <strong className="text-zinc-200">{rev.sender.name}</strong>
                     </span>
                   </div>
 
                   <span className="text-[11px] text-zinc-500">
-                    {formatRevisionDate(rev.createdAt)}
+                    {formatLocalizedDate(rev.createdAt, language)}
                   </span>
                 </div>
               </div>

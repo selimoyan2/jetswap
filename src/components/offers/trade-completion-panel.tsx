@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { TradeCompletionState } from '@/lib/offers/types'
 import { TradeOfferStatus } from '@prisma/client'
+import { useLanguage } from '@/i18n'
+import { formatLocalizedDate } from '@/i18n/helpers'
 
 interface TradeCompletionPanelProps {
   offerId: string
@@ -27,6 +29,7 @@ export function TradeCompletionPanel({
   completion,
   onCompletionSuccess,
 }: TradeCompletionPanelProps) {
+  const { t, language } = useLanguage()
   const [showModal, setShowModal] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -103,11 +106,7 @@ export function TradeCompletionPanel({
         {isCompleted && completion?.completedAt && (
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl text-xs font-semibold">
             <Calendar className="w-3.5 h-3.5" />
-            {new Date(completion.completedAt).toLocaleDateString('tr-TR', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
+            {formatLocalizedDate(completion.completedAt, language)}
           </div>
         )}
       </div>

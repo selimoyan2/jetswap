@@ -6,23 +6,20 @@ import Image from 'next/image'
 import { ArrowRight, User, Calendar, MessageSquare } from 'lucide-react'
 import { SerializedTradeOffer } from '@/lib/offers/types'
 import { OfferStatusBadge } from './offer-status-badge'
+import { useLanguage } from '@/i18n'
+import { getOfferStatusLabel, formatLocalizedDate } from '@/i18n/helpers'
 
 interface OfferCardProps {
   offer: SerializedTradeOffer
 }
 
 export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
+  const { t, language } = useLanguage()
   const isSender = offer.viewerRole === 'SENDER'
   const otherParty = isSender ? offer.receiver : offer.sender
-  const roleLabel = isSender ? 'Giden Teklif' : 'Gelen Teklif'
+  const roleLabel = isSender ? t.offers.card.outgoingOffer : t.offers.card.incomingOffer
 
-  const formattedDate = new Date(offer.createdAt).toLocaleDateString('tr-TR', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const formattedDate = formatLocalizedDate(offer.createdAt, language)
 
   // Show summary count
   const offeredCount = offer.offeredItems.length
@@ -62,7 +59,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
               )}
             </div>
             <span className="text-sm font-medium text-white">
-              {isSender ? `Alıcı: ${otherParty.name}` : `Gönderen: ${otherParty.name}`}
+              {isSender ? `${t.offers.card.receiver}: ${otherParty.name}` : `${t.offers.card.sender}: ${otherParty.name}`}
             </span>
           </div>
         </div>
@@ -73,16 +70,16 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       {/* Item Exchange Snapshot */}
       <div className="grid grid-cols-2 gap-3 p-3 rounded-xl bg-zinc-950/60 border border-zinc-800/80 text-xs">
         <div>
-          <span className="text-zinc-500 block mb-1">Teklif Edilen ({offeredCount})</span>
+          <span className="text-zinc-500 block mb-1">{t.offers.card.offeredSummary} ({offeredCount})</span>
           <p className="font-medium text-zinc-200 line-clamp-1">
-            {primaryOffered ? primaryOffered.title : 'Ürün yok'}
+            {primaryOffered ? primaryOffered.title : t.offers.card.noItems}
             {offeredCount > 1 ? ` (+${offeredCount - 1})` : ''}
           </p>
         </div>
         <div>
-          <span className="text-zinc-500 block mb-1">Talep Edilen ({requestedCount})</span>
+          <span className="text-zinc-500 block mb-1">{t.offers.card.requestedSummary} ({requestedCount})</span>
           <p className="font-medium text-zinc-200 line-clamp-1">
-            {primaryRequested ? primaryRequested.title : 'Ürün yok'}
+            {primaryRequested ? primaryRequested.title : t.offers.card.noItems}
             {requestedCount > 1 ? ` (+${requestedCount - 1})` : ''}
           </p>
         </div>
@@ -101,12 +98,12 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         <span className="text-xs text-zinc-500">
           {offer.status === 'PENDING' ? (
             offer.canAccept ? (
-              <span className="text-amber-400 font-medium">Yanıtınız bekleniyor</span>
+              <span className="text-amber-400 font-medium">{t.offers.card.waitingYourResponse}</span>
             ) : (
-              <span className="text-zinc-400">Karşı tarafın yanıtı bekleniyor</span>
+              <span className="text-zinc-400">{t.offers.card.waitingOtherResponse}</span>
             )
           ) : (
-            `Durum: ${offer.status}`
+            `${t.offers.card.statusPrefix}: ${getOfferStatusLabel(offer.status, language)}`
           )}
         </span>
 
@@ -114,7 +111,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
           href={`/offers/${offer.id}`}
           className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
         >
-          Detayı Gör
+          {t.offers.card.viewDetail}
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

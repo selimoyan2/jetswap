@@ -102,37 +102,7 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
     : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80']
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white text-xs py-1.5 px-4 text-center font-bold tracking-wide flex items-center justify-center gap-2">
-        <Shield className="w-3.5 h-3.5 text-emerald-200" />
-        <span>Para Yok. Takas Var. Sıfır Nakit Güvenli Takas Platformu</span>
-      </div>
-
-      {/* Header / Navbar */}
-      <header className="bg-white border-b border-zinc-200 sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/30 group-hover:scale-105 transition-transform">
-              <ArrowLeftRight className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-black tracking-tight text-zinc-900">
-              Jet<span className="text-emerald-600">Swap</span>
-            </span>
-          </Link>
-
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-xs font-bold text-zinc-600 hover:text-emerald-700 bg-zinc-100 hover:bg-emerald-50 px-3.5 py-2 rounded-xl transition-all"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Tüm İlanlara Dön</span>
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {item.status !== 'AVAILABLE' && (
           <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-3">
             <AlertCircle className="w-5 h-5 shrink-0 text-amber-600" />
@@ -396,7 +366,6 @@ export default async function ItemDetailPage(props: ItemDetailPageProps) {
             </div>
           </div>
         </div>
-      </main>
     </div>
   )
 }

@@ -17,6 +17,8 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { NotificationItem, NotificationType } from '@/lib/notifications/types';
+import { useLanguage } from '@/i18n';
+import { formatLocalizedDate } from '@/i18n/helpers';
 
 interface NotificationsClientProps {
   initialItems: NotificationItem[];
@@ -35,6 +37,7 @@ export function NotificationsClient({
   initialPagination,
   userName,
 }: NotificationsClientProps) {
+  const { t, language } = useLanguage();
   const [items, setItems] = useState<NotificationItem[]>(initialItems);
   const [unreadCount, setUnreadCount] = useState<number>(initialPagination.unreadCount);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
@@ -61,7 +64,7 @@ export function NotificationsClient({
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (err) {
-      console.error('Failed to mark notification as read:', err);
+      console.error('Mark as read error:', err);
     } finally {
       setLoadingAction(null);
     }
@@ -71,17 +74,20 @@ export function NotificationsClient({
     setLoadingAction('all');
     try {
       const res = await fetch('/api/notifications/read-all', {
-        method: 'POST',
+        method: 'PATCH',
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setItems((prev) =>
-          prev.map((item) => ({ ...item, readAt: item.readAt || new Date() }))
+          prev.map((item) => ({
+            ...item,
+            readAt: item.readAt || new Date(),
+          }))
         );
         setUnreadCount(0);
       }
     } catch (err) {
-      console.error('Failed to mark all notifications as read:', err);
+      console.error('Mark all as read error:', err);
     } finally {
       setLoadingAction(null);
     }
@@ -95,15 +101,9 @@ export function NotificationsClient({
             <ArrowLeftRight className="w-5 h-5" />
           </div>
         );
-      case NotificationType.COUNTER_OFFER:
-        return (
-          <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-            <RefreshCw className="w-5 h-5" />
-          </div>
-        );
       case NotificationType.OFFER_ACCEPTED:
         return (
-          <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         );
@@ -113,6 +113,13 @@ export function NotificationsClient({
             <XCircle className="w-5 h-5" />
           </div>
         );
+      case NotificationType.COUNTER_OFFER:
+        return (
+          <div className="w-9 h-9 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
+            <RefreshCw className="w-5 h-5" />
+          </div>
+        );
+
       case NotificationType.NEW_MESSAGE:
         return (
           <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
@@ -153,17 +160,11 @@ export function NotificationsClient({
   };
 
   const formatDate = (dateInput: Date | string) => {
-    const d = new Date(dateInput);
-    return d.toLocaleDateString('tr-TR', {
-      day: 'numeric',
-      month: 'long',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return formatLocalizedDate(dateInput, language);
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header Banner */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -174,10 +175,10 @@ export function NotificationsClient({
               </div>
               <div>
                 <h1 className="text-xl font-black text-zinc-900 tracking-tight">
-                  Bildirimler
+                  {t.notifications.title}
                 </h1>
                 <p className="text-xs font-medium text-zinc-500">
-                  {userName}, takas teklifleriniz ve hesap hareketleriniz burada listelenir.
+                  {userName}, {t.notifications.description}
                 </p>
               </div>
             </div>
@@ -190,7 +191,7 @@ export function NotificationsClient({
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-50"
             >
               <CheckCheck className="w-4 h-4 text-emerald-600" />
-              <span>Tümünü Okundu İşaretle</span>
+              <span>{t.notifications.markAllRead}</span>
             </button>
           )}
         </div>
@@ -205,7 +206,7 @@ export function NotificationsClient({
                 : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
             }`}
           >
-            Tümü ({items.length})
+            {t.notifications.tabAll} ({items.length})
           </button>
           <button
             onClick={() => setFilter('unread')}
@@ -215,7 +216,7 @@ export function NotificationsClient({
                 : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
             }`}
           >
-            <span>Okunmamış</span>
+            <span>{t.notifications.tabUnread}</span>
             {unreadCount > 0 && (
               <span
                 className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
@@ -236,13 +237,11 @@ export function NotificationsClient({
             </div>
             <h3 className="font-bold text-sm text-zinc-800">
               {filter === 'unread'
-                ? 'Okunmamış bildiriminiz bulunmuyor.'
-                : 'Henüz hiç bildiriminiz yok.'}
+                ? t.notifications.emptyUnread
+                : t.notifications.emptyAll}
             </h3>
             <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-              {filter === 'unread'
-                ? 'Tüm bildirimlerinizi okudunuz. Yeni bir hareket olduğunda burada görünecek.'
-                : 'Takas teklifleri aldığınızda veya mevcut takaslarınızda güncelleme olduğunda haberdar edileceksiniz.'}
+              {t.notifications.emptyHint}
             </p>
           </div>
         ) : (
@@ -288,9 +287,9 @@ export function NotificationsClient({
                         onClick={() => handleMarkAsRead(item.id)}
                         disabled={loadingAction === item.id}
                         className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
-                        title="Okundu olarak işaretle"
+                        title={t.notifications.markAsRead}
                       >
-                        Okundu Yap
+                        {t.notifications.markAsRead}
                       </button>
                     )}
                     <Link
@@ -302,7 +301,7 @@ export function NotificationsClient({
                       }}
                       className="inline-flex items-center gap-1 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
                     >
-                      <span>Görüntüle</span>
+                      <span>{t.offers.card.viewDetail}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
                     </Link>
                   </div>

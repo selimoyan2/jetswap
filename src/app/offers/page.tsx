@@ -3,7 +3,6 @@ import { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getAuthUser } from '@/lib/require-user'
 import { OffersListClient } from './offers-list-client'
-import { Navbar } from '@/components/navbar'
 
 export const metadata: Metadata = {
   title: 'Takas Tekliflerim | JetSwap',
@@ -17,9 +16,8 @@ export default async function OffersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col font-sans">
-      <Navbar />
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
+    <div className="bg-black text-white min-h-[calc(100vh-4rem)]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <Suspense
           fallback={
             <div className="py-20 text-center text-zinc-500 text-sm">
@@ -29,7 +27,7 @@ export default async function OffersPage() {
         >
           <OffersListClient />
         </Suspense>
-      </main>
+      </div>
     </div>
   )
 }

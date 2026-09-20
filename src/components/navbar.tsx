@@ -162,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Navigation & Actions */}
         <div className="hidden lg:flex items-center gap-3">
-          <Link href="#nasil-calisir" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors">
+          <Link href="/#nasil-calisir" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors">
             {t.nav.howItWorks}
           </Link>
           <Link href="/jetmatch" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </Link>
           <Link href="/blog" className="text-xs font-bold text-zinc-600 hover:text-emerald-600 transition-colors flex items-center gap-1">
             <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{language === 'tr' ? 'Rehber & Blog' : 'Guides & Blog'}</span>
+            <span>{t.nav.guidesAndBlog}</span>
           </Link>
 
           {/* JetRadar Button */}
@@ -235,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Link
                 href="/notifications"
                 className="relative p-2 text-zinc-700 hover:text-emerald-700 hover:bg-zinc-50 rounded-xl transition-all cursor-pointer border border-zinc-200 bg-white shadow-2xs flex items-center justify-center"
-                title="Bildirimler"
+                title={t.nav.notifications}
               >
                 <Bell className="w-4 h-4" />
                 {unreadNotificationCount > 0 && (
@@ -270,7 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   >
                     <div className="flex items-center gap-2">
                       <Bell className="w-4 h-4 text-emerald-600" />
-                      <span>Bildirimler</span>
+                      <span>{t.nav.notifications}</span>
                     </div>
                     {unreadNotificationCount > 0 && (
                       <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
@@ -285,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
-                    <span>Tekliflerim</span>
+                    <span>{t.nav.myOffers}</span>
                   </Link>
 
                   <Link
@@ -294,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <Heart className="w-4 h-4 text-red-500" />
-                    <span>Favorilerim</span>
+                    <span>{t.nav.favorites}</span>
                   </Link>
 
                   <Link
@@ -303,7 +303,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="w-full text-left px-3 py-2 text-xs font-bold text-zinc-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 cursor-pointer"
                   >
                     <Bookmark className="w-4 h-4 text-emerald-600" />
-                    <span>Kayıtlı Aramalarım</span>
+                    <span>{t.nav.savedSearches}</span>
                   </Link>
 
                   <button
@@ -517,12 +517,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               <>
                 <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
                   <ArrowLeftRight className="w-4 h-4 text-emerald-600" />
-                  <span>Tekliflerim</span>
+                  <span>{t.nav.myOffers}</span>
                 </Link>
                 <Link href="/notifications" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Bell className="w-4 h-4 text-emerald-600" />
-                    <span>Bildirimler</span>
+                    <span>{t.nav.notifications}</span>
                   </div>
                   {unreadNotificationCount > 0 && (
                     <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
@@ -532,11 +532,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </Link>
                 <Link href="/favorites" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
                   <Heart className="w-4 h-4 text-red-500" />
-                  <span>Favorilerim</span>
+                  <span>{t.nav.favorites}</span>
                 </Link>
                 <Link href="/saved-searches" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 flex items-center gap-2">
                   <Bookmark className="w-4 h-4 text-emerald-600" />
-                  <span>Kayıtlı Aramalarım</span>
+                  <span>{t.nav.savedSearches}</span>
                 </Link>
               </>
             )}

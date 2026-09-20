@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Star, MessageSquare, Loader2, CheckCircle2, ShieldCheck, User as UserIcon } from 'lucide-react'
 import { ReviewState } from '@/lib/offers/types'
 import { TradeOfferStatus } from '@prisma/client'
+import { useLanguage } from '@/i18n'
+import { formatLocalizedDate } from '@/i18n/helpers'
 
 interface TradeReviewPanelProps {
   offerId: string
@@ -21,6 +23,7 @@ export function TradeReviewPanel({
   counterpartName,
   onReviewSuccess,
 }: TradeReviewPanelProps) {
+  const { t, language } = useLanguage()
   const [rating, setRating] = useState<number>(5)
   const [hoverRating, setHoverRating] = useState<number | null>(null)
   const [comment, setComment] = useState('')
@@ -202,11 +205,7 @@ export function TradeReviewPanel({
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-emerald-900">Senin Değerlendirmen</span>
                 <span className="text-[11px] text-zinc-400">
-                  {new Date(myReview.createdAt).toLocaleDateString('tr-TR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
+                  {formatLocalizedDate(myReview.createdAt, language)}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -227,12 +226,14 @@ export function TradeReviewPanel({
                 {myReview.comment}
               </p>
             ) : (
-              <p className="text-xs text-zinc-400 italic">Yorum yapılmadı.</p>
+              <p className="text-xs text-zinc-400 italic">
+                {language === 'tr' ? 'Yorum yapılmadı.' : 'No comment provided.'}
+              </p>
             )}
           </div>
         )}
 
-        {/* Other Participant's Review */}
+        {/* Counterpart's Review */}
         {otherReview && (
           <div className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50/50">
             <div className="flex items-center justify-between gap-2 mb-2">
@@ -255,11 +256,7 @@ export function TradeReviewPanel({
                   {otherReview.author.name}&apos;in Değerlendirmesi
                 </span>
                 <span className="text-[11px] text-zinc-400">
-                  {new Date(otherReview.createdAt).toLocaleDateString('tr-TR', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
+                  {formatLocalizedDate(otherReview.createdAt, language)}
                 </span>
               </div>
               <div className="flex items-center gap-1">

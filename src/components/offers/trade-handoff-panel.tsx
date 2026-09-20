@@ -14,6 +14,7 @@ import {
   Lock,
 } from 'lucide-react'
 import { ContactRevealState, RevealedContactInfo, TradeHandoffSummary } from '@/lib/offers/types'
+import { useLanguage } from '@/i18n'
 
 interface TradeHandoffPanelProps {
   offerId: string
@@ -30,6 +31,7 @@ export function TradeHandoffPanel({
   tradeHandoff,
   onApprovalSuccess,
 }: TradeHandoffPanelProps) {
+  const { t, language } = useLanguage()
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)

@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
-import { Navbar } from '@/components/navbar'
 import { UserDashboardBar } from '@/components/user-dashboard-bar'
 import { Hero } from '@/components/hero'
 import { Manifesto } from '@/components/manifesto'
@@ -10,7 +9,6 @@ import { SmartMatchAlert } from '@/components/smart-match-alert'
 import { CategoryBar } from '@/components/category-bar'
 import { ItemCard } from '@/components/item-card'
 import { HowItWorks } from '@/components/how-it-works'
-import { Footer } from '@/components/footer'
 import { TradeOfferModal } from '@/components/trade-offer-modal'
 import { PortfolioModal } from '@/components/portfolio-modal'
 import { CreateListingModal } from '@/components/create-listing-modal'
@@ -19,7 +17,6 @@ import { ForbiddenItemsModal } from '@/components/forbidden-items-modal'
 import { AuthModal } from '@/components/auth-modal'
 import { EditProfileModal } from '@/components/edit-profile-modal'
 import { TrustVerificationModal } from '@/components/trust-verification-modal'
-import { MobileBottomNav } from '@/components/mobile-bottom-nav'
 import { UserSanctionBanner } from '@/components/user-sanction-banner'
 import { SanctionRestrictionModal } from '@/components/sanction-restriction-modal'
 import { isUserTradeRestricted } from '@/data/mockReports'
@@ -382,29 +379,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col font-sans selection:bg-emerald-500 selection:text-white pb-16 md:pb-0">
-      {/* Navbar with Guest vs Authenticated state */}
-      <Navbar
-        currentUser={currentUser}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onOpenAuth={(mode) => {
-          setAuthMode(mode || 'register')
-          setAuthPromptReason('')
-          setIsAuthOpen(true)
-        }}
-        onLogout={handleLogout}
-        onOpenEditProfile={() => setIsEditProfileOpen(true)}
-        onOpenPortfolio={handleOpenPortfolio}
-        onOpenCreateItem={handleOpenCreateListing}
-        onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)}
-        onOpenTrustVerification={() => setIsTrustVerificationOpen(true)}
-        onOpenRadar={() => setIsRadarOpen(true)}
-      />
-
-      <main className="flex-1">
-        {/* Active Sanctions & Admin Defense Inquiries Banner - Sadece giriş yapmış ve yaptırımlı kullanıcıya görünür */}
-        {currentUser && <UserSanctionBanner currentUser={currentUser} />}
+    <div className="w-full">
+      {/* Active Sanctions & Admin Defense Inquiries Banner - Sadece giriş yapmış ve yaptırımlı kullanıcıya görünür */}
+      {currentUser && <UserSanctionBanner currentUser={currentUser} />}
 
         {/* User Greeting Dashboard Bar - YALNIZCA GİRİŞ YAPMIŞ ÜYELERE GÖRÜNÜR */}
         {currentUser && (
@@ -600,16 +577,6 @@ export default function HomePage() {
 
         {/* Frequently Asked Questions (FAQ) Section with JSON-LD Schema */}
         <FaqSection className="bg-white border-t border-zinc-200" />
-      </main>
-
-      {/* Footer */}
-      <Footer onOpenForbiddenPolicy={() => setIsForbiddenModalOpen(true)} />
-
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav
-        onOpenCreateItem={() => setIsCreateListingOpen(true)}
-        onOpenPortfolio={() => setIsPortfolioOpen(true)}
-      />
 
       {/* Modals & Dialogs */}
       <TradeOfferModal

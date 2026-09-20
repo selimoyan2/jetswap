@@ -1,4 +1,6 @@
-export type SupportedLanguage = 'tr' | 'en'
+import { SupportedLanguage } from './config'
+
+export * from './config'
 
 export interface LanguageInfo {
   code: SupportedLanguage
@@ -6,11 +8,6 @@ export interface LanguageInfo {
   nativeName: string
   flag: string
 }
-
-export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
-  { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
-]
 
 export interface TranslationSchema {
   common: {
@@ -37,6 +34,10 @@ export interface TranslationSchema {
     next: string
     copied: string
     copy: string
+    refresh: string
+    home: string
+    explore: string
+    empty: string
   }
   nav: {
     zeroCashRibbon: string
@@ -53,6 +54,34 @@ export interface TranslationSchema {
     mySwaps: string
     myPortfolio: string
     searchPlaceholder: string
+    notifications: string
+    favorites: string
+    savedSearches: string
+    guidesAndBlog: string
+    apply: string
+    myOffers: string
+  }
+
+  footer: {
+    brandTagline: string
+    cashFreeGuarantee: string
+    colPlatform: string
+    colTrust: string
+    colNetwork: string
+    howItWorksLink: string
+    jetMatchLink: string
+    forbiddenPolicyLink: string
+    guidesAndBlogLink: string
+    howToSwapLink: string
+    safeHandoverGuideLink: string
+    fairBarterGuideLink: string
+    circularEconomyGuideLink: string
+    networkDesc: string
+    coverage: string
+    hostingDesc: string
+    bottomCopyright: string
+    motto: string
+    adminLink: string
   }
   hero: {
     badge: string
@@ -99,24 +128,25 @@ export interface TranslationSchema {
     yesterday: string
     last7Days: string
     last30Days: string
+    allTime: string
     locationSectionTitle: string
+    nearby: string
+    myCity: string
+    allLocations: string
+    itemFound: string
+    itemsFound: string
     nearbyDistrict: string
     inMyCity: string
-    allListings: string
     requireLoginNearby: string
     requireLoginCity: string
-  }
-  feed: {
-    badge: string
-    itemCount: string
-    title: string
-    emptyTitle: string
-    emptyDesc: string
-    resetButton: string
+    allListings: string
   }
   itemCard: {
-    wantedItem: string
-    cashDemandForbidden: string
+    owner: string
+    verifiedUser: string
+    wants: string
+    targetHint: string
+    availableForSwap: string
     makeOffer: string
     reportItem: string
     liked: string
@@ -124,7 +154,9 @@ export interface TranslationSchema {
     swapValue: string
     condition: string
     tradeMethod: string
+    wantedItem: string
   }
+
   conditions: {
     BRAND_NEW: string
     LIKE_NEW: string
@@ -137,6 +169,214 @@ export interface TranslationSchema {
     HAND_TO_HAND: string
     CARGO_ONLY: string
     BOTH: string
+  }
+  statuses: {
+    PENDING: string
+    COUNTER_OFFERED: string
+    ACCEPTED: string
+    REJECTED: string
+    CANCELLED: string
+    COMPLETED: string
+    SUBMITTED: string
+    SEEN: string
+    NEGOTIATING: string
+    PRE_AGREEMENT: string
+    CONTACT_REVEALED: string
+  }
+
+  offers: {
+    list: {
+      title: string
+      description: string
+      tabReceived: string
+      tabSent: string
+      refresh: string
+      emptyReceived: string
+      emptySent: string
+      noOffersFound: string
+      browseListingsCta: string
+    }
+    card: {
+      incomingOffer: string
+      outgoingOffer: string
+      statusPrefix: string
+      waitingYourResponse: string
+      waitingOtherResponse: string
+      offeredSummary: string
+      requestedSummary: string
+      noItems: string
+      viewDetail: string
+      sender: string
+      receiver: string
+    }
+    detail: {
+      title: string
+      description: string
+      backToOffers: string
+      supersededNotice: string
+      goToLatestRevision: string
+      itemExchangeTitle: string
+      offeredByYou: string
+      requestedByYou: string
+      offeredByPartner: string
+      requestedByPartner: string
+      noteLabel: string
+      actionsTitle: string
+      acceptOffer: string
+      acceptConfirmPrompt: string
+      rejectOffer: string
+      rejectConfirmPrompt: string
+      cancelOffer: string
+      cancelConfirmPrompt: string
+      makeCounterOffer: string
+      offerTimelineTitle: string
+      revisionCount: string
+      currentViewTag: string
+      inspectRevision: string
+      completedSuccessBanner: string
+    }
+    handoff: {
+      title: string
+      subtitle: string
+      safetyNotice: string
+      waitingCounterparty: string
+      senderApproved: string
+      receiverApproved: string
+      approveButton: string
+      approvedBadge: string
+      bothApprovedSuccess: string
+      contactCardsTitle: string
+      phoneLabel: string
+      emailLabel: string
+      safeZoneTitle: string
+      safeZoneHint: string
+    }
+    completion: {
+      title: string
+      subtitle: string
+      promptText: string
+      bothMustConfirmNote: string
+      confirmButton: string
+      confirmedBadge: string
+      waitingPartner: string
+      tradeCompletedBanner: string
+      itemsNowTradedNotice: string
+    }
+    review: {
+      title: string
+      subtitle: string
+      ratingLabel: string
+      commentLabel: string
+      commentPlaceholder: string
+      submitButton: string
+      alreadyReviewedNotice: string
+      thankYouNotice: string
+    }
+    counter: {
+      title: string
+      subtitle: string
+      offeredSection: string
+      requestedSection: string
+      submitButton: string
+      cancelButton: string
+      noItemsSelected: string
+      zeroCashNotice: string
+    }
+    chat: {
+      title: string
+      subtitle: string
+      placeholder: string
+      send: string
+      zeroCashWarning: string
+      emptyMessages: string
+      unreadBadge: string
+    }
+  }
+  notifications: {
+    title: string
+    description: string
+    tabAll: string
+    tabUnread: string
+    markAllRead: string
+    emptyAll: string
+    emptyUnread: string
+    emptyHint: string
+    markAsRead: string
+    types: {
+      TRADE_OFFER_RECEIVED: string
+      TRADE_OFFER_ACCEPTED: string
+      TRADE_OFFER_REJECTED: string
+      TRADE_OFFER_CANCELLED: string
+      COUNTER_OFFER_RECEIVED: string
+      CONTACT_INFO_SHARED: string
+      TRADE_COMPLETED: string
+      REVIEW_RECEIVED: string
+      SYSTEM_ANNOUNCEMENT: string
+    }
+  }
+  favorites: {
+    title: string
+    subtitle: string
+    emptyTitle: string
+    emptySubtitle: string
+    browseListingsButton: string
+    removeTooltip: string
+    viewListing: string
+    addedOn: string
+  }
+  savedSearches: {
+    title: string
+    subtitle: string
+    emptyTitle: string
+    emptySubtitle: string
+    createNewSearchHint: string
+    runSearch: string
+    rename: string
+    delete: string
+    saveButton: string
+    cancelButton: string
+    filterCategory: string
+    filterCity: string
+    filterQuery: string
+    filterMinVal: string
+    filterMaxVal: string
+    allSearchesCount: string
+  }
+  jetMatch: {
+    title: string
+    subtitle: string
+    howItWorks: string
+    howItWorksDesc: string
+    selectItemPrompt: string
+    reload: string
+    mutualMatches: string
+    oneWayMatches: string
+    allMatches: string
+    emptyTitle: string
+    emptySubtitle: string
+    makeOfferButton: string
+    matchScore: string
+  }
+  itemDetail: {
+    backToListings: string
+    zeroCashBanner: string
+    notAvailableNotice: string
+    specificationsTitle: string
+    category: string
+    condition: string
+    tradeMethod: string
+    location: string
+    postedDate: string
+    wantsTitle: string
+    makeOfferButton: string
+    addToFavorites: string
+    alreadyFavorited: string
+    shareListing: string
+    safetyTipsTitle: string
+    safetyTip1: string
+    safetyTip2: string
+    safetyTip3: string
+    ownerTitle: string
   }
   auth: {
     loginTitle: string
@@ -278,23 +518,14 @@ export interface TranslationSchema {
     reviewSuccessTitle: string
     reviewSuccessDesc: string
   }
-  statuses: {
-    SUBMITTED: string
-    SEEN: string
-    NEGOTIATING: string
-    COUNTER_OFFERED: string
-    PRE_AGREEMENT: string
-    CONTACT_REVEALED: string
-    COMPLETED: string
-    REJECTED: string
-    CANCELLED: string
-  }
+
   profile: {
     title: string
     subtitle: string
     selectAvatar: string
     fullName: string
     phone: string
+    phoneHint: string
     country: string
     city: string
     district: string
@@ -307,20 +538,97 @@ export interface TranslationSchema {
     subtitle: string
     currentScore: string
     verifiedBadge: string
-    unverifiedBadge: string
-    howToIncrease: string
-    phoneVerify: string
-    idVerify: string
-    complete5Swaps: string
-    ratings5Star: string
     level1Title: string
     level2Title: string
     level3Title: string
     level3Desc: string
     completedBadge: string
+    unverifiedBadge: string
+    noPhoneAdded: string
     uploadDoc: string
     underReview: string
     privacyNote: string
+    scoreFormulaTitle: string
+    scoreFormulaDesc: string
+  }
+  howItWorks: {
+    badge: string
+    title: string
+    subtitle: string
+    desc: string
+    step1Title: string
+    step1Desc: string
+    step1Badge: string
+    step2Title: string
+    step2Desc: string
+    step2Badge: string
+    step3Title: string
+    step3Desc: string
+    step3Badge: string
+    step4Title: string
+    step4Desc: string
+    step4Badge: string
+    step5Title: string
+    step5Desc: string
+    step5Badge: string
+  }
+  feed: {
+    badge: string
+    itemCount: string
+    title: string
+    emptyTitle: string
+    emptyDesc: string
+    resetButton: string
+  }
+
+  userSanctions: {
+    bannerWarningTitle: string
+    bannerRestrictedTitle: string
+    bannerSuspendedTitle: string
+    bannerPermanentTitle: string
+    activeSanctionNotice: string
+    defenseButton: string
+    defenseModalTitle: string
+    defenseModalDesc: string
+    defensePlaceholder: string
+    defenseSubmit: string
+    defenseSubmittedSuccess: string
+    defenseAlreadySent: string
+  }
+  forbiddenItems: {
+    title: string
+    subtitle: string
+    tabForbidden: string
+    tabConditional: string
+    searchPlaceholder: string
+    legalDisclaimerTitle: string
+    legalDisclaimerDesc: string
+    zeroCashReminder: string
+  }
+  portfolioModal: {
+    verifiedSwapper: string
+    successfulSwaps: string
+    jetTrustScore: string
+    bannerBadge: string
+    bannerTitle: string
+    bannerDesc: string
+    addNewItem: string
+    myItemsTitle: string
+    activeStatus: string
+    openToOffers: string
+    activeListingBadge: string
+    privacyNoticeTitle: string
+    privacyNoticeDesc: string
+  }
+  dashboardBar: {
+    greeting: string
+    welcomeSubtitle: string
+    mySwaps: string
+    myPortfolio: string
+    newListing: string
+    jetTrust: string
+    activeStatus: string
+    settings: string
   }
   forbiddenModal: {
     title: string
@@ -403,15 +711,6 @@ export interface TranslationSchema {
       DISMISSED: string
     }
   }
-  dashboardBar: {
-    greeting: string
-    activeStatus: string
-    mySwaps: string
-    myPortfolio: string
-    newListing: string
-    jetTrust: string
-    settings: string
-  }
   smartMatch: {
     badge: string
     title: string
@@ -460,62 +759,7 @@ export interface TranslationSchema {
     card3Title: string
     card3Desc: string
   }
-  footer: {
-    brandTagline: string
-    cashFreeGuarantee: string
-    colPlatform: string
-    howItWorksLink: string
-    jetMatchLink: string
-    swapChainLink: string
-    portfolioGuideLink: string
-    colTrust: string
-    forbiddenPolicyLink: string
-    trustScoreGuideLink: string
-    privacyBarrierLink: string
-    antiCashSystemLink: string
-    colNetwork: string
-    networkDesc: string
-    coverage: string
-    hostingDesc: string
-    bottomCopyright: string
-    motto: string
-    adminLink: string
-  }
-  howItWorks: {
-    badge: string
-    title: string
-    desc: string
-    step1Title: string
-    step1Desc: string
-    step1Badge: string
-    step2Title: string
-    step2Desc: string
-    step2Badge: string
-    step3Title: string
-    step3Desc: string
-    step3Badge: string
-    step4Title: string
-    step4Desc: string
-    step4Badge: string
-    step5Title: string
-    step5Desc: string
-    step5Badge: string
-  }
-  portfolioModal: {
-    verifiedSwapper: string
-    successfulSwaps: string
-    jetTrustScore: string
-    bannerBadge: string
-    bannerTitle: string
-    bannerDesc: string
-    addNewItem: string
-    myItemsTitle: string
-    activeStatus: string
-    openToOffers: string
-    activeListingBadge: string
-    privacyNoticeTitle: string
-    privacyNoticeDesc: string
-  }
+
   bottomNav: {
     explore: string
     jetMatch: string
@@ -636,4 +880,3 @@ export interface TranslationSchema {
     askSupport: string
   }
 }
-

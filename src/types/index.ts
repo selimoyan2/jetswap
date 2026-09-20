@@ -9,8 +9,10 @@ export type ItemCondition =
 export type ItemStatus = 'ACTIVE' | 'IN_SWAP' | 'SWAPPED' | 'PASSIVE'
 export type TradeMethod = 'HAND_TO_HAND' | 'CARGO_ONLY' | 'BOTH'
 
-// PRD Madde 16 - Teklif Durumları
+// PRD Madde 16 - Teklif Durumları (Prisma + UI states)
 export type TradeOfferStatus = 
+  | 'PENDING'           // Beklemede / Yeni Teklif
+  | 'ACCEPTED'          // Kabul Edildi
   | 'SUBMITTED'         // Gönderildi
   | 'SEEN'              // Görüldü
   | 'NEGOTIATING'       // Görüşülüyor
@@ -20,6 +22,7 @@ export type TradeOfferStatus =
   | 'COMPLETED'         // Takas Tamamlandı
   | 'REJECTED'          // Reddedildi
   | 'CANCELLED'         // İptal Edildi
+
 
 export type ReportCategory = 
   | 'CASH_DEMAND'           // Nakit / Para Talebi (Sıfır Nakit İhlali)

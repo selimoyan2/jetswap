@@ -14,6 +14,7 @@ import { MatchCard } from './match-card'
 import { JetMatchEmptyState } from './jetmatch-empty-state'
 import { JetMatchLoading } from './jetmatch-loading'
 import { CreateOfferModal, TargetItemSummary } from '@/components/offers/create-offer-modal'
+import { useLanguage } from '@/i18n'
 
 interface CachedMatchData {
   matches: JetMatchResult[]
@@ -29,6 +30,7 @@ interface CachedMatchData {
 }
 
 export function JetMatchDashboard() {
+  const { t } = useLanguage()
   const router = useRouter()
   const searchParams = useSearchParams()
   const urlItemId = searchParams.get('itemId')
@@ -255,64 +257,56 @@ export function JetMatchDashboard() {
   }, [currentMatchData, activeFilter])
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col font-sans">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-emerald-900 text-white text-xs py-1.5 px-4 text-center font-bold tracking-wide flex items-center justify-center gap-2">
-        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-        <span>JetMatch — Akıllı ve Sıfır Nakit Takas Eşleştirme Motoru</span>
-      </div>
-
-      {/* Main Container */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 flex-1 w-full space-y-6 sm:space-y-8">
-        {/* Navigation & Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-zinc-800 transition-colors"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Ana Sayfa</span>
-              </Link>
-              <span className="text-zinc-300">/</span>
-              <span className="text-xs font-bold text-emerald-700">JetMatch</span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 mt-1">
-              Jet<span className="text-emerald-600">Match</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-600 font-medium mt-1">
-              Eşyaların için en uygun takas fırsatlarını keşfet.
-            </p>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
+      {/* Navigation & Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-500 hover:text-zinc-800 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{t.common.home}</span>
+            </Link>
+            <span className="text-zinc-300">/</span>
+            <span className="text-xs font-bold text-emerald-700">JetMatch</span>
           </div>
 
-          {/* Educational Box Toggle */}
-          <div className="flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-900 mt-1">
+            Jet<span className="text-emerald-600">Match</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-zinc-600 font-medium mt-1">
+            {t.jetMatch.subtitle}
+          </p>
+        </div>
+
+        {/* Educational Box Toggle */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowHowItWorks(!showHowItWorks)}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 px-3.5 py-2 rounded-xl transition-all shadow-2xs cursor-pointer"
+          >
+            <HelpCircle className="w-4 h-4 text-emerald-600" />
+            <span>{t.jetMatch.howItWorks}</span>
+            {showHowItWorks ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {selectedItemId && (
             <button
               type="button"
-              onClick={() => setShowHowItWorks(!showHowItWorks)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 px-3.5 py-2 rounded-xl transition-all shadow-2xs cursor-pointer"
+              onClick={() => reloadMatches(selectedItemId)}
+              disabled={matchesLoading}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 px-3 py-2 rounded-xl transition-all shadow-2xs cursor-pointer disabled:opacity-50"
+              title={t.jetMatch.reload}
             >
-              <HelpCircle className="w-4 h-4 text-emerald-600" />
-              <span>JetMatch Nasıl Çalışır?</span>
-              {showHowItWorks ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              <RefreshCw className={`w-3.5 h-3.5 ${matchesLoading ? 'animate-spin text-emerald-600' : ''}`} />
+              <span className="hidden sm:inline">{t.jetMatch.reload}</span>
             </button>
-
-            {selectedItemId && (
-              <button
-                type="button"
-                onClick={() => reloadMatches(selectedItemId)}
-                disabled={matchesLoading}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-zinc-700 bg-white hover:bg-zinc-100 border border-zinc-200 px-3 py-2 rounded-xl transition-all shadow-2xs cursor-pointer disabled:opacity-50"
-                title="Sonuçları Yenile"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${matchesLoading ? 'animate-spin text-emerald-600' : ''}`} />
-                <span className="hidden sm:inline">Yenile</span>
-              </button>
-            )}
-          </div>
+          )}
         </div>
+      </div>
 
         {/* Optional Educational Box */}
         {showHowItWorks && (
@@ -451,7 +445,6 @@ export function JetMatchDashboard() {
             </section>
           </div>
         )}
-      </main>
 
       {/* Real Trade Offer Modal */}
       <CreateOfferModal
