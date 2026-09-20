@@ -6,6 +6,7 @@ import { Sparkles, ArrowLeftRight, MessageSquare, ShieldCheck, Plus, Package, Se
 import { User, UserSanction } from '@/types'
 import { useLanguage } from '@/i18n'
 import { isUserTradeRestricted } from '@/data/mockReports'
+import { JetTrustDetailModal } from '@/components/jettrust'
 
 interface UserDashboardBarProps {
   currentUser: User
@@ -26,6 +27,15 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
 }) => {
   const { t } = useLanguage()
   const [restriction, setRestriction] = React.useState(() => isUserTradeRestricted(currentUser.id))
+  const [trustModalOpen, setTrustModalOpen] = React.useState(false)
+
+  const handleTrustClick = () => {
+    if (onOpenTrustVerification) {
+      onOpenTrustVerification()
+    } else {
+      setTrustModalOpen(true)
+    }
+  }
 
   React.useEffect(() => {
     const handleUpdate = () => {
@@ -62,7 +72,7 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
               
               <button
                 type="button"
-                onClick={onOpenTrustVerification}
+                onClick={handleTrustClick}
                 className="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
                 title={t.trustCenter.title}
               >
@@ -105,7 +115,7 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
           {/* JetTrust Verification modal trigger */}
           <button
             type="button"
-            onClick={onOpenTrustVerification}
+            onClick={handleTrustClick}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition-all cursor-pointer border border-amber-200/60"
           >
             <ShieldCheck className="w-4 h-4 text-amber-600" />
@@ -131,7 +141,7 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
             <span>{t.dashboardBar.myPortfolio}</span>
           </button>
 
-          {/* New Item button */}
+          {/* New Listing button */}
           <button
             onClick={onOpenCreateItem}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-black transition-all shadow-xs cursor-pointer ${
@@ -145,6 +155,13 @@ export const UserDashboardBar: React.FC<UserDashboardBarProps> = ({
           </button>
         </div>
       </div>
+
+      <JetTrustDetailModal
+        isOpen={trustModalOpen}
+        onClose={() => setTrustModalOpen(false)}
+        userId={currentUser.id}
+        userName={currentUser.name}
+      />
     </div>
   )
 }

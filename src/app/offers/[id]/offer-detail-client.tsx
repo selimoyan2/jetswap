@@ -15,7 +15,9 @@ import {
   Loader2,
   Ban,
   ArrowRightLeft,
+  Star,
 } from 'lucide-react'
+import { JetTrustBadge } from '@/components/jettrust'
 import { SerializedTradeOffer } from '@/lib/offers/types'
 import {
   OfferStatusBadge,
@@ -180,7 +182,20 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
                   {isSender ? 'Alıcı' : 'Gönderen'}
                 </span>
               </div>
-              <h2 className="text-lg font-bold text-white mt-0.5">{otherParty.name}</h2>
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                <h2 className="text-lg font-bold text-white">{otherParty.name}</h2>
+                <JetTrustBadge userId={otherParty.id} userName={otherParty.name} size="xs" />
+                {otherParty.rating !== undefined && (
+                  <span
+                    className="inline-flex items-center gap-1 text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold"
+                    title={`Kullanıcı Değerlendirmesi: ${otherParty.rating.toFixed(1)} / 5 (${otherParty.reviewCount ?? 0} değerlendirme)`}
+                  >
+                    <Star className="w-3 h-3 fill-current" />
+                    <span>{otherParty.rating.toFixed(1)}</span>
+                    <span className="text-zinc-500 font-normal">({otherParty.reviewCount ?? 0})</span>
+                  </span>
+                )}
+              </div>
               {otherParty.city && (
                 <p className="text-xs text-zinc-500 mt-0.5">
                   {otherParty.city}
