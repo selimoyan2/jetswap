@@ -3,10 +3,16 @@ set -e
 
 echo "🚀 JetSwap Container Startup..."
 
-# Safe database migration: Only applies pending migrations, NEVER drops tables or resets user data!
+# Database migration: Apply all pending migrations before starting the application server.
+# Container will fail-fast and exit if migration deploy fails.
 if [ -n "$DATABASE_URL" ]; then
-  echo "📦 Running Prisma database migration (non-destructive)..."
-  prisma migrate deploy 2>/dev/null || npx prisma migrate deploy 2>/dev/null || echo "⚠️ Migration step completed or database initializing..."
+  echo "📦 Running Prisma database migration (prisma migrate deploy)..."
+  if command -v prisma >/dev/null 2>&1; then
+    prisma migrate deploy
+  else
+    npx prisma migrate deploy
+  fi
+  echo "✅ Prisma database migration completed successfully."
 fi
 
 echo "✨ Starting Next.js Standalone Production Server on port ${PORT:-3000}..."
