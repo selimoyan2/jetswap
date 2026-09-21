@@ -1,9 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeftRight, Shield, Globe, Heart, Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
+import { ArrowLeftRight, Shield, Globe, Heart, Lock, ShieldAlert, ShieldCheck, BookOpen } from 'lucide-react'
 import { useLanguage } from '@/i18n'
+import { ForbiddenItemsModal } from '@/components/forbidden-items-modal'
 
 interface FooterProps {
   onOpenForbiddenPolicy?: () => void
@@ -11,6 +12,15 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
   const { t } = useLanguage()
+  const [isForbiddenModalOpen, setIsForbiddenModalOpen] = useState(false)
+
+  const handleForbiddenClick = () => {
+    if (onOpenForbiddenPolicy) {
+      onOpenForbiddenPolicy()
+    } else {
+      setIsForbiddenModalOpen(true)
+    }
+  }
 
   return (
     <footer className="bg-zinc-950 text-zinc-400 text-xs border-t border-zinc-800 pt-16 pb-12">
@@ -39,22 +49,28 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
             <ul className="space-y-2.5">
               <li><Link href="/#nasil-calisir" className="hover:text-emerald-400 transition-colors">{t.footer.howItWorksLink}</Link></li>
               <li><Link href="/jetmatch" className="hover:text-emerald-400 transition-colors">{t.footer.jetMatchLink}</Link></li>
-              <li><Link href="/blog" className="text-emerald-400 font-bold hover:underline">{t.footer.guidesAndBlogLink}</Link></li>
               <li><Link href="/blog/esyadan-esyaya-takas-nasil-yapilir" className="hover:text-emerald-400 transition-colors">{t.footer.howToSwapLink}</Link></li>
             </ul>
           </div>
 
-          {/* Col 3: Güvenlik, JetTrust & Kurallar */}
+          {/* Col 3: Kaynaklar & Güvenlik */}
           <div>
-            <h4 className="font-bold text-sm text-white mb-4">{t.footer.colTrust}</h4>
+            <h4 className="font-bold text-sm text-white mb-4">{t.footer.colResourcesSafety}</h4>
             <ul className="space-y-2.5">
               <li>
+                <Link href="/blog" className="hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>{t.footer.guidesAndBlog}</span>
+                </Link>
+              </li>
+              <li>
                 <button
-                  onClick={() => (onOpenForbiddenPolicy ? onOpenForbiddenPolicy() : (window.location.href = '/#kesfet'))}
+                  type="button"
+                  onClick={handleForbiddenClick}
                   className="hover:text-red-400 transition-colors flex items-center gap-1.5 text-left cursor-pointer"
                 >
                   <ShieldAlert className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                  <span>{t.footer.forbiddenPolicyLink}</span>
+                  <span>{t.footer.prohibitedItemsAndRules}</span>
                 </button>
               </li>
               <li><Link href="/blog/guvenli-elden-takas-icin-5-altin-kural" className="hover:text-emerald-400 transition-colors">{t.footer.safeHandoverGuideLink}</Link></li>
@@ -98,6 +114,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenForbiddenPolicy }) => {
           </div>
         </div>
       </div>
+      <ForbiddenItemsModal
+        isOpen={isForbiddenModalOpen}
+        onClose={() => setIsForbiddenModalOpen(false)}
+      />
     </footer>
   )
 }

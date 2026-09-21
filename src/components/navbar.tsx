@@ -10,6 +10,7 @@ import {
 import { User } from '@/types'
 import { useLanguage } from '@/i18n'
 import { ThemeToggle } from '@/theme'
+import { ForbiddenItemsModal } from '@/components/forbidden-items-modal'
 
 interface NavbarProps {
   currentUser?: User | null
@@ -42,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [unreadNotificationCount, setUnreadNotificationCount] = useState<number>(0)
   const [internalUser, setInternalUser] = useState<User | null>(null)
+  const [isForbiddenModalOpen, setIsForbiddenModalOpen] = useState(false)
   const { language, toggleLanguage, t, availableLanguages } = useLanguage()
 
   useEffect(() => {
@@ -170,10 +172,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             {t.nav.jetMatch}
           </Link>
-          <Link href="/blog" className="text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
-            <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>{t.nav.guidesAndBlog}</span>
-          </Link>
 
           {/* JetRadar Button */}
           <button
@@ -186,14 +184,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
             <Radio className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
             <span>{t.jetRadar.navbarBadge}</span>
-          </button>
-
-          <button
-            onClick={() => (onOpenForbiddenPolicy ? onOpenForbiddenPolicy() : (window.location.href = '/#kesfet'))}
-            className="text-xs font-bold text-zinc-600 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
-            <span>{t.nav.forbiddenItems}</span>
           </button>
 
           <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800 mx-1" />
@@ -548,7 +538,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
             <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-emerald-600 dark:hover:text-emerald-400 flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>{language === 'tr' ? 'Rehber & Blog' : 'Guides & Blog'}</span>
+              <span>{t.nav.guidesAndBlog}</span>
             </Link>
             <button
               onClick={() => {
@@ -563,9 +553,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 setMobileMenuOpen(false)
-                onOpenForbiddenPolicy?.()
+                if (onOpenForbiddenPolicy) {
+                  onOpenForbiddenPolicy()
+                } else {
+                  setIsForbiddenModalOpen(true)
+                }
               }}
-              className="text-left py-2 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1"
+              className="text-left py-2 hover:text-red-600 dark:hover:text-red-400 flex items-center gap-1 cursor-pointer"
             >
               <ShieldAlert className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
               <span>{t.nav.forbiddenItems}</span>
@@ -573,6 +567,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       )}
+      <ForbiddenItemsModal
+        isOpen={isForbiddenModalOpen}
+        onClose={() => setIsForbiddenModalOpen(false)}
+      />
     </header>
   )
 }

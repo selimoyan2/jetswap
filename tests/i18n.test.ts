@@ -187,6 +187,44 @@ assert(Boolean(dateStrTr) && dateStrTr.length > 0, `TR date format generated: "$
 assert(Boolean(dateStrEn) && dateStrEn.length > 0, `EN date format generated: "${dateStrEn}"`)
 assert(formatLocalizedDate('invalid-date', 'tr') === '', 'Invalid date returns empty string safely')
 
+// 8. HEADER NAVIGATION CLEANUP & FOOTER CONTRACT
+console.log('\n--- Suite 8: Header Navigation Cleanup & Resources/Safety Footer Contract ---')
+assert(tr.footer.colResourcesSafety === 'Kaynaklar & Güvenlik', 'TR footer.colResourcesSafety is "Kaynaklar & Güvenlik"')
+assert(en.footer.colResourcesSafety === 'Resources & Safety', 'EN footer.colResourcesSafety is "Resources & Safety"')
+assert(tr.footer.guidesAndBlog === 'Rehber & Blog', 'TR footer.guidesAndBlog is "Rehber & Blog"')
+assert(en.footer.guidesAndBlog === 'Guides & Blog', 'EN footer.guidesAndBlog is "Guides & Blog"')
+assert(tr.footer.prohibitedItemsAndRules === 'Yasaklı Ürünler & Kurallar', 'TR footer.prohibitedItemsAndRules is "Yasaklı Ürünler & Kurallar"')
+assert(en.footer.prohibitedItemsAndRules === 'Prohibited Items & Rules', 'EN footer.prohibitedItemsAndRules is "Prohibited Items & Rules"')
+
+import fs from 'fs'
+import path from 'path'
+
+const navbarPath = path.resolve(__dirname, '../src/components/navbar.tsx')
+const navbarContent = fs.readFileSync(navbarPath, 'utf8')
+const desktopNavMatch = navbarContent.match(/<div className="hidden lg:flex items-center gap-3">([\s\S]*?)<\/div>/)
+assert(Boolean(desktopNavMatch), 'Desktop nav section found in navbar.tsx')
+if (desktopNavMatch) {
+  const desktopNavCode = desktopNavMatch[1]
+  assert(!desktopNavCode.includes('href="/blog"'), 'Desktop nav does NOT contain /blog (Rehber & Blog)')
+  assert(!desktopNavCode.includes('forbiddenItems'), 'Desktop nav does NOT contain forbiddenItems (Yasaklı Ürünler & Kurallar)')
+  assert(desktopNavCode.includes('t.nav.howItWorks'), 'Desktop nav prioritizes Nasıl Çalışır')
+  assert(desktopNavCode.includes('t.nav.jetMatch'), 'Desktop nav prioritizes JetMatch')
+  assert(desktopNavCode.includes('t.jetRadar.navbarBadge'), 'Desktop nav prioritizes Canlı Radar')
+}
+
+// Check mobile drawer retains links
+assert(navbarContent.includes('setMobileMenuOpen(false)'), 'Mobile menu close handling exists')
+assert(navbarContent.includes('<Link href="/blog" onClick={() => setMobileMenuOpen(false)}'), 'Mobile menu retains /blog (Rehber & Blog)')
+assert(navbarContent.includes('t.nav.forbiddenItems'), 'Mobile menu retains forbiddenItems (Yasaklı Ürünler & Kurallar)')
+
+// Check Footer contract
+const footerPath = path.resolve(__dirname, '../src/components/footer.tsx')
+const footerContent = fs.readFileSync(footerPath, 'utf8')
+assert(footerContent.includes('colResourcesSafety'), 'Footer includes colResourcesSafety')
+assert(footerContent.includes('guidesAndBlog'), 'Footer includes guidesAndBlog link')
+assert(footerContent.includes('prohibitedItemsAndRules'), 'Footer includes prohibitedItemsAndRules')
+assert(footerContent.includes('ForbiddenItemsModal'), 'Footer includes ForbiddenItemsModal')
+
 console.log('\n======================================================')
 console.log(`  ALL ${passedTests}/${totalTests} TESTS PASSED SUCCESSFULLY!`)
 console.log('======================================================\n')

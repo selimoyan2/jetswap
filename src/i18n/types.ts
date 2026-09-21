@@ -73,6 +73,10 @@ export interface TranslationSchema {
     cashFreeGuarantee: string
     colPlatform: string
     colTrust: string
+    colResourcesSafety: string
+    resourcesAndSafety: string
+    guidesAndBlog: string
+    prohibitedItemsAndRules: string
     colNetwork: string
     howItWorksLink: string
     jetMatchLink: string
