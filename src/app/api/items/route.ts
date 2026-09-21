@@ -11,6 +11,8 @@ import {
 } from '@/lib/wants'
 import { ItemCondition, TradeMethod, Prisma } from '@prisma/client'
 
+import { getJetTrustForUser } from '@/lib/jettrust/service'
+
 // GET /api/items - Fetch public available swap listings with pagination & filtering
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -18,6 +20,8 @@ export async function GET(request: Request) {
   const city = searchParams.get('city')
   const search = searchParams.get('search')
   const userId = searchParams.get('userId')
+  const timeScope = searchParams.get('timeScope')
+  const userCity = searchParams.get('userCity')
   const conditionParam = searchParams.get('condition') as ItemCondition | null
   const tradeMethodParam = searchParams.get('tradeMethod') as TradeMethod | null
   
@@ -55,6 +59,22 @@ export async function GET(request: Request) {
       whereClause.tradeMethod = tradeMethodParam
     }
 
+    const now = new Date()
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+    const startOfYesterday = new Date(startOfToday.getTime() - 24 * 60 * 60 * 1000)
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+    if (timeScope === 'today') {
+      whereClause.createdAt = { gte: startOfToday }
+    } else if (timeScope === 'yesterday') {
+      whereClause.createdAt = { gte: startOfYesterday, lt: startOfToday }
+    } else if (timeScope === '7days') {
+      whereClause.createdAt = { gte: sevenDaysAgo }
+    } else if (timeScope === '30days') {
+      whereClause.createdAt = { gte: thirtyDaysAgo }
+    }
+
     if (search && search.trim() !== '') {
       const q = search.trim()
       const searchCondition: Prisma.ItemWhereInput = {
@@ -75,7 +95,7 @@ export async function GET(request: Request) {
       whereClause.AND = [...existingAnd, searchCondition]
     }
 
-    const [total, items] = await Promise.all([
+    const [total, items, countToday, countYesterday, countWeek, countMonth, countAll, countCity] = await Promise.all([
       prisma.item.count({ where: whereClause }),
       prisma.item.findMany({
         where: whereClause,
@@ -125,17 +145,70 @@ export async function GET(request: Request) {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-      })
+      }),
+      prisma.item.count({ where: { status: 'AVAILABLE', createdAt: { gte: startOfToday } } }),
+      prisma.item.count({ where: { status: 'AVAILABLE', createdAt: { gte: startOfYesterday, lt: startOfToday } } }),
+      prisma.item.count({ where: { status: 'AVAILABLE', createdAt: { gte: sevenDaysAgo } } }),
+      prisma.item.count({ where: { status: 'AVAILABLE', createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.item.count({ where: { status: 'AVAILABLE' } }),
+      userCity && userCity !== 'all'
+        ? prisma.item.count({ where: { status: 'AVAILABLE', city: { contains: userCity, mode: 'insensitive' } } })
+        : Promise.resolve(0),
     ])
+
+    // Batch resolve JetTrust and completed trades for distinct user IDs
+    const uniqueUserIds = Array.from(new Set(items.map((i) => i.userId).filter(Boolean)))
+    const trustMap = new Map<string, { score: number; completedSwaps: number; verifiedSwapper: boolean }>()
+
+    await Promise.all(
+      uniqueUserIds.map(async (uId) => {
+        try {
+          const trust = await getJetTrustForUser(uId)
+          if (trust) {
+            trustMap.set(uId, {
+              score: trust.score,
+              completedSwaps: trust.signals.completedTrades,
+              verifiedSwapper: trust.score >= 80 || trust.signals.completedTrades >= 3,
+            })
+          }
+        } catch (err) {
+          console.warn(`Failed to resolve JetTrust for user ${uId}:`, err)
+        }
+      })
+    )
+
+    const enrichedItems = items.map((item) => {
+      const trust = trustMap.get(item.userId)
+      return {
+        ...item,
+        user: item.user
+          ? {
+              ...item.user,
+              jetTrust: trust ? trust.score : 50,
+              completedSwaps: trust ? trust.completedSwaps : 0,
+              verifiedSwapper: trust ? trust.verifiedSwapper : false,
+            }
+          : null,
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      data: items,
+      data: enrichedItems,
       pagination: {
         page,
         limit,
         total,
         totalPages: Math.ceil(total / limit)
+      },
+      scopeCounts: {
+        today: countToday,
+        yesterday: countYesterday,
+        week: countWeek,
+        month: countMonth,
+        all: countAll,
+        city: countCity,
+        nearby: 0
       }
     })
   } catch (error) {
@@ -146,7 +219,8 @@ export async function GET(request: Request) {
         error: {
           code: 'FETCH_ERROR',
           message: 'İlanlar yüklenirken bir hata oluştu.'
-        }
+        },
+        data: []
       },
       { status: 500 }
     )

@@ -1,12 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { ArrowLeftRight, Search, Shield, MapPin, Zap, Sparkles, CheckCircle } from 'lucide-react'
-import { categories } from '@/data/mockData'
 import { TURKEY_CITIES } from '@/data/locations'
+import { Category } from '@/types'
 import { useLanguage } from '@/i18n'
 
 interface HeroProps {
+  categories?: Category[]
   searchQuery: string
   setSearchQuery: (val: string) => void
   selectedCategory: string
@@ -19,6 +20,7 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({
+  categories: categoriesProp,
   searchQuery,
   setSearchQuery,
   selectedCategory,
@@ -30,6 +32,26 @@ export const Hero: React.FC<HeroProps> = ({
   onOpenCreateItem,
 }) => {
   const { language, t } = useLanguage()
+  const [categoriesList, setCategoriesList] = useState<Category[]>(categoriesProp || [])
+
+  useEffect(() => {
+    if (categoriesProp && categoriesProp.length > 0) {
+      setCategoriesList(categoriesProp)
+      return
+    }
+
+    let isMounted = true
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(res => {
+        if (isMounted && res.success && Array.isArray(res.data)) {
+          setCategoriesList(res.data)
+        }
+      })
+      .catch(() => {})
+
+    return () => { isMounted = false }
+  }, [categoriesProp])
 
   return (
     <section className="relative pt-8 pb-12 overflow-hidden">
@@ -100,7 +122,7 @@ export const Hero: React.FC<HeroProps> = ({
                 className="w-full bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-2.5 text-xs text-zinc-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-semibold"
               >
                 <option value="all">{t.hero.allCities === 'All Cities' ? 'All Categories' : 'Tüm Kategoriler'}</option>
-                {categories.map(c => (
+                {categoriesList.map(c => (
                   <option key={c.slug} value={c.slug}>
                     {language === 'en' ? c.nameEn : c.nameTr}
                   </option>

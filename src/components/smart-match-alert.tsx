@@ -1,25 +1,65 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Sparkles, ArrowLeftRight, CheckCircle2, MapPin, Zap, ShieldCheck, RefreshCw, Layers, ArrowRight, UserCheck } from 'lucide-react'
-import { TradeItem } from '@/types'
-import { mockMyPortfolio, mockItems, mockSwapChains } from '@/data/mockData'
+import { TradeItem, User } from '@/types'
 import { useLanguage } from '@/i18n'
 
 interface SmartMatchAlertProps {
+  currentUser?: User | null
   onSelectTrade?: (targetItem: TradeItem, myItem: TradeItem) => void
   onSelectChain?: () => void
 }
 
-export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade, onSelectChain }) => {
+export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ currentUser, onSelectTrade, onSelectChain }) => {
   const { t, language } = useLanguage()
   const [matchMode, setMatchMode] = useState<'bilateral' | 'chain'>('bilateral')
-  const [isChainConfirmed, setIsChainConfirmed] = useState(false)
+  const [matchData, setMatchData] = useState<{
+    myItem: TradeItem
+    targetItem: TradeItem
+    score: number
+  } | null>(null)
 
-  const myItem = mockMyPortfolio[0] // Sony WH-1000XM4
-  const targetItem = mockItems[0]    // Fender Stratocaster
-  const chain = mockSwapChains[0]
+  useEffect(() => {
+    if (!currentUser) {
+      setMatchData(null)
+      return
+    }
+
+    let isMounted = true
+    fetch('/api/jetmatch?limit=1')
+      .then(res => res.json())
+      .then(res => {
+        if (!isMounted) return
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const match = res.data[0]
+          if (match.sourceItem && match.candidateItem) {
+            setMatchData({
+              myItem: match.sourceItem,
+              targetItem: match.candidateItem,
+              score: match.score || 0
+            })
+          } else {
+            setMatchData(null)
+          }
+        } else {
+          setMatchData(null)
+        }
+      })
+      .catch(() => {
+        if (isMounted) setMatchData(null)
+      })
+
+    return () => { isMounted = false }
+  }, [currentUser])
+
+  // If no logged in user or no real active match found, clean-hide
+  if (!currentUser || !matchData) {
+    return null
+  }
+
+  const { myItem, targetItem, score } = matchData
 
   return (
     <section id="eslesmeler" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-10">
@@ -170,147 +210,22 @@ export const SmartMatchAlert: React.FC<SmartMatchAlertProps> = ({ onSelectTrade,
             </div>
           </>
         ) : (
-          /* MODE 2: 3-WAY SWAP CHAIN (A -> B -> C -> A) */
-          <div>
-            <div className="bg-zinc-900/90 border border-amber-500/30 rounded-3xl p-5 sm:p-7">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-black text-amber-400 flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-amber-400" />
-                  {t.smartMatch.chainClosedLoop}
-                </span>
-                <span className="text-[11px] font-bold text-zinc-400">
-                  {t.smartMatch.chainTagline}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Node 1: Sen (Selim) */}
-                <div className="bg-zinc-800/80 border border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-700">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-emerald-500 text-zinc-900 font-black text-xs flex items-center justify-center">1</span>
-                        <span className="text-xs font-black text-white">{t.smartMatch.you}</span>
-                      </div>
-                      <span className="text-[10px] font-bold bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded">{t.smartMatch.initiator}</span>
-                    </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.itemGiven}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[0].givesItem.title}</span>
-                      </div>
-                      <div className="flex justify-center text-emerald-400 py-0.5">
-                        <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
-                      </div>
-                      <div className="bg-zinc-900/80 p-2 rounded-xl border border-emerald-500/40">
-                        <span className="text-[9px] font-bold text-emerald-400 block uppercase">{t.smartMatch.itemReceived}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[0].receivesItem.title}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    {t.smartMatch.chainDelivery1}
-                  </div>
-                </div>
-
-                {/* Node 2: Elif Kaya */}
-                <div className="bg-zinc-800/80 border border-zinc-700 rounded-2xl p-4 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-700">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-amber-500 text-zinc-900 font-black text-xs flex items-center justify-center">2</span>
-                        <span className="text-xs font-black text-white">{chain.nodes[1].user.name}</span>
-                      </div>
-                      <span className="text-[10px] font-bold bg-zinc-700 text-zinc-300 px-2 py-0.5 rounded">JT {chain.nodes[1].user.jetTrust}</span>
-                    </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.giverItem}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[1].givesItem.title}</span>
-                      </div>
-                      <div className="flex justify-center text-amber-400 py-0.5">
-                        <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
-                      </div>
-                      <div className="bg-zinc-900/80 p-2 rounded-xl border border-amber-500/40">
-                        <span className="text-[9px] font-bold text-amber-400 block uppercase">{t.smartMatch.receiverItem}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[1].receivesItem.title}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    {t.smartMatch.chainDelivery2}
-                  </div>
-                </div>
-
-                {/* Node 3: Bora Aktaş */}
-                <div className="bg-zinc-800/80 border border-zinc-700 rounded-2xl p-4 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-700">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-teal-500 text-zinc-900 font-black text-xs flex items-center justify-center">3</span>
-                        <span className="text-xs font-black text-white">{chain.nodes[2].user.name}</span>
-                      </div>
-                      <span className="text-[10px] font-bold bg-zinc-700 text-zinc-300 px-2 py-0.5 rounded">JT {chain.nodes[2].user.jetTrust}</span>
-                    </div>
-
-                    <div className="space-y-2 text-xs">
-                      <div className="bg-zinc-900/80 p-2 rounded-xl">
-                        <span className="text-[9px] font-bold text-rose-400 block uppercase">{t.smartMatch.giverItem}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[2].givesItem.title}</span>
-                      </div>
-                      <div className="flex justify-center text-teal-400 py-0.5">
-                        <ArrowRight className="w-4 h-4 rotate-90 md:rotate-0" />
-                      </div>
-                      <div className="bg-zinc-900/80 p-2 rounded-xl border border-teal-500/40">
-                        <span className="text-[9px] font-bold text-teal-400 block uppercase">{t.smartMatch.receiverItem}</span>
-                        <span className="font-bold text-white line-clamp-1">{chain.nodes[2].receivesItem.title}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-2 border-t border-zinc-700/60 text-[10px] text-zinc-400">
-                    {t.smartMatch.chainDelivery3}
-                  </div>
-                </div>
-              </div>
-
-              {/* Chain Action Bar */}
-              <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-xs text-zinc-300 flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>
-                    {t.smartMatch.chainNotice}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsChainConfirmed(!isChainConfirmed)}
-                  className={`px-6 py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
-                    isChainConfirmed
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-lg shadow-amber-500/30'
-                  }`}
-                >
-                  {isChainConfirmed ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{t.smartMatch.chainConfirmed}</span>
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-4 h-4" />
-                      <span>{t.smartMatch.chainConfirmBtn}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+          /* MODE 2: 3-WAY SWAP CHAIN (Clean placeholder when no closed loop exists) */
+          <div className="bg-zinc-900/90 border border-amber-500/30 rounded-3xl p-8 text-center">
+            <RefreshCw className="w-8 h-8 text-amber-400 mx-auto mb-3 animate-spin-slow" />
+            <h4 className="text-base font-bold text-white">
+              {language === 'en' ? 'No 3-Way Swap Loop Found' : "Aktif 3'lü Takas Döngüsü Bulunmuyor"}
+            </h4>
+            <p className="text-xs text-zinc-400 mt-1 max-w-md mx-auto">
+              {language === 'en'
+                ? 'When a multi-party circular trade is discovered matching your portfolio wants, it will appear here.'
+                : 'Portföyünüzdeki eşyalar ve isteklerinizle uyumlu döngüsel bir takas zinciri oluştuğunda burada listelenecektir.'}
+            </p>
           </div>
         )}
       </div>
     </section>
   )
 }
+
 

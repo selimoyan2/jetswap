@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { MapPin, ArrowLeftRight, Shield, Star, Sparkles, Heart, Flag, CheckCircle2, ShieldCheck } from 'lucide-react'
+import { MapPin, ArrowLeftRight, Shield, Star, Sparkles, Heart, Flag, CheckCircle2, ShieldCheck, Package } from 'lucide-react'
 import { TradeItem } from '@/types'
 import { useLanguage, getConditionLabel, getTradeMethodLabel } from '@/i18n'
 
@@ -90,14 +90,21 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 overflow-hidden shadow-xs hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group relative">
       {/* Image & Overlay Badges */}
-      <div className="relative w-full h-56 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-        <Image
-          src={item.images[0]}
-          alt={item.title}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+      <div className="relative w-full h-56 bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex items-center justify-center">
+        {item.images && item.images.length > 0 && item.images[0] ? (
+          <Image
+            src={item.images[0]}
+            alt={item.title}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-600 select-none">
+            <Package className="w-12 h-12 mb-1.5 stroke-[1.5]" />
+            <span className="text-xs font-semibold">{language === 'en' ? 'No Image' : 'Görsel Yok'}</span>
+          </div>
+        )}
 
         {/* Top Floating Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
@@ -105,7 +112,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg shadow-xs ${badgeColor}`}>
               {conditionText}
             </span>
-            {item.matchScore && (
+            {typeof item.matchScore === 'number' && item.matchScore > 0 && (
               <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-lg bg-amber-500 text-white flex items-center gap-1 shadow-xs">
                 <Sparkles className="w-2.5 h-2.5" />
                 %{item.matchScore} JetMatch
@@ -147,7 +154,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         {/* Location Badge */}
         <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1 bg-black/70 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg backdrop-blur-xs">
           <MapPin className="w-3 h-3 text-emerald-400" />
-          <span>{item.city}, {item.country}</span>
+          <span>{item.city}{item.country ? `, ${item.country}` : ''}</span>
         </div>
       </div>
 
@@ -157,8 +164,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           {/* User Row: Avatar, Name, Verified Swapper Badge & JetTrust Score */}
           <div className="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <div className="relative w-7 h-7 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
-                <Image src={item.user.avatar} alt={item.user.name} fill className="object-cover" />
+              <div className="relative w-7 h-7 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+                {item.user.avatar ? (
+                  <Image src={item.user.avatar} alt={item.user.name || 'User'} fill className="object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                    {item.user.name ? item.user.name.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                )}
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
@@ -176,10 +189,12 @@ export const ItemCard: React.FC<ItemCardProps> = ({
             </div>
 
             {/* JetTrust Score Badge */}
-            <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-lg" title={t.trustCenter.title}>
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
-              <span className="text-[11px] font-black text-emerald-900 dark:text-emerald-300">{item.user.jetTrust}/100</span>
-            </div>
+            {typeof item.user.jetTrust === 'number' && (
+              <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-lg" title={t.trustCenter.title}>
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                <span className="text-[11px] font-black text-emerald-900 dark:text-emerald-300">{item.user.jetTrust}/100</span>
+              </div>
+            )}
           </div>
 
           {/* Brand, Location (Semt/Şehir) & Time Tag */}

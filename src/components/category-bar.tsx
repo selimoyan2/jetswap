@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { categories } from '@/data/mockData'
+import React, { useState, useEffect } from 'react'
+import { Category } from '@/types'
 import { useLanguage } from '@/i18n'
 import { 
   Smartphone, Laptop, Camera, Gamepad2, Guitar, Bike, 
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 
 interface CategoryBarProps {
+  categories?: Category[]
   selectedCategory: string
   onSelectCategory: (slug: string) => void
   selectedSubCategory?: string
@@ -36,13 +37,37 @@ const iconMap: Record<string, any> = {
 }
 
 export const CategoryBar: React.FC<CategoryBarProps> = ({
+  categories: initialCategories,
   selectedCategory,
   onSelectCategory,
   selectedSubCategory = 'all',
   onSelectSubCategory
 }) => {
   const { language, t } = useLanguage()
-  const currentCategoryObj = categories.find(c => c.slug === selectedCategory)
+  const [categoriesList, setCategoriesList] = useState<Category[]>(initialCategories || [])
+
+  useEffect(() => {
+    if (initialCategories && initialCategories.length > 0) {
+      setCategoriesList(initialCategories)
+      return
+    }
+
+    let isMounted = true
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(res => {
+        if (isMounted && res.success && Array.isArray(res.data)) {
+          setCategoriesList(res.data)
+        }
+      })
+      .catch(err => {
+        console.warn('Failed to load categories:', err)
+      })
+
+    return () => { isMounted = false }
+  }, [initialCategories])
+
+  const currentCategoryObj = categoriesList.find(c => c.slug === selectedCategory)
 
   return (
     <div className="w-full space-y-2 py-3">
@@ -64,7 +89,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
             <span>{t.categories.allCategories}</span>
           </button>
 
-          {categories.map(c => {
+          {categoriesList.map(c => {
             const Icon = iconMap[c.icon] || Layers
             const isSelected = selectedCategory === c.slug
             const categoryName = language === 'en' ? c.nameEn : c.nameTr
@@ -87,7 +112,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                   isSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-zinc-100 text-zinc-500'
                 }`}>
-                  {c.count}
+                  {c.count ?? 0}
                 </span>
               </button>
             )
@@ -132,7 +157,7 @@ export const CategoryBar: React.FC<CategoryBarProps> = ({
                   }`}
                 >
                   <span>{subName}</span>
-                  {sub.count && (
+                  {typeof sub.count === 'number' && (
                     <span className={`text-[9px] px-1.5 rounded-full ${
                       isSubSelected ? 'bg-emerald-800 text-emerald-100' : 'bg-zinc-100 text-zinc-500'
                     }`}>

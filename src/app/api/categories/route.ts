@@ -1,33 +1,51 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { categories as defaultCategories } from '@/data/mockData'
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // If database connection is active, fetch from PostgreSQL
     const dbCategories = await prisma.category.findMany({
       include: {
         _count: {
-          select: { items: true }
+          select: {
+            items: {
+              where: { status: 'AVAILABLE' }
+            }
+          }
         }
-      }
+      },
+      orderBy: { nameTr: 'asc' }
     })
 
-    if (dbCategories && dbCategories.length > 0) {
-      return NextResponse.json({
-        success: true,
-        source: 'database',
-        data: dbCategories
-      })
-    }
-  } catch (err) {
-    console.warn('Database query fallback to static categories:', err)
-  }
+    const data = dbCategories.map((cat) => ({
+      id: cat.id,
+      slug: cat.slug,
+      nameTr: cat.nameTr,
+      nameEn: cat.nameEn,
+      icon: cat.icon || 'Layers',
+      description: cat.description,
+      count: cat._count.items,
+      subCategories: []
+    }))
 
-  // Graceful fallback to rich structured mock data
-  return NextResponse.json({
-    success: true,
-    source: 'static',
-    data: defaultCategories
-  })
+    return NextResponse.json({
+      success: true,
+      source: 'database',
+      data
+    })
+  } catch (err) {
+    console.error('Database query error for categories:', err)
+    return NextResponse.json(
+      {
+        success: false,
+        source: 'database',
+        error: {
+          code: 'FETCH_ERROR',
+          message: 'Kategoriler yüklenirken bir hata oluştu.'
+        },
+        data: []
+      },
+      { status: 500 }
+    )
+  }
 }
+

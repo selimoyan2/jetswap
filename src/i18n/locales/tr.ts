@@ -573,8 +573,8 @@ export const tr: TranslationSchema = {
     badge: 'Canlı Takas Pazarı',
     itemCount: 'Takaslık Eşya',
     title: 'Güncel Takas İlanları',
-    emptyTitle: 'Aramanıza Uygun Takas İlanı Bulunamadı',
-    emptyDesc: 'Farklı bir alt kategori veya arama kelimesi seçebilirsiniz.',
+    emptyTitle: 'Aktif Takas İlanı Bulunamadı',
+    emptyDesc: 'Bu filtrelere uygun aktif takas ilanı bulunamadı.',
     resetButton: 'Tüm Filtreleri Temizle'
   },
 

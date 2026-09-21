@@ -21,8 +21,8 @@ import { UserSanctionBanner } from '@/components/user-sanction-banner'
 import { SanctionRestrictionModal } from '@/components/sanction-restriction-modal'
 import { isUserTradeRestricted } from '@/data/mockReports'
 import { AdBanner } from '@/components/ads/ad-banner'
-import { mockItems, mockMyPortfolio, categories, mockCurrentUser } from '@/data/mockData'
-import { TradeItem, TimeFilterScope, LocationFilterScope, User } from '@/types'
+import { mockMyPortfolio, mockCurrentUser } from '@/data/mockData'
+import { TradeItem, TimeFilterScope, LocationFilterScope, User, Category } from '@/types'
 import { QuickTimeFilter } from '@/components/quick-time-filter'
 import FlashTradeShowcase from '@/components/flash-trade-showcase'
 import JetRadarModal from '@/components/jet-radar-modal'
@@ -32,11 +32,13 @@ import { SaveSearchModal } from '@/components/save-search-modal'
 import { useLanguage } from '@/i18n'
 
 export default function HomePage() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   // Current logged in user (null = Guest / Visitor)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 
-  const [items, setItems] = useState<TradeItem[]>(mockItems)
+  const [items, setItems] = useState<TradeItem[]>([])
+  const [isLoadingItems, setIsLoadingItems] = useState(true)
+  const [dbCategories, setDbCategories] = useState<Category[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedSubCategory, setSelectedSubCategory] = useState('all')
@@ -111,60 +113,101 @@ export default function HomePage() {
       })
       .catch(() => {})
 
-    // Fetch real listings from PostgreSQL via /api/items
+    // Fetch real listings & categories from PostgreSQL
     let isMounted = true
+    setIsLoadingItems(true)
+
+    // 1. Categories
+    fetch('/api/categories')
+      .then(res => res.json())
+      .then(data => {
+        if (!isMounted) return
+        if (data && data.success && Array.isArray(data.data)) {
+          setDbCategories(data.data)
+        }
+      })
+      .catch(err => {
+        console.warn('Categories fetch error:', err)
+      })
+
+    // 2. Items
     fetch('/api/items?limit=50')
       .then(res => res.json())
       .then(data => {
         if (!isMounted) return
-        if (data && data.success && Array.isArray(data.data) && data.data.length > 0) {
-          const mapped: TradeItem[] = data.data.map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            brand: '',
-            modelName: '',
-            description: item.description,
-            category: item.category?.slug || 'telefon',
-            subCategory: item.targetCategories?.[0] || 'genel',
-            condition: item.condition || 'GOOD',
-            tradeMethod: item.tradeMethod || 'BOTH',
-            images: item.images && item.images.length > 0 ? item.images : ['https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'],
-            city: item.city || 'İstanbul',
-            district: 'Merkez',
-            country: item.country || 'TR',
-            targetCategories: item.targetCategories || [],
-            targetSubCategories: [],
-            targetDescription: item.targetDescription || 'Her türlü mantıklı takas teklifine açığım',
-            openToOffers: true,
-            matchScore: 90,
-            valueTier: item.valueTier || 'MEDIUM',
-            user: item.user ? {
-              id: item.user.id,
-              name: item.user.name,
-              avatar: item.user.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-              country: item.user.country || 'TR',
-              city: item.user.city || 'İstanbul',
-              district: 'Merkez',
-              jetTrust: 75,
-              verifiedSwapper: false,
-              completedSwaps: 0,
-              rating: item.user.rating || 5.0,
-              reviewCount: item.user.reviewCount || 0
-            } : mockCurrentUser,
-            createdAt: new Date(item.createdAt).toLocaleDateString('tr-TR'),
-            daysAgo: 0,
-            status: 'ACTIVE',
-            likesCount: item.viewCount || 0
-          }))
+        if (data && data.success && Array.isArray(data.data)) {
+          const now = new Date()
+          const mapped: TradeItem[] = data.data.map((item: any) => {
+            const createdDate = item.createdAt ? new Date(item.createdAt) : now
+            const diffMs = now.getTime() - createdDate.getTime()
+            const daysAgo = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
+
+            return {
+              id: item.id,
+              title: item.title,
+              brand: item.wants?.[0]?.brand || '',
+              modelName: item.wants?.[0]?.model || '',
+              description: item.description || '',
+              category: item.category?.slug || 'telefon',
+              subCategory: item.targetCategories?.[0] || 'genel',
+              condition: item.condition || 'GOOD',
+              tradeMethod: item.tradeMethod || 'BOTH',
+              images: item.images && item.images.length > 0 ? item.images : [],
+              city: item.city || 'İstanbul',
+              district: '',
+              country: item.country || 'TR',
+              targetCategories: item.targetCategories || [],
+              targetSubCategories: [],
+              targetDescription: item.targetDescription || 'Her türlü mantıklı takas teklifine açığım',
+              openToOffers: true,
+              matchScore: typeof item.matchScore === 'number' ? item.matchScore : undefined,
+              valueTier: item.valueTier || 'MEDIUM',
+              user: item.user ? {
+                id: item.user.id,
+                name: item.user.name,
+                avatar: item.user.avatar || '',
+                country: item.user.country || 'TR',
+                city: item.user.city || 'İstanbul',
+                district: '',
+                jetTrust: typeof item.user.jetTrust === 'number' ? item.user.jetTrust : 50,
+                verifiedSwapper: Boolean(item.user.verifiedSwapper),
+                completedSwaps: item.user.completedSwaps || 0,
+                rating: item.user.rating || 5.0,
+                reviewCount: item.user.reviewCount || 0
+              } : {
+                id: 'system',
+                name: 'JetSwap Kullanıcısı',
+                avatar: '',
+                country: 'TR',
+                city: item.city || 'İstanbul',
+                district: '',
+                jetTrust: 50,
+                verifiedSwapper: false,
+                completedSwaps: 0,
+                rating: 5.0,
+                reviewCount: 0
+              },
+              createdAt: createdDate.toLocaleDateString(language === 'en' ? 'en-US' : 'tr-TR'),
+              daysAgo,
+              status: 'ACTIVE',
+              likesCount: item.viewCount || 0
+            }
+          })
           setItems(mapped)
+        } else {
+          setItems([])
         }
       })
       .catch(err => {
-        console.warn('Real items fetch error, using initial listings:', err)
+        console.warn('Real items fetch error:', err)
+        if (isMounted) setItems([])
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingItems(false)
       })
 
     return () => { isMounted = false }
-  }, [])
+  }, [language])
 
   const handleAuthSuccess = (user: User, isNewRegistration?: boolean) => {
     setCurrentUser(user)
@@ -396,6 +439,7 @@ export default function HomePage() {
 
         {/* Hero Section */}
         <Hero
+          categories={dbCategories}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           selectedCategory={selectedCategory}
@@ -415,6 +459,7 @@ export default function HomePage() {
 
         {/* JetMatch Smart Matching Engine Highlight */}
         <SmartMatchAlert
+          currentUser={currentUser}
           onSelectTrade={(target, myItem) => handleOpenTradeOffer(target, myItem)}
         />
 
@@ -505,6 +550,7 @@ export default function HomePage() {
 
           {/* Category Bar with Cascading Subcategories */}
           <CategoryBar
+            categories={dbCategories}
             selectedCategory={selectedCategory}
             onSelectCategory={slug => {
               setSelectedCategory(slug)
@@ -515,7 +561,13 @@ export default function HomePage() {
           />
 
           {/* Items Grid with In-Feed Organic Ad */}
-          {filteredItems.length > 0 ? (
+          {isLoadingItems ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="h-96 rounded-3xl bg-zinc-100 dark:bg-zinc-800/50 animate-pulse border border-zinc-200 dark:border-zinc-800" />
+              ))}
+            </div>
+          ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {filteredItems.slice(0, 3).map(item => (
                 <ItemCard
@@ -551,10 +603,10 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-3xl border border-zinc-200 mt-6 p-8 shadow-xs">
+            <div className="text-center py-16 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 mt-6 p-8 shadow-xs">
               <PackageOpen className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
-              <h3 className="font-extrabold text-base text-zinc-800">{t.feed.emptyTitle}</h3>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+              <h3 className="font-extrabold text-base text-zinc-800 dark:text-zinc-200">{t.feed.emptyTitle}</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
                 {t.feed.emptyDesc}
               </p>
               <button
@@ -562,11 +614,14 @@ export default function HomePage() {
                   setSelectedCategory('all')
                   setSelectedSubCategory('all')
                   setSelectedCity('all')
+                  setSelectedDistrict('all')
+                  setTimeScope('all')
+                  setLocationScope('all')
                   setSearchQuery('')
                 }}
-                className="mt-4 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer"
+                className="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer transition-colors"
               >
-                {t.common.viewAll}
+                {t.feed.resetButton}
               </button>
             </div>
           )}

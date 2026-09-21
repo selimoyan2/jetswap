@@ -572,8 +572,8 @@ export const en: TranslationSchema = {
     badge: 'Live Swap Market',
     itemCount: 'Items Available',
     title: 'Current Swap Listings',
-    emptyTitle: 'No Matching Swap Listings Found',
-    emptyDesc: 'Try selecting a different subcategory or search term.',
+    emptyTitle: 'No Active Swap Listings Found',
+    emptyDesc: 'No active swap listings match these filters.',
     resetButton: 'Reset All Filters'
   },
 

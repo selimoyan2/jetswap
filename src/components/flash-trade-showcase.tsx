@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import React, { useState, useEffect } from 'react'
 import { TradeItem } from '@/types'
@@ -104,7 +104,7 @@ export default function FlashTradeShowcase({
               {/* Image */}
               <div className="relative aspect-[16/10] rounded-xl overflow-hidden mb-3 bg-neutral-950">
                 <img
-                  src={item.images[0]}
+                  src={item.images && item.images.length > 0 && item.images[0] ? item.images[0] : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80'}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
