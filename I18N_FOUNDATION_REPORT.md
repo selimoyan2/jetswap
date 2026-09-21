@@ -133,3 +133,63 @@ The system is architected so that onboarding a new language (e.g. `de`, `fr`, `e
 3. Registering the dictionary in `src/i18n/locales/index.ts`.
 
 For RTL languages (`ar`, `fa`, `ur`), setting `direction: 'rtl'` automatically applies `dir="rtl"` to `<html>` and inverts logical margins/paddings (`ms-*`, `me-*`) without manual layout alterations.
+
+---
+
+## 5. Global Light / Dark Theme Foundation (Sprint 16)
+
+### 5.1 Architecture & Default Theme Invariant
+- **Default Visual Theme:** **LIGHT** mode is the primary baseline.
+- **Dark Mode Support:** Full optional dark theme available across all surfaces.
+- **Tailwind CSS v4 Integration:** Implemented `@custom-variant dark (&:where(.dark, .dark *));` in `src/app/globals.css` ensuring Tailwind v4 properly keys off the `.dark` selector on `<html>`.
+- **Semantic Color Tokens:** Configured CSS custom properties for `--background`, `--foreground`, `--card`, `--card-foreground`, etc., with smooth CSS transitions on `body`.
+
+### 5.2 Persistence & Zero FOUC Strategy
+- **Server-Side Cookie:** `jetswap_theme` cookie read synchronously in `src/app/layout.tsx` during SSR, applying `className="dark"` and `data-theme="dark"` to `<html>` before HTML streaming.
+- **Client-Side Storage:** `jetswap_preferred_theme` stored in `localStorage`.
+- **Pre-Hydration Script:** An inline blocking script executes in `<head>` prior to first paint:
+  ```javascript
+  (function(){try{var t=localStorage.getItem('jetswap_preferred_theme')||(document.cookie.match(/(?:^|;\s*)jetswap_theme=(light|dark)/)||[])[1];if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+  ```
+  This eliminates any flash of unstyled content (FOUC).
+
+### 5.3 Surfaces Migrated to Adaptive Light/Dark Design
+1. **Global App Shell & Navbar (`src/components/navbar.tsx`):**
+   - Theme toggle button with localized tooltips (`Açık`/`Koyu`, `Light`/`Dark`).
+   - Integrated in desktop header actions and mobile menu drawer.
+2. **Offers Index (`src/app/offers/page.tsx` & `offers-list-client.tsx`):**
+   - Replaced hardcoded dark background with adaptive `bg-zinc-50 dark:bg-zinc-950`.
+   - Card surfaces adapt between `bg-white dark:bg-zinc-900/60` with high contrast borders (`border-zinc-200 dark:border-zinc-800`).
+3. **Offer Detail (`src/app/offers/[id]/page.tsx` & `offer-detail-client.tsx`):**
+   - Adaptive background, summary headers, profile badges, and action bars.
+4. **Offer Components & Trade Workflow Panels:**
+   - `OfferCard` (`src/components/offers/offer-card.tsx`)
+   - `OfferExchangeView` (`src/components/offers/offer-exchange-view.tsx`)
+   - `OfferHistoryTimeline` (`src/components/offers/offer-history-timeline.tsx`)
+   - `TradeHandoffPanel` (`src/components/offers/trade-handoff-panel.tsx`)
+   - `TradeCompletionPanel` (`src/components/offers/trade-completion-panel.tsx`)
+   - `TradeReviewPanel` (`src/components/offers/trade-review-panel.tsx`)
+   - `OfferChat` (`src/components/messages/offer-chat.tsx`)
+   - `ItemCard` (`src/components/item-card.tsx`)
+   - `CreateOfferModal` (`src/components/offers/create-offer-modal.tsx`)
+   - `CounterOfferModal` (`src/components/offers/counter-offer-modal.tsx`)
+5. **Auxiliary Account & Search Surfaces:**
+   - `FavoritesClient` (`src/app/favorites/favorites-client.tsx`)
+   - `SavedSearchesClient` (`src/app/saved-searches/saved-searches-client.tsx`)
+   - `NotificationsClient` (`src/app/notifications/notifications-client.tsx`)
+
+### 5.4 Theme & Locale Strict Independence Matrix
+| Dimension | Theme System | Localization System |
+| :--- | :--- | :--- |
+| **State Provider** | `ThemeProvider` | `LanguageProvider` |
+| **Cookie Name** | `jetswap_theme` | `jetswap_locale` |
+| **Storage Key** | `jetswap_preferred_theme` | `jetswap_preferred_locale` |
+| **Mutual Independence** | Changing theme does not affect locale | Changing locale does not affect theme |
+| **Fallback Value** | `'light'` | `'tr'` |
+
+### 5.5 Automated Test Verification
+- `tests/theme.test.ts`: **29/29 PASSED**
+- `tests/i18n.test.ts`: **67/67 PASSED**
+- `npx tsc --noEmit`: **EXIT CODE 0**
+- `npm run build`: **EXIT CODE 0** (All 38 routes compiled & optimized)
+

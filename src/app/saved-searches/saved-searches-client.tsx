@@ -98,9 +98,9 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
         <div>
           <div className="flex items-center gap-2">
             <Bookmark className="w-6 h-6 text-emerald-600 fill-emerald-600" />
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{t.savedSearches.title}</h1>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">{t.savedSearches.title}</h1>
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
             {t.savedSearches.subtitle} ({searches.length})
           </p>
         </div>
@@ -115,20 +115,20 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
       </div>
 
       {errorMessage && (
-        <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+        <div className="mb-6 p-4 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-700 dark:text-red-400 text-xs font-medium">
           {errorMessage}
         </div>
       )}
 
       {searches.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-zinc-200 text-center max-w-lg mx-auto shadow-xs">
-          <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-12 border border-zinc-200 dark:border-zinc-800 text-center max-w-lg mx-auto shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4">
             <Bookmark className="w-8 h-8 stroke-1" />
           </div>
-          <h3 className="text-base font-extrabold text-zinc-900 mb-1">
+          <h3 className="text-base font-extrabold text-zinc-900 dark:text-zinc-100 mb-1">
             {t.savedSearches.emptyTitle}
           </h3>
-          <p className="text-xs text-zinc-500 mb-6 leading-relaxed">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
             {t.savedSearches.emptySubtitle}
           </p>
           <Link
@@ -148,7 +148,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
               return (
                 <div
                   key={s.id}
-                  className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
+                  className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
                 >
                   <div>
                     {/* Title / Rename Row */}
@@ -160,7 +160,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                             value={editName}
                             onChange={e => setEditName(e.target.value)}
                             maxLength={80}
-                            className="text-xs font-bold px-2.5 py-1.5 border border-emerald-500 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                            className="text-xs font-bold px-2.5 py-1.5 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-emerald-500 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                             autoFocus
                           />
                           <button
@@ -175,7 +175,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                           <button
                             type="button"
                             onClick={cancelEdit}
-                            className="p-1.5 rounded-lg bg-zinc-100 text-zinc-600 hover:bg-zinc-200 cursor-pointer"
+                            className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 cursor-pointer"
                             title={t.savedSearches.cancelButton}
                           >
                             <X className="w-3.5 h-3.5" />
@@ -184,7 +184,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                       ) : (
                         <div className="flex items-center gap-2 flex-1">
                           <Bookmark className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <h3 className="font-extrabold text-sm text-zinc-900 line-clamp-1">
+                          <h3 className="font-extrabold text-sm text-zinc-900 dark:text-zinc-100 line-clamp-1">
                             {s.name}
                           </h3>
                         </div>
@@ -196,7 +196,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                             type="button"
                             onClick={() => startEdit(s)}
                             disabled={isLoading}
-                            className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
                             title={t.savedSearches.rename}
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -205,7 +205,7 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                             type="button"
                             onClick={() => handleDelete(s.id)}
                             disabled={isLoading}
-                            className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors cursor-pointer"
                             title={t.savedSearches.delete}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -217,34 +217,34 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                     {/* Criteria Badges */}
                     <div className="flex flex-wrap gap-1.5">
                       {s.query && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-100 text-zinc-800 px-2.5 py-1 rounded-lg">
-                          <Search className="w-3 h-3 text-zinc-500" />
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 px-2.5 py-1 rounded-lg">
+                          <Search className="w-3 h-3 text-zinc-500 dark:text-zinc-400" />
                           <span>&quot;{s.query}&quot;</span>
                         </span>
                       )}
 
                       {s.category && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-2.5 py-1 rounded-lg">
-                          <Tag className="w-3 h-3 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 px-2.5 py-1 rounded-lg">
+                          <Tag className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                           <span>{language === 'en' && s.category.nameEn ? s.category.nameEn : s.category.nameTr}</span>
                         </span>
                       )}
 
                       {s.city && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200/60 px-2.5 py-1 rounded-lg">
-                          <MapPin className="w-3 h-3 text-blue-600" />
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60 px-2.5 py-1 rounded-lg">
+                          <MapPin className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                           <span>{s.city}</span>
                         </span>
                       )}
 
                       {s.condition && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-purple-50 text-purple-800 border border-purple-200/60 px-2.5 py-1 rounded-lg">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/60 px-2.5 py-1 rounded-lg">
                           <span>{getItemConditionLabel(s.condition, language)}</span>
                         </span>
                       )}
 
                       {s.tradeMethod && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60 px-2.5 py-1 rounded-lg">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 px-2.5 py-1 rounded-lg">
                           <span>{getTradeMethodLabel(s.tradeMethod, language)}</span>
                         </span>
                       )}
@@ -258,14 +258,14 @@ export function SavedSearchesClient({ initialSearches, userName }: SavedSearches
                   </div>
 
                   {/* Open Search Action */}
-                  <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
-                    <span className="text-[10px] text-zinc-400">
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
                       {language === 'tr' ? 'Kayıt: ' : 'Saved: '}{formatLocalizedDate(s.createdAt, language)}
                     </span>
 
                     <Link
                       href={s.searchUrl}
-                      className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-xl transition-colors shadow-2xs"
+                      className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 px-3.5 py-2 rounded-xl transition-colors shadow-2xs"
                     >
                       <span>{t.savedSearches.runSearch}</span>
                       <ExternalLink className="w-3.5 h-3.5" />

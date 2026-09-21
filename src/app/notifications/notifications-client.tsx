@@ -97,62 +97,62 @@ export function NotificationsClient({
     switch (type) {
       case NotificationType.NEW_OFFER:
         return (
-          <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <ArrowLeftRight className="w-5 h-5" />
           </div>
         );
       case NotificationType.OFFER_ACCEPTED:
         return (
-          <div className="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         );
       case NotificationType.OFFER_REJECTED:
         return (
-          <div className="w-9 h-9 rounded-xl bg-red-100 text-red-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 flex items-center justify-center shrink-0">
             <XCircle className="w-5 h-5" />
           </div>
         );
       case NotificationType.COUNTER_OFFER:
         return (
-          <div className="w-9 h-9 rounded-xl bg-cyan-100 text-cyan-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400 flex items-center justify-center shrink-0">
             <RefreshCw className="w-5 h-5" />
           </div>
         );
 
       case NotificationType.NEW_MESSAGE:
         return (
-          <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center shrink-0">
             <MessageSquare className="w-5 h-5" />
           </div>
         );
       case NotificationType.CONTACT_REVEALED:
         return (
-          <div className="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center shrink-0">
             <UserCheck className="w-5 h-5" />
           </div>
         );
       case NotificationType.TRADE_COMPLETION_REQUEST:
         return (
-          <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
             <Clock className="w-5 h-5" />
           </div>
         );
       case NotificationType.TRADE_COMPLETED:
         return (
-          <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Award className="w-5 h-5" />
           </div>
         );
       case NotificationType.NEW_REVIEW:
         return (
-          <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
             <Star className="w-5 h-5" />
           </div>
         );
       default:
         return (
-          <div className="w-9 h-9 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-400 flex items-center justify-center shrink-0">
             <Bell className="w-5 h-5" />
           </div>
         );
@@ -167,17 +167,17 @@ export function NotificationsClient({
     <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header Banner */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-zinc-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold">
                 <Bell className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-xl font-black text-zinc-900 tracking-tight">
+                <h1 className="text-xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">
                   {t.notifications.title}
                 </h1>
-                <p className="text-xs font-medium text-zinc-500">
+                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   {userName}, {t.notifications.description}
                 </p>
               </div>
@@ -188,22 +188,22 @@ export function NotificationsClient({
             <button
               onClick={handleMarkAllAsRead}
               disabled={loadingAction === 'all'}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-bold rounded-xl transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-50"
             >
-              <CheckCheck className="w-4 h-4 text-emerald-600" />
+              <CheckCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>{t.notifications.markAllRead}</span>
             </button>
           )}
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-2 border-b border-zinc-200 pb-3">
+        <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
               filter === 'all'
-                ? 'bg-zinc-900 text-white'
-                : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
+                ? 'bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900'
+                : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
             }`}
           >
             {t.notifications.tabAll} ({items.length})
@@ -213,7 +213,7 @@ export function NotificationsClient({
             className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${
               filter === 'unread'
                 ? 'bg-emerald-600 text-white'
-                : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-200'
+                : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800'
             }`}
           >
             <span>{t.notifications.tabUnread}</span>
@@ -231,16 +231,16 @@ export function NotificationsClient({
 
         {/* Notification List */}
         {displayedItems.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-zinc-200 shadow-xs space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-400 flex items-center justify-center mx-auto">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-12 text-center border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto">
               <Bell className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-sm text-zinc-800">
+            <h3 className="font-bold text-sm text-zinc-800 dark:text-zinc-200">
               {filter === 'unread'
                 ? t.notifications.emptyUnread
                 : t.notifications.emptyAll}
             </h3>
-            <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">
               {t.notifications.emptyHint}
             </p>
           </div>
@@ -253,8 +253,8 @@ export function NotificationsClient({
                   key={item.id}
                   className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                     isUnread
-                      ? 'bg-white border-emerald-200 shadow-xs ring-1 ring-emerald-500/10'
-                      : 'bg-white/80 border-zinc-200/80 text-zinc-600'
+                      ? 'bg-white dark:bg-zinc-900 border-emerald-200 dark:border-emerald-800/80 shadow-xs ring-1 ring-emerald-500/10 dark:ring-emerald-500/20'
+                      : 'bg-white/80 dark:bg-zinc-900/60 border-zinc-200/80 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                   }`}
                 >
                   <div className="flex items-start gap-3.5">
@@ -263,7 +263,7 @@ export function NotificationsClient({
                       <div className="flex items-center gap-2">
                         <h4
                           className={`text-sm font-bold tracking-tight ${
-                            isUnread ? 'text-zinc-900' : 'text-zinc-700'
+                            isUnread ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-700 dark:text-zinc-300'
                           }`}
                         >
                           {item.title}
@@ -272,10 +272,10 @@ export function NotificationsClient({
                           <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
                         )}
                       </div>
-                      <p className="text-xs text-zinc-600 leading-relaxed">
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
                         {item.message}
                       </p>
-                      <p className="text-[10px] text-zinc-400 font-medium">
+                      <p className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
                         {formatDate(item.createdAt)}
                       </p>
                     </div>
@@ -286,7 +286,7 @@ export function NotificationsClient({
                       <button
                         onClick={() => handleMarkAsRead(item.id)}
                         disabled={loadingAction === item.id}
-                        className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                        className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
                         title={t.notifications.markAsRead}
                       >
                         {t.notifications.markAsRead}

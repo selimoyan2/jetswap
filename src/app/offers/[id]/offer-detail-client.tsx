@@ -121,15 +121,15 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
 
   if (error || !offer) {
     return (
-      <div className="p-8 rounded-3xl bg-zinc-950 border border-zinc-900 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mx-auto">
+      <div className="p-8 rounded-3xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 text-center space-y-4 shadow-xs">
+        <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-500 dark:text-red-400 flex items-center justify-center mx-auto">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h3 className="text-lg font-semibold text-white">{t.common.error}</h3>
-        <p className="text-sm text-zinc-400 max-w-md mx-auto">{error || t.common.error}</p>
+        <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{t.common.error}</h3>
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-md mx-auto">{error || t.common.error}</p>
         <Link
           href="/offers"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-semibold text-white hover:border-zinc-700 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-800 dark:text-white hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-2xs"
         >
           <ArrowLeft className="w-4 h-4" />
           {t.offers.detail.backToOffers}
@@ -149,7 +149,7 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
       <div className="flex items-center justify-between">
         <Link
           href={`/offers?type=${isSender ? 'sent' : 'received'}`}
-          className="inline-flex items-center gap-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           {t.offers.detail.backToOffers}
@@ -159,42 +159,42 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
       </div>
 
       {/* Main Info Card */}
-      <div className="p-6 rounded-3xl bg-zinc-900/60 border border-zinc-800 space-y-6">
+      <div className="p-6 rounded-3xl bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-6">
         {/* Header Profile Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/80 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800/80 pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 overflow-hidden relative flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 overflow-hidden relative flex-shrink-0">
               {otherParty.avatar ? (
                 <Image src={otherParty.avatar} alt={otherParty.name} fill className="object-cover" />
               ) : (
-                <User className="w-6 h-6 text-zinc-400 m-auto mt-3" />
+                <User className="w-6 h-6 text-zinc-400 dark:text-zinc-500 m-auto mt-3" />
               )}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-zinc-400">
+                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                   {isSender ? (language === 'tr' ? 'Teklif Gönderilen Kullanıcı:' : 'Offer Sent To:') : (language === 'tr' ? 'Teklifi Gönderen Kullanıcı:' : 'Offer Received From:')}
                 </span>
-                <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                <span className="text-xs font-bold px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                   {isSender ? t.offers.card.receiver : t.offers.card.sender}
                 </span>
               </div>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                <h2 className="text-lg font-bold text-white">{otherParty.name}</h2>
+                <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{otherParty.name}</h2>
                 <JetTrustBadge userId={otherParty.id} userName={otherParty.name} size="xs" />
                 {otherParty.rating !== undefined && (
                   <span
-                    className="inline-flex items-center gap-1 text-[11px] text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full font-bold"
+                    className="inline-flex items-center gap-1 text-[11px] text-amber-500 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-2 py-0.5 rounded-full font-bold"
                     title={`Rating: ${otherParty.rating.toFixed(1)} / 5 (${otherParty.reviewCount ?? 0})`}
                   >
                     <Star className="w-3 h-3 fill-current" />
                     <span>{otherParty.rating.toFixed(1)}</span>
-                    <span className="text-zinc-500 font-normal">({otherParty.reviewCount ?? 0})</span>
+                    <span className="text-zinc-400 dark:text-zinc-500 font-normal">({otherParty.reviewCount ?? 0})</span>
                   </span>
                 )}
               </div>
               {otherParty.city && (
-                <p className="text-xs text-zinc-500 mt-0.5">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   {otherParty.city}
                   {otherParty.country ? `, ${otherParty.country}` : ''}
                 </p>
@@ -202,12 +202,12 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
             </div>
           </div>
 
-          <div className="text-right text-xs text-zinc-500">
-            <span className="flex items-center gap-1 sm:justify-end">
+          <div className="text-right text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="flex items-center gap-1 sm:justify-end font-medium">
               <Calendar className="w-3.5 h-3.5" />
               {language === 'tr' ? 'Oluşturulma:' : 'Created:'}
             </span>
-            <p className="text-zinc-400 font-medium mt-0.5">{formattedDate}</p>
+            <p className="text-zinc-700 dark:text-zinc-300 font-semibold mt-0.5">{formattedDate}</p>
           </div>
         </div>
 
@@ -216,14 +216,14 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
           <div
             className={`p-4 rounded-2xl text-xs flex items-center gap-3 ${
               actionFeedback.type === 'success'
-                ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-400 font-medium'
+                : 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 font-medium'
             }`}
           >
             {actionFeedback.type === 'success' ? (
-              <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600 dark:text-red-400" />
             )}
             <span>{actionFeedback.message}</span>
           </div>
@@ -238,21 +238,21 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
 
         {/* Offer Note */}
         {offer.note && (
-          <div className="p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 space-y-1.5">
-            <h4 className="text-xs font-semibold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-              <MessageSquare className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800/80 space-y-1.5">
+            <h4 className="text-xs font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+              <MessageSquare className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
               Teklif Notu
             </h4>
-            <p className="text-sm text-zinc-300 italic">&ldquo;{offer.note}&rdquo;</p>
+            <p className="text-sm text-zinc-800 dark:text-zinc-300 italic">&ldquo;{offer.note}&rdquo;</p>
           </div>
         )}
 
         {/* Privacy Notice: Zero Contact Reveal (Shown while contact is not revealed) */}
         {!offer.contactRevealed && (
-          <div className="p-4 rounded-2xl bg-zinc-950/40 border border-zinc-800/60 flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-zinc-400 leading-relaxed">
-              <strong className="text-zinc-200">JetSwap Güvenli Takas İlkesi:</strong> Bu aşamada kişisel
+          <div className="p-4 rounded-2xl bg-emerald-50/50 dark:bg-zinc-950/40 border border-emerald-200/60 dark:border-zinc-800/60 flex items-start gap-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-zinc-700 dark:text-zinc-400 leading-relaxed">
+              <strong className="text-zinc-900 dark:text-zinc-200">JetSwap Güvenli Takas İlkesi:</strong> Bu aşamada kişisel
               iletişim bilgileri (telefon, e-posta) gizli tutulmaktadır. Takas teklifleri karşılıklı olarak onaylanıp iki taraf da iletişim paylaşımını onaylayana kadar sistem üzerinden yönetilir.
             </div>
           </div>
@@ -293,12 +293,12 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
 
         {/* Action Buttons */}
         {offer.status === 'PENDING' && (
-          <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
             {offer.canCancel && (
               <button
                 onClick={() => handleAction('cancel')}
                 disabled={actionLoading}
-                className="px-5 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white font-semibold text-xs transition-colors flex items-center gap-2 border border-zinc-200 dark:border-zinc-700 disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -313,7 +313,7 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
               <button
                 onClick={() => setIsCounterModalOpen(true)}
                 disabled={actionLoading}
-                className="px-5 py-2.5 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 <ArrowRightLeft className="w-4 h-4" />
                 {t.offers.detail.makeCounterOffer}
@@ -324,7 +324,7 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
               <button
                 onClick={() => handleAction('reject')}
                 disabled={actionLoading}
-                className="px-5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50"
+                className="px-5 py-2.5 rounded-xl bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30 font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -339,7 +339,7 @@ export function OfferDetailClient({ offerId }: OfferDetailClientProps) {
               <button
                 onClick={() => handleAction('accept')}
                 disabled={actionLoading}
-                className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-md shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

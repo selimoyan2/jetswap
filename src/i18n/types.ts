@@ -38,7 +38,13 @@ export interface TranslationSchema {
     home: string
     explore: string
     empty: string
+    theme: string
+    lightTheme: string
+    darkTheme: string
+    switchToLight: string
+    switchToDark: string
   }
+
   nav: {
     zeroCashRibbon: string
     brandSubtitle: string

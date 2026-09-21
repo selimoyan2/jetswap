@@ -209,17 +209,17 @@ export function CounterOfferModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-2xl bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-900/40">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
               <ArrowRightLeft className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Karşı Teklif Oluştur</h2>
-              <p className="text-xs text-zinc-400">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white">Karşı Teklif Oluştur</h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
                 {counterpartyName} ile yeni takas şartlarını belirleyin.
               </p>
             </div>
@@ -228,7 +228,7 @@ export function CounterOfferModal({
           <button
             onClick={onClose}
             disabled={submitting}
-            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors"
+            className="p-2 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -238,7 +238,7 @@ export function CounterOfferModal({
         <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6 flex-1">
           {loading ? (
             <div className="h-60 flex flex-col items-center justify-center gap-3 text-zinc-500">
-              <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-emerald-600 dark:text-emerald-500" />
               <span className="text-xs">Eşyalar hazırlanıyor...</span>
             </div>
           ) : (
@@ -246,17 +246,17 @@ export function CounterOfferModal({
               {/* Section 1: User's Offered Items */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <Package className="w-4 h-4" />
                     Senin Vereceğin Eşyalar (Portföyünden)
                   </label>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
                     {selectedMyItemIds.length} seçildi
                   </span>
                 </div>
 
                 {myItems.length === 0 ? (
-                  <p className="text-xs text-zinc-500 italic p-3 rounded-xl bg-zinc-900/40 border border-zinc-800">
+                  <p className="text-xs text-zinc-500 italic p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800">
                     Portföyünüzde takasa açık (AVAILABLE) eşya bulunmuyor.
                   </p>
                 ) : (
@@ -269,11 +269,11 @@ export function CounterOfferModal({
                           onClick={() => toggleMyItem(item.id)}
                           className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all ${
                             isSelected
-                              ? 'bg-emerald-500/10 border-emerald-500 text-white'
-                              : 'bg-zinc-900/40 border-zinc-800 hover:border-zinc-700 text-zinc-300'
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500 text-zinc-900 dark:text-white'
+                              : 'bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300'
                           }`}
                         >
-                          <div className="relative w-11 h-11 rounded-lg bg-zinc-900 overflow-hidden flex-shrink-0">
+                          <div className="relative w-11 h-11 rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden flex-shrink-0">
                             {item.images?.[0] ? (
                               <Image
                                 src={item.images[0]}
@@ -282,13 +282,13 @@ export function CounterOfferModal({
                                 className="object-cover"
                               />
                             ) : (
-                              <Package className="w-5 h-5 m-auto text-zinc-600" />
+                              <Package className="w-5 h-5 m-auto text-zinc-400 dark:text-zinc-600" />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium truncate">{item.title}</p>
-                            <p className="text-[10px] text-zinc-500">
+                            <p className="text-xs font-semibold truncate">{item.title}</p>
+                            <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
                               {item.condition || 'İyi'} • {item.city || 'İstanbul'}
                             </p>
                           </div>
@@ -296,8 +296,8 @@ export function CounterOfferModal({
                           <div
                             className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
                               isSelected
-                                ? 'bg-emerald-500 border-emerald-500 text-black'
-                                : 'border-zinc-700 bg-zinc-950'
+                                ? 'bg-emerald-600 border-emerald-600 text-white'
+                                : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950'
                             }`}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -312,17 +312,17 @@ export function CounterOfferModal({
               {/* Section 2: Counterparty's Requested Items */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
                     <Package className="w-4 h-4" />
                     Karşı Taraftan İstediğin Eşyalar ({counterpartyName})
                   </label>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
                     {selectedTheirItemIds.length} seçildi
                   </span>
                 </div>
 
                 {theirItems.length === 0 ? (
-                  <p className="text-xs text-zinc-500 italic p-3 rounded-xl bg-zinc-900/40 border border-zinc-800">
+                  <p className="text-xs text-zinc-500 italic p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800">
                     Karşı tarafın takasa açık başka eşyası bulunmuyor.
                   </p>
                 ) : (
@@ -335,11 +335,11 @@ export function CounterOfferModal({
                           onClick={() => toggleTheirItem(item.id)}
                           className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-all ${
                             isSelected
-                              ? 'bg-blue-500/10 border-blue-500 text-white'
-                              : 'bg-zinc-900/40 border-zinc-800 hover:border-zinc-700 text-zinc-300'
+                              ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-500 text-zinc-900 dark:text-white'
+                              : 'bg-zinc-50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-700 dark:text-zinc-300'
                           }`}
                         >
-                          <div className="relative w-11 h-11 rounded-lg bg-zinc-900 overflow-hidden flex-shrink-0">
+                          <div className="relative w-11 h-11 rounded-lg bg-zinc-100 dark:bg-zinc-900 overflow-hidden flex-shrink-0">
                             {item.images?.[0] ? (
                               <Image
                                 src={item.images[0]}
@@ -348,13 +348,13 @@ export function CounterOfferModal({
                                 className="object-cover"
                               />
                             ) : (
-                              <Package className="w-5 h-5 m-auto text-zinc-600" />
+                              <Package className="w-5 h-5 m-auto text-zinc-400 dark:text-zinc-600" />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium truncate">{item.title}</p>
-                            <p className="text-[10px] text-zinc-500">
+                            <p className="text-xs font-semibold truncate">{item.title}</p>
+                            <p className="text-[10px] text-zinc-500 dark:text-zinc-400">
                               {item.condition || 'İyi'} • {item.city || 'İstanbul'}
                             </p>
                           </div>
@@ -362,8 +362,8 @@ export function CounterOfferModal({
                           <div
                             className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
                               isSelected
-                                ? 'bg-blue-500 border-blue-500 text-black'
-                                : 'border-zinc-700 bg-zinc-950'
+                                ? 'bg-blue-600 border-blue-600 text-white'
+                                : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950'
                             }`}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -377,7 +377,7 @@ export function CounterOfferModal({
 
               {/* Note Textarea */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-300">
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                   Karşı Teklif Notu (İsteğe bağlı)
                 </label>
                 <textarea
@@ -386,19 +386,19 @@ export function CounterOfferModal({
                   placeholder="Örn: Bu ürünle birlikte takas yapabiliriz, kargoyu ben karşılayabilirim..."
                   maxLength={1000}
                   rows={3}
-                  className="w-full resize-none rounded-xl bg-zinc-900/70 border border-zinc-800 px-3.5 py-2.5 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full resize-none rounded-xl bg-white dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 px-3.5 py-2.5 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-colors"
                 />
 
                 {/* Live validation feedback */}
                 {cashCheck.hasCashViolation && (
-                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
+                  <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     <span>{cashCheck.warningMessage}</span>
                   </div>
                 )}
 
                 {contactCheck.blocked && (
-                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs flex items-start gap-2">
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     <span>{contactCheck.warningMessage}</span>
                   </div>
@@ -407,7 +407,7 @@ export function CounterOfferModal({
 
               {/* Error Callout */}
               {errorMessage && (
-                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2">
+                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>{errorMessage}</span>
                 </div>
@@ -416,12 +416,12 @@ export function CounterOfferModal({
           )}
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white font-medium text-xs transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white font-medium text-xs transition-colors cursor-pointer"
             >
               Vazgeç
             </button>
@@ -436,7 +436,7 @@ export function CounterOfferModal({
                 cashCheck.hasCashViolation ||
                 contactCheck.blocked
               }
-              className="px-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-black font-bold text-xs transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-40 disabled:hover:bg-blue-500"
+              className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-40 disabled:hover:bg-blue-600 cursor-pointer"
             >
               {submitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

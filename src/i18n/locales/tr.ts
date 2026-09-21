@@ -29,7 +29,13 @@ export const tr: TranslationSchema = {
     home: 'Ana Sayfa',
     explore: 'Keşfet',
     empty: 'Kayıt bulunamadı',
+    theme: 'Tema',
+    lightTheme: 'Açık',
+    darkTheme: 'Koyu',
+    switchToLight: 'Açık Temaya Geç',
+    switchToDark: 'Koyu Temaya Geç',
   },
+
   nav: {
     zeroCashRibbon: '⚡ PARA YOK. TAKAS VAR. (PRD v1.0) • Kesinlikle nakit kabul edilmez. Yalnızca doğrudan eşya/hizmet takası geçerlidir.',
     brandSubtitle: 'Global Swap Network',

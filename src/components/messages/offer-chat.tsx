@@ -201,15 +201,15 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
   }
 
   return (
-    <div className="rounded-2xl bg-zinc-950/80 border border-zinc-800/80 overflow-hidden flex flex-col">
+    <div className="rounded-2xl bg-white dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800/80 overflow-hidden flex flex-col shadow-xs">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-semibold text-white">{headerTitle}</h3>
+            <MessageSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-white">{headerTitle}</h3>
           </div>
-          <p className="text-xs text-zinc-400">{headerDesc}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{headerDesc}</p>
         </div>
       </div>
 
@@ -219,17 +219,17 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
         className="p-4 space-y-4 max-h-[380px] min-h-[220px] overflow-y-auto"
       >
         {loading ? (
-          <div className="h-40 flex flex-col items-center justify-center gap-2 text-zinc-500">
-            <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
+          <div className="h-40 flex flex-col items-center justify-center gap-2 text-zinc-400 dark:text-zinc-500">
+            <Loader2 className="w-5 h-5 animate-spin text-emerald-600 dark:text-emerald-500" />
             <span className="text-xs">Mesajlar yükleniyor...</span>
           </div>
         ) : messages.length === 0 ? (
           <div className="h-40 flex flex-col items-center justify-center text-center p-6 space-y-2">
-            <div className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500">
+            <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
               <MessageSquare className="w-5 h-5" />
             </div>
-            <p className="text-sm font-medium text-zinc-300">Henüz mesaj yok.</p>
-            <p className="text-xs text-zinc-500 max-w-sm">
+            <p className="text-sm font-bold text-zinc-800 dark:text-zinc-300">Henüz mesaj yok.</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm">
               Takasla ilgili bir soru sorarak konuşmayı başlatabilirsin.
             </p>
           </div>
@@ -244,7 +244,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
                 }`}
               >
                 {!isMine && (
-                  <div className="w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700/60 flex items-center justify-center flex-shrink-0 text-zinc-400 text-xs overflow-hidden">
+                  <div className="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/60 flex items-center justify-center flex-shrink-0 text-zinc-500 dark:text-zinc-400 text-xs overflow-hidden">
                     {msg.sender.avatar ? (
                       <Image
                         src={msg.sender.avatar}
@@ -265,7 +265,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
                   }`}
                 >
                   <div
-                    className={`text-[11px] font-medium text-zinc-400 px-1 ${
+                    className={`text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 px-1 ${
                       isMine ? 'text-right' : 'text-left'
                     }`}
                   >
@@ -275,8 +275,8 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
                   <div
                     className={`rounded-2xl px-4 py-2.5 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words ${
                       isMine
-                        ? 'bg-emerald-600 text-white rounded-br-none shadow-sm shadow-emerald-950/20'
-                        : 'bg-zinc-900 text-zinc-200 border border-zinc-800 rounded-bl-none'
+                        ? 'bg-emerald-600 text-white rounded-br-none shadow-xs'
+                        : 'bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 rounded-bl-none'
                     }`}
                   >
                     {/* Render plain text safely without dangerouslySetInnerHTML */}
@@ -284,7 +284,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
                   </div>
 
                   <div
-                    className={`flex items-center gap-1 text-[10px] text-zinc-500 px-1 ${
+                    className={`flex items-center gap-1 text-[10px] text-zinc-400 dark:text-zinc-500 px-1 ${
                       isMine ? 'justify-end' : 'justify-start'
                     }`}
                   >
@@ -301,7 +301,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
 
       {/* Inline Error / Violation Alert */}
       {errorMessage && (
-        <div className="mx-4 mb-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2 animate-in fade-in">
+        <div className="mx-4 mb-2 p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-xs flex items-start gap-2 animate-in fade-in">
           <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span>{errorMessage}</span>
         </div>
@@ -311,7 +311,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
       {canSendMessage ? (
         <form
           onSubmit={handleSendMessage}
-          className="p-3 border-t border-zinc-800 bg-zinc-900/50 flex flex-col gap-2"
+          className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col gap-2"
         >
           <div className="relative">
             <textarea
@@ -325,7 +325,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
               placeholder="Bir mesaj yazın... (Enter gönderir, Shift+Enter yeni satır)"
               maxLength={2000}
               rows={2}
-              className="w-full resize-none rounded-xl bg-zinc-950 border border-zinc-800/90 px-3 py-2 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors disabled:opacity-50"
+              className="w-full resize-none rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800/90 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors disabled:opacity-50"
             />
           </div>
 
@@ -333,8 +333,8 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
             <span
               className={`text-[10px] ${
                 inputContent.length > 1900
-                  ? 'text-amber-400 font-semibold'
-                  : 'text-zinc-500'
+                  ? 'text-amber-500 font-bold'
+                  : 'text-zinc-400 dark:text-zinc-500'
               }`}
             >
               {inputContent.length}/2000
@@ -343,7 +343,7 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
             <button
               type="submit"
               disabled={!inputContent.trim() || sending}
-              className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm shadow-emerald-500/20 disabled:opacity-40 disabled:hover:bg-emerald-500"
+              className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-40 cursor-pointer"
             >
               {sending ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -355,8 +355,8 @@ export function OfferChat({ offerId, offerStatus }: OfferChatProps) {
           </div>
         </form>
       ) : (
-        <div className="p-4 border-t border-zinc-800 bg-zinc-900/30 text-center flex items-center justify-center gap-2 text-xs text-zinc-400">
-          <Lock className="w-3.5 h-3.5 text-zinc-500" />
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/30 text-center flex items-center justify-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <Lock className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500" />
           <span>Bu teklif kapandığı için yeni mesaj gönderilemez.</span>
         </div>
       )}

@@ -4,6 +4,8 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import { LanguageProvider } from "@/i18n";
 import { COOKIE_NAME, DEFAULT_LOCALE, isValidLocale, getLocaleDirection, SupportedLanguage } from "@/i18n/config";
+import { ThemeProvider } from "@/theme";
+import { THEME_COOKIE_NAME, DEFAULT_THEME, isValidTheme, Theme, THEME_STORAGE_KEY } from "@/theme/config";
 import { GlobalAppShell } from "@/components/shell/global-app-shell";
 import { WebSiteJsonLd, OrganizationJsonLd } from "@/components/seo/json-ld";
 
@@ -104,21 +106,37 @@ export default async function RootLayout({
     : DEFAULT_LOCALE;
   const direction = getLocaleDirection(initialLocale);
 
+  const rawTheme = cookieStore.get(THEME_COOKIE_NAME)?.value;
+  const initialTheme: Theme = rawTheme && isValidTheme(rawTheme)
+    ? rawTheme
+    : DEFAULT_THEME;
+
+  const isDark = initialTheme === 'dark';
+
   return (
     <html
       lang={initialLocale}
       dir={direction}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme={initialTheme}
+      className={`${geistSans.variable} ${geistMono.variable} ${isDark ? 'dark' : ''} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}')||(document.cookie.match(/(?:^|;\\s*)${THEME_COOKIE_NAME}=(light|dark)/)||[])[1];if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark');}else if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();`,
+          }}
+        />
         <WebSiteJsonLd />
         <OrganizationJsonLd />
       </head>
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900">
+      <body className="min-h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-150">
         <LanguageProvider initialLocale={initialLocale}>
-          <GlobalAppShell>
-            {children}
-          </GlobalAppShell>
+          <ThemeProvider initialTheme={initialTheme}>
+            <GlobalAppShell>
+              {children}
+            </GlobalAppShell>
+          </ThemeProvider>
         </LanguageProvider>
       </body>
     </html>

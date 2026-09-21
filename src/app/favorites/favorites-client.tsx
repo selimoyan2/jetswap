@@ -40,9 +40,9 @@ export function FavoritesClient({ initialFavorites, userName }: FavoritesClientP
         <div>
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-red-500 fill-red-500" />
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{t.favorites.title}</h1>
+            <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-100 tracking-tight">{t.favorites.title}</h1>
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
             {t.favorites.subtitle} ({favorites.length})
           </p>
         </div>
@@ -56,14 +56,14 @@ export function FavoritesClient({ initialFavorites, userName }: FavoritesClientP
       </div>
 
       {favorites.length === 0 ? (
-        <div className="bg-white rounded-3xl p-12 border border-zinc-200 text-center max-w-lg mx-auto shadow-xs">
-          <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-12 border border-zinc-200 dark:border-zinc-800 text-center max-w-lg mx-auto shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-red-50 dark:bg-red-950/40 text-red-500 flex items-center justify-center mx-auto mb-4">
             <Heart className="w-8 h-8 stroke-1" />
           </div>
-          <h3 className="text-base font-extrabold text-zinc-900 mb-1">
+          <h3 className="text-base font-extrabold text-zinc-900 dark:text-zinc-100 mb-1">
             {t.favorites.emptyTitle}
           </h3>
-          <p className="text-xs text-zinc-500 mb-6 leading-relaxed">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed">
             {t.favorites.emptySubtitle}
           </p>
           <Link
@@ -84,10 +84,10 @@ export function FavoritesClient({ initialFavorites, userName }: FavoritesClientP
               return (
                 <div
                   key={fav.id}
-                  className="bg-white rounded-3xl border border-zinc-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative"
+                  className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col group relative"
                 >
                   {/* Image & Badges */}
-                  <div className="relative w-full h-48 bg-zinc-100 overflow-hidden">
+                  <div className="relative w-full h-48 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                     <Image
                       src={imageUrl}
                       alt={item.title}
@@ -129,27 +129,27 @@ export function FavoritesClient({ initialFavorites, userName }: FavoritesClientP
                   {/* Body */}
                   <div className="p-4 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-bold mb-1">
-                        <Tag className="w-3 h-3 text-emerald-600" />
+                      <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-bold mb-1">
+                        <Tag className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         <span>{language === 'en' && item.category?.nameEn ? item.category.nameEn : (item.category?.nameTr || 'Genel')}</span>
                       </div>
-                      <h4 className="text-sm font-extrabold text-zinc-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
+                      <h4 className="text-sm font-extrabold text-zinc-900 dark:text-zinc-100 line-clamp-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                         {item.title}
                       </h4>
-                      <p className="text-xs text-zinc-500 line-clamp-2 mt-1">
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-1">
                         {item.description}
                       </p>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="pt-3 mt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
-                      <div className="text-[11px] text-zinc-500 font-medium truncate">
-                        {language === 'tr' ? 'Sahibi:' : 'Owner:'} <span className="font-bold text-zinc-800">{item.user?.name}</span>
+                    <div className="pt-3 mt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+                      <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium truncate">
+                        {language === 'tr' ? 'Sahibi:' : 'Owner:'} <span className="font-bold text-zinc-800 dark:text-zinc-200">{item.user?.name}</span>
                       </div>
 
                       <Link
                         href={`/items/${item.id}`}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline shrink-0"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 hover:underline shrink-0"
                       >
                         <span>{t.favorites.viewListing}</span>
                         <ExternalLink className="w-3.5 h-3.5" />

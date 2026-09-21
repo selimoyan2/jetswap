@@ -16,11 +16,11 @@ export default async function OffersPage() {
   }
 
   return (
-    <div className="bg-black text-white min-h-[calc(100vh-4rem)]">
+    <div className="bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 min-h-[calc(100vh-4rem)] transition-colors">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         <Suspense
           fallback={
-            <div className="py-20 text-center text-zinc-500 text-sm">
+            <div className="py-20 text-center text-zinc-500 dark:text-zinc-400 text-sm">
               Teklifler yükleniyor...
             </div>
           }

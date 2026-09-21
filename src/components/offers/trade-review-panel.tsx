@@ -75,15 +75,15 @@ export function TradeReviewPanel({
   }
 
   return (
-    <div className="bg-white text-zinc-900 rounded-3xl border border-zinc-100 shadow-sm p-6 mb-6">
+    <div className="bg-white dark:bg-zinc-900/60 text-zinc-900 dark:text-zinc-100 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xs p-6 mb-6">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
           <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
         </div>
         <div>
-          <h3 className="font-bold text-lg text-zinc-900">Takas Değerlendirmeleri</h3>
-          <p className="text-xs text-zinc-500">
+          <h3 className="font-bold text-lg text-zinc-900 dark:text-white">Takas Değerlendirmeleri</h3>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
             Takas deneyimini puanlayarak topluluğun güvenle takas yapmasına katkıda bulun.
           </p>
         </div>
@@ -91,18 +91,18 @@ export function TradeReviewPanel({
 
       {/* Review Submission Form (if user can review) */}
       {canReview && (
-        <form onSubmit={handleSubmitReview} className="mb-6 bg-zinc-50/70 border border-zinc-200/80 rounded-2xl p-5">
-          <h4 className="font-bold text-sm text-zinc-900 mb-1">
+        <form onSubmit={handleSubmitReview} className="mb-6 bg-zinc-50/70 dark:bg-zinc-950/70 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-5">
+          <h4 className="font-bold text-sm text-zinc-900 dark:text-white mb-1">
             {counterpartName} ile olan takasını değerlendir
           </h4>
-          <p className="text-xs text-zinc-500 mb-4">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
             Ürün durumu, iletişim ve teslimat sürecini 1 ile 5 yıldız arasında puanlayın.
           </p>
 
           {/* Accessible Star Rating Control */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-zinc-700 mb-2">
-              Puanınız: <span className="text-amber-600 font-bold">{hoverRating || rating} / 5</span>
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-2">
+              Puanınız: <span className="text-amber-600 dark:text-amber-400 font-bold">{hoverRating || rating} / 5</span>
             </label>
             <div className="flex items-center gap-1.5" role="radiogroup" aria-label="Takas Puanı">
               {[1, 2, 3, 4, 5].map((starVal) => {
@@ -117,13 +117,13 @@ export function TradeReviewPanel({
                     onClick={() => setRating(starVal)}
                     onMouseEnter={() => setHoverRating(starVal)}
                     onMouseLeave={() => setHoverRating(null)}
-                    className="p-1 rounded-xl hover:bg-amber-100/50 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                    className="p-1 rounded-xl hover:bg-amber-100/50 dark:hover:bg-amber-950/40 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
                   >
                     <Star
                       className={`w-7 h-7 transition-colors ${
                         isFilled
                           ? 'fill-amber-400 text-amber-400'
-                          : 'text-zinc-300 hover:text-amber-300'
+                          : 'text-zinc-300 dark:text-zinc-600 hover:text-amber-300'
                       }`}
                     />
                   </button>
@@ -135,10 +135,10 @@ export function TradeReviewPanel({
           {/* Comment Textarea */}
           <div className="mb-3">
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="review-comment" className="text-xs font-semibold text-zinc-700">
+              <label htmlFor="review-comment" className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                 Yorumunuz (İsteğe bağlı)
               </label>
-              <span className="text-xs text-zinc-400">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">
                 {comment.length} / 1000
               </span>
             </div>
@@ -150,11 +150,11 @@ export function TradeReviewPanel({
               disabled={isSubmitting}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Takas süreci nasıldı? Ürün anlatıldığı gibi miydi?"
-              className="w-full text-xs sm:text-sm p-3 rounded-xl border border-zinc-200 bg-white text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:bg-zinc-50"
+              className="w-full text-xs sm:text-sm p-3 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none disabled:opacity-50 disabled:bg-zinc-50 dark:disabled:bg-zinc-800"
             />
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-zinc-500 mb-4">
+          <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 mb-4">
             <ShieldCheck className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
             <span>
               Yorumlarda nakit para ve telefon/e-posta gibi iletişim bilgileri paylaşılamaz.
@@ -162,13 +162,13 @@ export function TradeReviewPanel({
           </div>
 
           {errorMessage && (
-            <div className="p-3 bg-red-50 text-red-700 border border-red-200 rounded-xl mb-4 text-xs font-medium">
+            <div className="p-3 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800 rounded-xl mb-4 text-xs font-medium">
               {errorMessage}
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl mb-4 text-xs font-medium flex items-center gap-2">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl mb-4 text-xs font-medium flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
               {successMessage}
             </div>
@@ -200,10 +200,10 @@ export function TradeReviewPanel({
       <div className="space-y-4">
         {/* User's Own Review */}
         {myReview && (
-          <div className="p-4 rounded-2xl border border-emerald-200 bg-emerald-50/30">
+          <div className="p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-950/20">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-900">Senin Değerlendirmen</span>
+                <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300">Senin Değerlendirmen</span>
                 <span className="text-[11px] text-zinc-400">
                   {formatLocalizedDate(myReview.createdAt, language)}
                 </span>
@@ -215,14 +215,14 @@ export function TradeReviewPanel({
                     className={`w-4 h-4 ${
                       s <= myReview.rating
                         ? 'fill-amber-400 text-amber-400'
-                        : 'text-zinc-200'
+                        : 'text-zinc-200 dark:text-zinc-700'
                     }`}
                   />
                 ))}
               </div>
             </div>
             {myReview.comment ? (
-              <p className="text-xs sm:text-sm text-zinc-700 whitespace-pre-line leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
                 {myReview.comment}
               </p>
             ) : (
@@ -235,10 +235,10 @@ export function TradeReviewPanel({
 
         {/* Counterpart's Review */}
         {otherReview && (
-          <div className="p-4 rounded-2xl border border-zinc-200 bg-zinc-50/50">
+          <div className="p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-zinc-200 overflow-hidden flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden flex items-center justify-center shrink-0">
                   {otherReview.author.avatar ? (
                     <Image
                       src={otherReview.author.avatar}
@@ -249,10 +249,10 @@ export function TradeReviewPanel({
                       unoptimized
                     />
                   ) : (
-                    <UserIcon className="w-3.5 h-3.5 text-zinc-500" />
+                    <UserIcon className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
                   )}
                 </div>
-                <span className="text-xs font-bold text-zinc-800">
+                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
                   {otherReview.author.name}&apos;in Değerlendirmesi
                 </span>
                 <span className="text-[11px] text-zinc-400">
@@ -266,14 +266,14 @@ export function TradeReviewPanel({
                     className={`w-4 h-4 ${
                       s <= otherReview.rating
                         ? 'fill-amber-400 text-amber-400'
-                        : 'text-zinc-200'
+                        : 'text-zinc-200 dark:text-zinc-700'
                     }`}
                   />
                 ))}
               </div>
             </div>
             {otherReview.comment ? (
-              <p className="text-xs sm:text-sm text-zinc-700 whitespace-pre-line leading-relaxed">
+              <p className="text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-line leading-relaxed">
                 {otherReview.comment}
               </p>
             ) : (

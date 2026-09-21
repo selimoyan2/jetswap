@@ -88,9 +88,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   const badgeColor = conditionColors[item.condition] || 'bg-zinc-600 text-white'
 
   return (
-    <div className="bg-white rounded-3xl border border-zinc-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group relative">
+    <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/90 dark:border-zinc-800 overflow-hidden shadow-xs hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col group relative">
       {/* Image & Overlay Badges */}
-      <div className="relative w-full h-56 bg-zinc-100 overflow-hidden">
+      <div className="relative w-full h-56 bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
         <Image
           src={item.images[0]}
           alt={item.title}
@@ -137,7 +137,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
               e.stopPropagation()
               onReport(item)
             }}
-            className="w-8 h-8 rounded-full bg-black/40 hover:bg-red-600 text-white flex items-center justify-center backdrop-blur-md transition-all"
+            className="w-8 h-8 rounded-full bg-black/40 hover:bg-red-600 text-white flex items-center justify-center backdrop-blur-md transition-all cursor-pointer"
             title={t.itemCard.reportItem}
           >
             <Flag className="w-3.5 h-3.5" />
@@ -155,81 +155,81 @@ export const ItemCard: React.FC<ItemCardProps> = ({
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
           {/* User Row: Avatar, Name, Verified Swapper Badge & JetTrust Score */}
-          <div className="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-zinc-100">
+          <div className="flex items-center justify-between gap-2 mb-2.5 pb-2.5 border-b border-zinc-100 dark:border-zinc-800">
             <div className="flex items-center gap-2">
-              <div className="relative w-7 h-7 rounded-full overflow-hidden border border-zinc-200 shrink-0">
+              <div className="relative w-7 h-7 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-700 shrink-0">
                 <Image src={item.user.avatar} alt={item.user.name} fill className="object-cover" />
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-zinc-800 truncate">{item.user.name}</span>
+                  <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{item.user.name}</span>
                   {item.user.verifiedSwapper && (
                     <span title={t.trustCenter.verifiedBadge}>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-zinc-400 block">
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 block">
                   {item.user.completedSwaps} {language === 'en' ? 'completed swaps' : 'başarılı takas'}
                 </span>
               </div>
             </div>
 
             {/* JetTrust Score Badge */}
-            <div className="flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg" title={t.trustCenter.title}>
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              <span className="text-[11px] font-black text-emerald-900">{item.user.jetTrust}/100</span>
+            <div className="flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-lg" title={t.trustCenter.title}>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+              <span className="text-[11px] font-black text-emerald-900 dark:text-emerald-300">{item.user.jetTrust}/100</span>
             </div>
           </div>
 
           {/* Brand, Location (Semt/Şehir) & Time Tag */}
           <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
             {item.brand && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
                 {item.brand} {item.modelName ? `• ${item.modelName}` : ''}
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-zinc-600 bg-emerald-50/70 border border-emerald-100 px-2 py-0.5 rounded">
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-zinc-600 dark:text-zinc-300 bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-800/60 px-2 py-0.5 rounded">
               <MapPin className="w-2.5 h-2.5 text-rose-500" />
               <span>{item.district ? `${item.district}, ` : ''}{item.city}</span>
             </span>
-            <span className="text-[10px] font-medium text-zinc-400 ml-auto">
+            <span className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 ml-auto">
               {item.createdAt}
             </span>
           </div>
 
           {/* Title */}
-          <h3 className="font-extrabold text-base text-zinc-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
+          <h3 className="font-extrabold text-base text-zinc-900 dark:text-white line-clamp-1 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
             {item.title}
           </h3>
 
-          <p className="text-xs text-zinc-500 mt-1 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
             {item.description}
           </p>
 
           {/* PRD Madde 8: "Ne İstiyorsun?" & "Tekliflere Açığım" */}
-          <div className="mt-4 p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/80">
+          <div className="mt-4 p-3.5 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60">
             <div className="flex items-center justify-between gap-1 mb-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-900 uppercase tracking-wide">
-                <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-700" />
+              <div className="flex items-center gap-1.5 text-[11px] font-extrabold text-emerald-900 dark:text-emerald-300 uppercase tracking-wide">
+                <ArrowLeftRight className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                 <span>{t.itemCard.wantedItem} (WANT)</span>
               </div>
               {item.openToOffers && (
-                <span className="text-[9px] font-extrabold uppercase bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded">
+                <span className="text-[9px] font-extrabold uppercase bg-emerald-200 dark:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 px-1.5 py-0.5 rounded">
                   {language === 'en' ? 'Open to Offers' : 'Tekliflere Açık'}
                 </span>
               )}
             </div>
-            <p className="text-xs font-semibold text-emerald-950 line-clamp-2">
+            <p className="text-xs font-semibold text-emerald-950 dark:text-emerald-200 line-clamp-2">
               {item.targetDescription}
             </p>
           </div>
         </div>
 
         {/* Card Footer */}
-        <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 text-[11px] text-zinc-400">
-            <Shield className="w-3.5 h-3.5 text-emerald-600" />
+        <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1 text-[11px] text-zinc-400 dark:text-zinc-500">
+            <Shield className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>{language === 'en' ? 'Protected Barter' : 'Korumalı Takas'}</span>
           </div>
 

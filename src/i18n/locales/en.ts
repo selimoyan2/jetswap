@@ -29,6 +29,11 @@ export const en: TranslationSchema = {
     home: 'Home',
     explore: 'Explore',
     empty: 'No records found',
+    theme: 'Theme',
+    lightTheme: 'Light',
+    darkTheme: 'Dark',
+    switchToLight: 'Switch to Light Mode',
+    switchToDark: 'Switch to Dark Mode',
   },
   nav: {
     zeroCashRibbon: '⚡ ZERO CASH. SWAP ONLY. (PRD v1.0) • Strictly no cash allowed. Direct item and service barter only.',

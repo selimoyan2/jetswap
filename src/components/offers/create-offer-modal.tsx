@@ -152,23 +152,23 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
   const targetImage = targetItem.images && targetItem.images.length > 0 ? targetItem.images[0] : null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-950/40">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <ArrowRightLeft className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-white">Takas Teklifi Oluştur</h3>
-              <p className="text-xs text-zinc-400">Birebir veya çoklu eşya takası teklif edin</p>
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white">Takas Teklifi Oluştur</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Birebir veya çoklu eşya takası teklif edin</p>
             </div>
           </div>
           <button
             onClick={onClose}
             disabled={submitting}
-            className="p-1 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -178,22 +178,22 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Target Item (Requested) */}
           <div>
-            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-2">
+            <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-2">
               İstediğiniz İlan (Hedef Eşya)
             </span>
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-950/80 border border-zinc-800">
-              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-zinc-800 flex-shrink-0 border border-zinc-700/50">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800">
+              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0 border border-zinc-200 dark:border-zinc-700/50">
                 {targetImage ? (
                   <Image src={targetImage} alt={targetItem.title} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                  <div className="w-full h-full flex items-center justify-center text-zinc-400">
                     <Package className="w-5 h-5" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-white line-clamp-1">{targetItem.title}</h4>
-                <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
+                <h4 className="text-sm font-semibold text-zinc-900 dark:text-white line-clamp-1">{targetItem.title}</h4>
+                <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   {targetItem.city && <span>{targetItem.city}</span>}
                   {targetItem.condition && <span>• {targetItem.condition}</span>}
                 </div>
@@ -204,19 +204,19 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
           {/* User's Available Items to Offer */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 Karşılığında Teklif Edeceğiniz Eşyalarınız ({selectedMyItemIds.length} seçildi)
               </span>
-              <span className="text-[11px] text-zinc-500">Birden fazla seçebilirsiniz</span>
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500">Birden fazla seçebilirsiniz</span>
             </div>
 
             {loadingItems ? (
               <div className="py-8 flex items-center justify-center text-zinc-500 gap-2">
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />
                 <span className="text-xs">İlanlarınız yükleniyor...</span>
               </div>
             ) : myItems.length === 0 ? (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs">
                 Takasa açık aktif bir ilanınız bulunmamaktadır. Teklif verebilmek için önce bir ilan oluşturmalısınız.
               </div>
             ) : (
@@ -229,32 +229,32 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
                       key={item.id}
                       type="button"
                       onClick={() => toggleSelectMyItem(item.id)}
-                      className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all ${
+                      className={`flex items-center gap-3 p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-500/10 border-emerald-500/40 shadow-sm'
-                          : 'bg-zinc-950/40 border-zinc-800 hover:border-zinc-700'
+                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500/50 shadow-sm'
+                          : 'bg-zinc-50 dark:bg-zinc-950/40 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                       }`}
                     >
-                      <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0 border border-zinc-700/50">
+                      <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0 border border-zinc-200 dark:border-zinc-700/50">
                         {itemImg ? (
                           <Image src={itemImg} alt={item.title} fill className="object-cover" />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-zinc-500">
+                          <div className="w-full h-full flex items-center justify-center text-zinc-400">
                             <Package className="w-4 h-4" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-white line-clamp-1">{item.title}</p>
-                        <p className="text-[11px] text-zinc-400 line-clamp-1">
+                        <p className="text-xs font-semibold text-zinc-900 dark:text-white line-clamp-1">{item.title}</p>
+                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1">
                           {item.category?.nameTr || 'Genel'}
                         </p>
                       </div>
                       <div
                         className={`w-5 h-5 rounded-md flex items-center justify-center border transition-colors ${
                           isSelected
-                            ? 'bg-emerald-500 border-emerald-500 text-black'
-                            : 'border-zinc-700 bg-zinc-800/50'
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800/50'
                         }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -268,7 +268,7 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
 
           {/* Offer Note with Cash Detection */}
           <div>
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-2">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-2">
               Teklif Notu (İsteğe Bağlı)
             </label>
             <textarea
@@ -276,13 +276,13 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Karşı tarafa iletmek istediğiniz takas notu..."
-              className="w-full px-4 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
               maxLength={1000}
             />
 
             {/* Zero Cash Warning */}
             {cashCheck.hasCashViolation && (
-              <div className="mt-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
+              <div className="mt-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>
                   Sıfır Nakit Kuralı: Notunuzda nakit para veya satış ifadeleri tespit edildi. Lütfen kaldırın.
@@ -293,26 +293,26 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
 
           {/* Feedback Messages */}
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs flex items-center gap-2">
               <Check className="w-4 h-4 flex-shrink-0" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-4 py-2 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+              className="px-4 py-2 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer"
             >
               Vazgeç
             </button>
@@ -324,7 +324,7 @@ export const CreateOfferModal: React.FC<CreateOfferModalProps> = ({
                 cashCheck.hasCashViolation ||
                 myItems.length === 0
               }
-              className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors flex items-center gap-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer shadow-xs"
             >
               {submitting ? (
                 <>
